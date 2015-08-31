@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Jsonpack
+Description: High-performance and extremely easy-to-use JSON serialization library
+Version: @VERSION@
+Libs: -L${libdir} -ljsonpack
+Cflags: -I${includedir}
