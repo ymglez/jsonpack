@@ -9,8 +9,8 @@ SET(LIB_VERSION_STRING "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VE
 
 
 IF (NOT CMAKE_BUILD_TYPE)
-    MESSAGE(STATUS "No build type selected, defaulting to release with debug info")
-    SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build Type")
+    MESSAGE(STATUS "No build type selected, defaulting to debug")
+    SET(CMAKE_BUILD_TYPE Debug CACHE STRING "Build Type")
 ENDIF ()
 
 

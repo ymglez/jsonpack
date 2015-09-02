@@ -26,6 +26,71 @@
 JSONPACK_API_BEGIN_NAMESPACE
 TYPE_BEGIN_NAMESPACE
 
+//-------------------------- CHAR* -----------------------------------
+
+template<>
+struct json_traits<char*>
+{
+
+    static void append(buffer &json, const char *key, const char* value)
+    {
+        json.append("\"" , 1);
+        json.append( key, strlen(key) ); //key
+        json.append("\":\"", 3);
+        json.append( value , strlen(value) ); //value
+        json.append("\",", 2);
+    }
+
+    static void append(buffer &json, const char* value)
+    {
+        json.append("\"", 1);
+        json.append( value , strlen(value) ); //value
+        json.append("\",", 2);
+    }
+
+};
+
+template<>
+struct json_traits<char*&>
+{
+
+    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, char* &value)
+    {
+        jsonpack::key k;
+        k._bytes = len;
+        k._ptr = key;
+
+        object_t::const_iterator found = json.find(k);
+        if( found != json.end() )    // exist the current key
+        {
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_STRING_LITERAL ||
+                     found->second._pos._type == JTK_NULL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid string value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
+        }
+    }
+
+    static void extract(const jsonpack::value &v, char* json_ptr, char* &value)
+    {
+        position p = v._pos;
+
+        if( sizeof(value) <  p._count)
+            value = (char*)malloc(p._count);
+
+        memcpy( value, json_ptr + p._pos, p._count);
+    }
+
+
+};
+
 //-------------------------- STD::STRING -----------------------------------
 
 template<>
@@ -63,23 +128,26 @@ struct json_traits<std::string&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_STRING_LITERAL ||
+                     found->second._pos._type == JTK_NULL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid std::string value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, std::string &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
-            value.resize(p._count);
-            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
-        }
-        else
-        {
-            //type error
-        }
-
+        position p = v._pos;
+        value.resize(p._count);
+        memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
     }
 
 

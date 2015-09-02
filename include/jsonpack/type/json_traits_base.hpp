@@ -77,7 +77,18 @@ struct json_traits<T&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )  // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            //Accept object or null
+            if(found->second._field == _OBJ ||
+                    ( found->second._field == _POS && found->second._pos._type == JTK_NULL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid object value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
@@ -86,13 +97,10 @@ struct json_traits<T&>
      */
     static void extract(const jsonpack::value &v, char* json_ptr, T &value)
     {
-        if(v._field == _OBJ)
+        //if not null do something
+        if( v._field != _POS )
         {
             value.json_unpack( *v._obj , json_ptr ) ;
-        }
-        else
-        {
-            //type error
         }
     }
 };

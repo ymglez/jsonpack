@@ -85,35 +85,37 @@ struct sequence_traits<Seq&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _ARR )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid array value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, Seq &value)
     {
-        if(v._field == _ARR)
+        array_t arr = *v._arr;
+        value.clear();
+
+        for(const auto &it : arr)
         {
-            array_t arr = *v._arr;
-
-            value.clear();
-
-            for(const auto &it : arr)
-            {
 #ifndef _MSC_VER
-				// Initialize before use
-				type_t val = {};
+            // Initialize before use
+            type_t val = {};
 #else
-				type_t val;
+            type_t val;
 #endif  
-                json_traits<type_t&>::extract(it, json_ptr, val);
+            json_traits<type_t&>::extract(it, json_ptr, val);
 
-                value.insert(value.end(), val); //faster way in each container
-            }
+            value.insert(value.end(), val); //faster way in each container
         }
-        else
-        {
-            //type error
-        }
+
     }
 };
 
@@ -146,34 +148,35 @@ struct json_traits<std::array<T,N>& >
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _ARR )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid array value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     
     static void extract(const jsonpack::value &v, char* json_ptr, std::array<T,N> &value)
     {
-        if(v._field == _ARR)
-        {
-            array_t arr = *v._arr;
+        array_t arr = *v._arr;
 
-            for(std::size_t i = 0 ; i < arr.size(); ++i)
-            {
+        for(std::size_t i = 0 ; i < arr.size(); ++i)
+        {
 #ifndef _MSC_VER
-				// Initialize before use
-				T val = {};
+            T val = {};
 #else
-				T val;
+            T val;
 #endif  
-                json_traits<T&>::extract(arr[i], json_ptr, val);
+            json_traits<T&>::extract(arr[i], json_ptr, val);
 
-				// array not support insert operation
-                value[i] = val;
-            }
-        }
-        else
-        {
-            //type error
+            // array not support insert operation
+            value[i] = val;
         }
     }
 
@@ -302,37 +305,39 @@ struct json_traits<std::forward_list<T>& >
         k._ptr = key;
 
         object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
+        if( found != json.end() )
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _ARR )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid array value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, std::forward_list<T> &value)
     {
-        if(v._field == _ARR)
+        array_t arr = *v._arr;
+
+        value.clear();
+
+        for(const auto &it : arr)
         {
-            array_t arr = *v._arr;
-
-            value.clear();
-
-            for(const auto &it : arr)
-            {
 #ifndef _MSC_VER
-				// Initialize before use
-				T val = {};
+            // Initialize before use
+            T val = {};
 #else
-				T val;
+            T val;
 #endif  
-                json_traits<T&>::extract(it, json_ptr, val);
+            json_traits<T&>::extract(it, json_ptr, val);
 
-				// forward_list not support insert operation
-                value.push_front(val);
-            }
-        }
-        else
-        {
-            //type error
+            // forward_list not support insert operation
+            value.push_front(val);
         }
     }
 };

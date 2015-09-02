@@ -96,7 +96,7 @@ You will need:
 
     5. Click 'Generate' button.
 
-    6. Open the created msgpack.sln on Visual Studio.
+    6. Open the created jsonpack.sln on Visual Studio.
 
     7. Build all
 

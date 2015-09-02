@@ -27,26 +27,6 @@
 
 JSONPACK_API_BEGIN_NAMESPACE
 
-enum jsonpack_token_type
-{
-    JTK_OPEN_KEY,
-    JTK_CLOSE_KEY,
-    JTK_COLON,
-    JTK_COMMA,
-    JTK_OPEN_BRACKET,
-    JTK_CLOSE_BRACKET,
-
-    JTK_STRING_LITERAL,
-
-    JTK_INTEGER,
-    JTK_REAL,
-
-    JTK_TRUE,
-    JTK_FALSE,
-    JTK_NULL,
-
-    JTK_INVALID
-};
 
 /** ****************************************************************************
  ******************************** SCANNER **************************************

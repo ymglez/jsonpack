@@ -26,7 +26,6 @@
 JSONPACK_API_BEGIN_NAMESPACE
 TYPE_BEGIN_NAMESPACE
 
-
 //-------------------------- BOOL -----------------------------------
 /**
  *  bool type traits specialization
@@ -59,22 +58,26 @@ struct json_traits<bool&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_TRUE ||
+                     found->second._pos._type == JTK_FALSE ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid boolean value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, bool &value)
+    static void extract( const jsonpack::value &v, char* json_ptr, bool &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
-            char * value_str = json_ptr+p._pos;   //pointing to the start
-            value = ( memcmp(value_str, "true", 4) == 0 )||( memcmp(value_str, "TRUE", 4) == 0 );
-        }
-        else
-        {
-            //type error
-        }
+        position p = v._pos;
+        char * value_str = json_ptr+p._pos;   //pointing to the start
+        value = ( memcmp(value_str, "true", 4) == 0 )||( memcmp(value_str, "TRUE", 4) == 0 );
     }
 
 };
@@ -123,20 +126,24 @@ struct json_traits<char&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value );
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_STRING_LITERAL ||
+                     found->second._pos._type == JTK_NULL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid char value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, char &value)
     {
-        if(v._field == _POS) // check for null
-        {
-            value = json_ptr[v._pos._pos];
-        }
-        else
-        {
-            //type error
-        }
+        value = v._pos._type != JTK_NULL ? json_ptr[v._pos._pos] : 0;
     }
 };
 //-------------------------- INT -----------------------------------
@@ -171,27 +178,34 @@ struct json_traits<int&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value );
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_INTEGER ||
+                     found->second._pos._type == JTK_REAL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid int value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
+
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, int &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
 
-            char * str_value = json_ptr+p._pos;   //pointing to the start
-            char buffer[LONG_MAX_DIGITS + 1];
-            memcpy(buffer, str_value, p._count);
-            buffer[p._count] = '\0';        //null-terminated
+        position p = v._pos;
 
-            value = atoi( buffer );             //converting value
-        }
-        else
-        {
-            //type error
-        }
+        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char buffer[LONG_MAX_DIGITS + 1];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
+
+        value = atoi( buffer );             //converting value
+
     }
 
 };
@@ -225,27 +239,32 @@ struct json_traits<unsigned int&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value );
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_INTEGER ||
+                     found->second._pos._type == JTK_REAL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid unsigned int value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, unsigned int &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
+        position p = v._pos;
 
-            char * str_value = json_ptr+p._pos;   //pointing to the start
-            char buffer[LONG_MAX_DIGITS + 1];
-            memcpy(buffer, str_value, p._count);
-            buffer[p._count] = '\0';        //null-terminated
+        //TODO check for sign
+        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char buffer[LONG_MAX_DIGITS + 1];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
 
-            value = atoi( buffer );              //converting value
-        }
-        else
-        {
-            //type error
-        }
+        value = atoi( buffer );              //converting value
     }
 };
 
@@ -279,29 +298,31 @@ struct json_traits<long&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value );
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_INTEGER ||
+                     found->second._pos._type == JTK_REAL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid long int value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, long &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
+        position p = v._pos;
 
-            char * str_value = json_ptr+p._pos;   //pointing to the start
-            char buffer[LONG_MAX_DIGITS + 1];
-            memcpy(buffer, str_value, p._count);
-            buffer[p._count] = '\0';        //null-terminated
+        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char buffer[LONG_MAX_DIGITS + 1];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
 
-            value = atol( buffer );
-
-//            value = atol( str_value );              //converting value
-        }
-        else
-        {
-            //type error
-        }
+        value = atol( buffer );
     }
 
 };
@@ -340,27 +361,32 @@ struct json_traits<unsigned long&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value );
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_INTEGER ||
+                     found->second._pos._type == JTK_REAL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid unsigned long int value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, unsigned long &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
+        position p = v._pos;
 
-            char * str_value = json_ptr+p._pos;   //pointing to the start
-            char buffer[LONG_MAX_DIGITS + 1];
-            memcpy(buffer, str_value, p._count);
-            buffer[p._count] = '\0';        //null-terminated
+        //TODO check for sign
+        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char buffer[LONG_MAX_DIGITS + 1];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
 
-            value = atol( buffer );
-        }
-        else
-        {
-            //type error
-        }
+        value = atol( buffer );
     }
 };
 

@@ -74,21 +74,52 @@ struct key_hash
 };
 
 /**
+ * JSON tokens
+ */
+enum jsonpack_token_type
+{
+    JTK_OPEN_KEY = 0,
+    JTK_CLOSE_KEY = 1,
+    JTK_COLON = 2,
+    JTK_COMMA = 3,
+    JTK_OPEN_BRACKET = 4,
+    JTK_CLOSE_BRACKET = 5,
+
+    JTK_STRING_LITERAL = 6,
+
+    JTK_INTEGER = 7,
+    JTK_REAL = 8,
+
+    JTK_TRUE = 9,
+    JTK_FALSE = 10,
+    JTK_NULL = 11,
+
+    JTK_INVALID = 12
+};
+
+
+/**
  * Position of a value in string json
  */
 struct position
 {
+    jsonpack_token_type _type;
     unsigned long _pos;
     unsigned long _count;
+
 
 #ifndef _MSC_VER
     position& operator =(const position &rvalue)
     {
+        _type = rvalue._type;
         _pos = rvalue._pos;
         _count = rvalue._count;
         return *this;
     }
+
 #endif
+
+
 
 };
 

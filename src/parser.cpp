@@ -238,6 +238,7 @@ value scanner::get_last_value(bool expect_str_literal = false)
     position vpos;
     vpos._pos = _start_token_pos + expect_str_literal;
     vpos._count = _i - _start_token_pos - 2*expect_str_literal;
+    vpos._type = JTK_INVALID; //avoiding initializer warnig
 
     p._pos = vpos;
     p._field = _POS;
@@ -336,10 +337,9 @@ bool parser::value(key k, object_t &members)
         /**
          * Add value into the map with current key
          */
-        jsonpack::value p = _s.get_last_value(_tk == JTK_STRING_LITERAL);
-        members[k] = p;
-//        members.emplace_hint(members.end(), k, p);
-//        members.insert(members.end(), std::make_pair(k, p)) ;
+        jsonpack::value val = _s.get_last_value(_tk == JTK_STRING_LITERAL);
+        val._pos._type = _tk;
+        members[k] = val;
 
         advance();
         return true;
@@ -360,9 +360,6 @@ bool parser::value(key k, object_t &members)
             p._field = _OBJ;
 
             members[k] = p;                                     // add to the map
-
-//            members.emplace_hint(members.end(), k, p);
-//            members.insert(members.end(), std::make_pair(k, p)) ;
 
             return match(JTK_CLOSE_KEY);
         }

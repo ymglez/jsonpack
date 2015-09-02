@@ -53,28 +53,31 @@ struct json_traits<float&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_INTEGER ||
+                     found->second._pos._type == JTK_REAL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid float value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, float &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
-            char * str_value = json_ptr+p._pos;   //pointing to the start
+        position p = v._pos;
+        char * str_value = json_ptr+p._pos;   //pointing to the start
 
-            char buffer[DOUBLE_MAX_DIGITS + 1];
-            memcpy(buffer, str_value, p._count);
-            buffer[p._count] = '\0';        //null-terminated
+        char buffer[DOUBLE_MAX_DIGITS + 1];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
 
-            value = atof( buffer );
-
-        }
-        else
-        {
-            //type error
-        }
+        value = atof( buffer );
     }
 
 };
@@ -106,28 +109,31 @@ struct json_traits<double&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            extract(found->second, json_ptr, value);
+            if(found->second._field == _POS &&
+                    (found->second._pos._type == JTK_INTEGER ||
+                     found->second._pos._type == JTK_REAL ) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid double value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
         }
     }
 
     static void extract(const jsonpack::value &v, char* json_ptr, double &value)
     {
-        if(v._field == _POS)
-        {
-            position p = v._pos;
-            char * str_value = json_ptr+p._pos;   //pointing to the start
+        position p = v._pos;
+        char * str_value = json_ptr+p._pos;   //pointing to the start
 
-            char buffer[DOUBLE_MAX_DIGITS + 1];
-            memcpy(buffer, str_value, p._count);
-            buffer[p._count] = '\0';        //null-terminated
+        char buffer[DOUBLE_MAX_DIGITS + 1];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
 
-            value = atof( buffer );
-        }
-        else
-        {
-            //type error
-        }
-
+        value = atof( buffer );
     }
 
 };
