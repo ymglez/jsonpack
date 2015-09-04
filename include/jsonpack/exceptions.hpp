@@ -28,42 +28,42 @@ JSONPACK_API_BEGIN_NAMESPACE
 /**
  *
  */
-class jsonpack_exception : public std::runtime_error
+class jsonpack_error : public std::runtime_error
 {
 public:
-    jsonpack_exception() : std::runtime_error(""){}
-    jsonpack_exception(const char* what): std::runtime_error(what){}
+    jsonpack_error() : std::runtime_error(""){}
+    jsonpack_error(const char* what): std::runtime_error(what){}
 };
 
 /**
  *
  */
-class invalid_json : public jsonpack_exception
+class invalid_json : public jsonpack_error
 {
 public:
     invalid_json(){}
-    invalid_json(const char* what): jsonpack_exception(what){}
+    invalid_json(const char* what): jsonpack_error(what){}
 };
 
 
 /**
  *
  */
-class type_error : public jsonpack_exception
+class type_error : public jsonpack_error
 {
 public:
     type_error(){}
-    type_error(const char* what): jsonpack_exception(what){}
+    type_error(const char* what): jsonpack_error(what){}
 };
 
 /**
  *
  */
-class alloc_error : public jsonpack_exception
+class alloc_error : public jsonpack_error
 {
 public:
     alloc_error(){}
-    alloc_error(const char* what): jsonpack_exception(what){}
+    alloc_error(const char* what): jsonpack_error(what){}
 };
 
 

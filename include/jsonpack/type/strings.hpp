@@ -34,18 +34,36 @@ struct json_traits<char*>
 
     static void append(buffer &json, const char *key, const char* value)
     {
-        json.append("\"" , 1);
-        json.append( key, strlen(key) ); //key
-        json.append("\":\"", 3);
-        json.append( value , strlen(value) ); //value
-        json.append("\",", 2);
+        if(value != nullptr)
+        {
+            json.append("\"" , 1);
+            json.append( key, strlen(key) ); //key
+            json.append("\":\"", 3);
+            json.append( value  , strlen(value) ); //value
+            json.append("\",", 2);
+        }
+        else
+        {
+            json.append("\"" , 1);
+            json.append( key, strlen(key) ); //key
+            json.append("\":", 2);
+            json.append( "null"  , 4 ); //value
+            json.append(",", 1);
+        }
     }
 
     static void append(buffer &json, const char* value)
     {
-        json.append("\"", 1);
-        json.append( value , strlen(value) ); //value
-        json.append("\",", 2);
+        if(value != nullptr)
+        {
+            json.append("\"", 1);
+            json.append( value != nullptr ? value : "null" , value != nullptr ? strlen(value) : 4 ); //value
+            json.append("\",", 2);
+        }
+        else
+        {
+            json.append( "null" , 4 ); //value
+        }
     }
 
 };
@@ -78,12 +96,21 @@ struct json_traits<char*&>
 
     static void extract(const jsonpack::value &v, char* json_ptr, char* &value)
     {
+
         position p = v._pos;
 
-        if( sizeof(value) <  p._count)
-            value = (char*)malloc(p._count);
+        if(p._type != JTK_NULL)
+        {
+            value = (char*)malloc( p._count + 1) ;
+            if(!value) throw alloc_error();
+            memcpy( value, json_ptr + p._pos, p._count);
+            value[p._count] = '\0';
+        }
+        else
+        {
+           value = nullptr;
+        }
 
-        memcpy( value, json_ptr + p._pos, p._count);
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -105,7 +132,7 @@ struct json_traits<std::string>
         json.append("\"" , 1);
         json.append( key, strlen(key) ); //key
         json.append("\":\"", 3);
-        json.append( value.c_str() , value.length() ); //value
+        json.append( value.empty() ? "null" : value.c_str() , value.empty() ? 4 : value.length() ); //value
         json.append("\",", 2);
     }
 
@@ -131,9 +158,7 @@ struct json_traits<std::string&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            if(found->second._field == _POS &&
-                    (found->second._pos._type == JTK_STRING_LITERAL ||
-                     found->second._pos._type == JTK_NULL ) )
+            if( match_token_type(found->second) )
             {
                 extract(found->second, json_ptr, value);
             }
@@ -149,8 +174,11 @@ struct json_traits<std::string&>
     static void extract(const jsonpack::value &v, char* json_ptr, std::string &value)
     {
         position p = v._pos;
-        value.resize(p._count);
-        memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
+        if(p._type != JTK_NULL)
+        {
+            value.resize(p._count);
+            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
+        }
     }
 
     static bool match_token_type(const jsonpack::value &v)
