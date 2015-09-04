@@ -427,6 +427,7 @@ bool parser::value( array_t &elemets)
          * Add value into the vector
          */
         jsonpack::value vpos = _s.get_last_value(_tk == JTK_STRING_LITERAL);
+        vpos._pos._type = _tk;
         elemets.push_back(vpos);
 
         advance();

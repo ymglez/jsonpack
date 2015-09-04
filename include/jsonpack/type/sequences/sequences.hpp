@@ -111,9 +111,15 @@ struct sequence_traits<Seq&>
 #else
             type_t val;
 #endif  
-            json_traits<type_t&>::extract(it, json_ptr, val);
-
-            value.insert(value.end(), val); //faster way in each container
+            if( json_traits<type_t&>::match_token_type(it) )
+            {
+                json_traits<type_t&>::extract(it, json_ptr, val);
+                value.insert(value.end(), val); //faster way in each container
+            }
+            else
+            {
+                throw type_error( "Array item type mismatch" );
+            }
         }
 
     }
@@ -173,10 +179,18 @@ struct json_traits<std::array<T,N>& >
 #else
             T val;
 #endif  
-            json_traits<T&>::extract(arr[i], json_ptr, val);
+            if( json_traits<T&>::match_token_type(value[i]) )
+            {
+                json_traits<T&>::extract(arr[i], json_ptr, val);
+                // array not support insert operation
+                value[i] = val;
+            }
+            else
+            {
+                throw type_error( "Array item type mismatch" );
+            }
 
-            // array not support insert operation
-            value[i] = val;
+
         }
     }
 
@@ -334,10 +348,17 @@ struct json_traits<std::forward_list<T>& >
 #else
             T val;
 #endif  
-            json_traits<T&>::extract(it, json_ptr, val);
+            if( json_traits<T&>::match_token_type(it) )
+            {
+                json_traits<T&>::extract(it, json_ptr, val);
+                // forward_list not support insert operation
+                value.push_front(val);
+            }
+            else
+            {
+                throw type_error( "Forward_list item type mismatch" );
+            }
 
-            // forward_list not support insert operation
-            value.push_front(val);
         }
     }
 };

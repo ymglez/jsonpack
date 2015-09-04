@@ -53,9 +53,7 @@ struct json_traits<float&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            if(found->second._field == _POS &&
-                    (found->second._pos._type == JTK_INTEGER ||
-                     found->second._pos._type == JTK_REAL ) )
+            if( match_token_type(found->second) )
             {
                 extract(found->second, json_ptr, value);
             }
@@ -78,6 +76,12 @@ struct json_traits<float&>
         buffer[p._count] = '\0';        //null-terminated
 
         value = atof( buffer );
+    }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _POS &&
+                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ) );
     }
 
 };
@@ -109,9 +113,7 @@ struct json_traits<double&>
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
-            if(found->second._field == _POS &&
-                    (found->second._pos._type == JTK_INTEGER ||
-                     found->second._pos._type == JTK_REAL ) )
+            if( match_token_type(found->second) )
             {
                 extract(found->second, json_ptr, value);
             }
@@ -135,6 +137,13 @@ struct json_traits<double&>
 
         value = atof( buffer );
     }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _POS &&
+                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ) );
+    }
+
 
 };
 

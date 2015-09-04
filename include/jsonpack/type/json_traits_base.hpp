@@ -66,6 +66,15 @@ template<typename T>
 struct json_traits<T&>
 {
     /**
+     *
+     */
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _OBJ ||
+                ( v._field == _POS && v._pos._type == JTK_NULL ));
+    }
+
+    /**
      * Searches for the given key and obtain the associated jsonpack::value
      */
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, T &value)
@@ -78,8 +87,7 @@ struct json_traits<T&>
         if( found != json.end() )  // exist the current key
         {
             //Accept object or null
-            if(found->second._field == _OBJ ||
-                    ( found->second._field == _POS && found->second._pos._type == JTK_NULL ) )
+            if( match_token_type(found->second) )
             {
                 extract(found->second, json_ptr, value);
             }

@@ -17,6 +17,8 @@ you only should take care about managing your C++ objects and JsonPack will make
 * Support serialization/deserialization for c++ standard containers:
   array, vector, deque, list, forward_list, set, multiset, unordered_set, unordered_multiset.
 
+* Parsing error management
+
 * JSON keys must match width C++ identifiers name convention.
 
 ## Example
