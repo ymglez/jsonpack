@@ -84,14 +84,16 @@ You will need:
  - cmake >= 2.8.0
  - gcc >= 4.7 OR msvc >= 11
 
-    # Using terminal
+    ### Using terminal
 
     $ cd jsonpack
-    $ cmake .
+	$ mkdir build
+	$ cd build
+    $ cmake .. -DCMAKE_BUILD_TYPE=Release
     $ make
     $ sudo make install
 
-    # GUI on Windows
+    ### GUI on Windows
 
     1. Launch cmake GUI client
 
