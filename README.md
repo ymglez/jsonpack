@@ -19,7 +19,7 @@ you only should take care about managing your C++ objects and JsonPack will make
 
 * Parsing error management
 
-* JSON keys must match width C++ identifiers name convention.
+* JSON keys match width C++ identifiers name convention.
 
 ## Example
 ----------
@@ -35,7 +35,7 @@ you only should take care about managing your C++ objects and JsonPack will make
     char caracter = 0;
     char *cstr = (char*)"Hello world";
 
-    // The defined members will be the JSON attributes set
+    // The defined members, will be the JSON attributes set
     // Pairs <"key" : value>, are: <"member-name" : member-value >
     DEFINE_JSON_ATTRIBUTES(mFloat, mInt, mCad, isObject, caracter, cstr)
   };
@@ -56,7 +56,7 @@ you only should take care about managing your C++ objects and JsonPack will make
     char* serialized = src.json_pack();
     printf("json: \n%s\n", serialized);
 
-    //deserialize object
+    //deserialize json
     try
     {
       out.json_unpack(serialized, strlen(serialized) );

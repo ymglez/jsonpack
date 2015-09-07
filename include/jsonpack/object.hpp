@@ -119,8 +119,6 @@ struct position
 
 #endif
 
-
-
 };
 
 

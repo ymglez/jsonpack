@@ -339,7 +339,8 @@ bool parser::value(key k, object_t &members)
          */
         jsonpack::value val = _s.get_last_value(_tk == JTK_STRING_LITERAL);
         val._pos._type = _tk;
-        members[k] = val;
+//        members[k] = val;
+        members.emplace_hint(members.end(), k, val);
 
         advance();
         return true;
@@ -359,7 +360,8 @@ bool parser::value(key k, object_t &members)
             p._obj = new_obj;
             p._field = _OBJ;
 
-            members[k] = p;                                     // add to the map
+//            members[k] = p;                                     // add to the map
+            members.emplace_hint(members.end(), k, p);
 
             return match(JTK_CLOSE_KEY);
         }
@@ -381,8 +383,8 @@ bool parser::value(key k, object_t &members)
             p._arr = new_array;
             p._field = _ARR;
 
-            members[k] = p;                                     // add to the map
-//            members.insert(members.end(), std::make_pair(k, p)) ;
+//            members[k] = p;                                     // add to the map
+            members.emplace_hint(members.end(), k, p);
 
             return match(JTK_CLOSE_BRACKET);
         }
@@ -428,7 +430,8 @@ bool parser::value( array_t &elemets)
          */
         jsonpack::value vpos = _s.get_last_value(_tk == JTK_STRING_LITERAL);
         vpos._pos._type = _tk;
-        elemets.push_back(vpos);
+//        elemets.push_back(vpos);
+        elemets.emplace_back(vpos);
 
         advance();
         return true;
@@ -448,7 +451,8 @@ bool parser::value( array_t &elemets)
             p._obj = new_obj;
             p._field = _OBJ;
 
-            elemets.push_back(p);                               // add to the map
+//            elemets.push_back(p);                               // add to the map
+            elemets.emplace_back(p);
 
             return match(JTK_CLOSE_KEY);
         }
@@ -470,7 +474,8 @@ bool parser::value( array_t &elemets)
             p._arr = new_array;
             p._field = _ARR;
 
-            elemets.push_back(p);                               // add to the vector
+//            elemets.push_back(p);                               // add to the vector
+            elemets.emplace_back(p);
 
             return match(JTK_CLOSE_BRACKET);
         }
