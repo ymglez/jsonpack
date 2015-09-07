@@ -19,7 +19,7 @@ you only should take care about managing your C++ objects and JsonPack will make
 
 * Parsing error management
 
-* JSON keys match width C++ identifiers name convention.
+* JSON keys match with C++ identifiers name convention.
 
 ## Example
 ----------
