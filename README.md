@@ -24,10 +24,10 @@ you only should take care about managing your C++ objects and JsonPack will make
 ## Example
 ----------
 
-  #include <jsonpack.hpp>
+#include <jsonpack.hpp>
 
-  struct  DataObject
-  {
+struct  DataObject
+{
     int mInt = 0;
     float mFloat = 0.0;
     std::string mCad = "";
@@ -38,10 +38,10 @@ you only should take care about managing your C++ objects and JsonPack will make
     // The defined members, will be the JSON attributes set
     // Pairs <"key" : value>, are: <"member-name" : member-value >
     DEFINE_JSON_ATTRIBUTES(mFloat, mInt, mCad, isObject, caracter, cstr)
-  };
+};
 
-  int main()
-  {
+int main()
+{
 
     // manage my object
     DataObject src, out;
@@ -74,7 +74,7 @@ you only should take care about managing your C++ objects and JsonPack will make
     getchar();
 
     return 0;
-  }
+}
 
 ## Build
 --------

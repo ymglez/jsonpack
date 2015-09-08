@@ -102,6 +102,8 @@ struct parser
     static bool json_validate(const char *json, const std::size_t &len, object_t & members);
     static bool json_validate(const char *json,const std::size_t &len, array_t &elemets );
 
+    static std::string error_;
+
 private:
     static bool match(const jsonpack_token_type &token);
 

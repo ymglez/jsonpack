@@ -17,6 +17,13 @@
  *  limitations under the License.
  */
 
+
+#define STRINGIFY(str) #str
+
+#define JSONPACK_ERROR_UNEXPECTED( expect, found, pos ) \
+    std::string("Expected ") + STRINGIFY(expect) + std::string(", and found ") \
+    + STRINGIFY(found) + std::string(" at ") + STRINGIFY(pos)
+
 #include <string.h>
 
 #include "jsonpack/exceptions.hpp"
@@ -25,6 +32,28 @@
 
 
 JSONPACK_API_BEGIN_NAMESPACE
+
+
+static const std::string token_str[] =
+{
+    "{",
+    "}",
+    ":",
+    ",",
+    "[",
+    "]",
+    "String Literal",
+
+    "Integer",
+    "Real",
+
+    "BOOLEAN",
+    "BOOLEAN",
+    "NULL",
+
+    "Invalid Token"
+};
+
 
 
 /** ****************************************************************************
@@ -253,13 +282,19 @@ value scanner::get_last_value(bool expect_str_literal = false)
 
 jsonpack_token_type parser::_tk;
 scanner parser::_s;
+std::string parser::error_;
 
 //---------------------------------------------------------------------------------------------------
 bool parser::match(const jsonpack_token_type &token)
 {
-    register bool ret = (_tk == token);
+    register bool ok = (_tk == token);
     advance();
-    return ret;
+    if(!ok)
+        error_ = std::string("Expect \"") + token_str[token] +
+                std::string("\", but found \"") + token_str[_tk] +
+                "\"" ;
+
+    return ok;
 }
 
 
@@ -273,6 +308,8 @@ void parser::advance()
 bool parser::json_validate(const char *json,const std::size_t &len, object_t &members )
 {
 
+    error_ = "";
+
     _s.init(json, len);
     advance();
 
@@ -282,6 +319,8 @@ bool parser::json_validate(const char *json,const std::size_t &len, object_t &me
 //---------------------------------------------------------------------------------------------------
 bool parser::json_validate(const char *json,const std::size_t &len, array_t &elemets )
 {
+    error_ = "";
+
     _s.init(json, len);
     advance();
 
@@ -320,6 +359,9 @@ bool parser::item(object_t &members)
         advance();
         return match(JTK_COLON) && value(k, members); // : value
     }
+    error_ = std::string("Expect key \"") + token_str[JTK_STRING_LITERAL] +
+            std::string("\", but found \"") + token_str[_tk] +
+            "\"" ;
     return false;
 }
 
@@ -392,6 +434,8 @@ bool parser::value(key k, object_t &members)
         return false;
     }
 
+    error_ = std::string("Expect valid JSON value , but found \"") +
+            token_str[_tk] + "\"" ;
     return false;
 }
 
@@ -483,6 +527,8 @@ bool parser::value( array_t &elemets)
         return false;
     }
 
+    error_ = std::string("Expect valid JSON value , but found \"") +
+            token_str[_tk] + "\"" ;
     return false;
 }
 

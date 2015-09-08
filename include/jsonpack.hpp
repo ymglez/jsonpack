@@ -58,7 +58,7 @@
          {                                                              \
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
             jsonpack::clean_object(_members);                           \
-        }else{throw jsonpack::invalid_json();}                          \
+        }else{throw jsonpack::invalid_json(jsonpack::parser::error_.c_str());}                          \
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
     {                                                                   \
