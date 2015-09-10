@@ -290,10 +290,14 @@ bool parser::match(const jsonpack_token_type &token)
     register bool ok = (_tk == token);
     advance();
     if(!ok)
-        error_ = std::string("Expect \"") + token_str[token] +
-                std::string("\", but found \"") + token_str[_tk] +
-                "\"" ;
+	{
+        error_ = "Expect \"";
+		error_.append( token_str[token] );
 
+		error_.append("\", but found \""); 
+		error_.append( token_str[_tk] );
+		error_.append("\"") ;
+	}
     return ok;
 }
 
@@ -359,9 +363,14 @@ bool parser::item(object_t &members)
         advance();
         return match(JTK_COLON) && value(k, members); // : value
     }
-    error_ = std::string("Expect key \"") + token_str[JTK_STRING_LITERAL] +
-            std::string("\", but found \"") + token_str[_tk] +
-            "\"" ;
+		
+    error_ = "Expect key \"";
+	error_.append( token_str[JTK_STRING_LITERAL] );
+
+	error_.append("\", but found \""); 
+	error_.append( token_str[_tk] );
+	error_.append("\"") ;
+
     return false;
 }
 
@@ -434,8 +443,10 @@ bool parser::value(key k, object_t &members)
         return false;
     }
 
-    error_ = std::string("Expect valid JSON value , but found \"") +
-            token_str[_tk] + "\"" ;
+	error_ = "Expect valid JSON value , but found \"";
+	error_.append( token_str[_tk] );
+	error_.append("\"") ;
+
     return false;
 }
 
@@ -527,8 +538,10 @@ bool parser::value( array_t &elemets)
         return false;
     }
 
-    error_ = std::string("Expect valid JSON value , but found \"") +
-            token_str[_tk] + "\"" ;
+	error_ = "Expect valid JSON value , but found \"";
+	error_.append( token_str[_tk] );
+	error_.append("\"") ;
+
     return false;
 }
 

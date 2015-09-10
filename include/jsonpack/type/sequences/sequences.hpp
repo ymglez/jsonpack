@@ -179,7 +179,7 @@ struct json_traits<std::array<T,N>& >
 #else
             T val;
 #endif  
-            if( json_traits<T&>::match_token_type(value[i]) )
+            if( json_traits<T&>::match_token_type(arr[i]) )
             {
                 json_traits<T&>::extract(arr[i], json_ptr, val);
                 // array not support insert operation
