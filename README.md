@@ -4,7 +4,7 @@ JsonPack
 -----------
 
 JsonPack is a high-performance and extremely easy-to-use JSON serialization
-library for c++ 11, it provide a absolute abstraction layer of this Data Interchange Format. From now on,
+library for C++ 11, it provide a absolute abstraction layer of this Data Interchange Format. From now on,
 you only should take care about managing your C++ objects and JsonPack will make the rest.
 
 ## Features

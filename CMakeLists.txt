@@ -56,6 +56,7 @@ LIST (APPEND jsonpack_HEADERS
     include/jsonpack/object.hpp
     include/jsonpack/parser.hpp
     include/jsonpack/types.hpp
+    include/jsonpack/config.hpp
     include/jsonpack/util/builder.hpp
     include/jsonpack/type/integers.hpp
     include/jsonpack/type/reals.hpp
