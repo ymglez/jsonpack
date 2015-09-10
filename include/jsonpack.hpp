@@ -21,10 +21,9 @@
 
 #include "jsonpack/parser.hpp"
 #include "jsonpack/exceptions.hpp"
+#include "jsonpack/config.hpp"
 
-//variadic templates suport
-
-#if (__cplusplus >= 201103) & !defined(_MSC_VER)
+#ifdef JSONPACK_USE_VARIADIC_TEMPLATES
 #include "jsonpack/serializer/serializer_cpp11.hpp"
 #else
 #include "jsonpack/serializer/serializer_cpp03.h"

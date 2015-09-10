@@ -18,20 +18,9 @@
 
 #ifndef JSONPACK_TYPE_TRAITS_BASE_HPP
 #define JSONPACK_TYPE_TRAITS_BASE_HPP
-#
+
 #include "jsonpack/util/builder.hpp"
 #include "jsonpack/object.hpp"
-
-
-/**
- * Disable unused attribute warnings
- */
-#ifdef __GNUC__
-#define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
-#else
-#define UNUSED(x) UNUSED_## x
-#endif
-
 
 JSONPACK_API_BEGIN_NAMESPACE
 TYPE_BEGIN_NAMESPACE
