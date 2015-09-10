@@ -4,7 +4,7 @@ JsonPack
 -----------
 
 JsonPack is a high-performance and extremely easy-to-use JSON serialization
-library for c++, it provide a absolute abstraction layer of this Data Interchange Format. From now on,
+library for c++ 11, it provide a absolute abstraction layer of this Data Interchange Format. From now on,
 you only should take care about managing your C++ objects and JsonPack will make the rest.
 
 ## Features
@@ -14,6 +14,9 @@ you only should take care about managing your C++ objects and JsonPack will make
 
 * Very fast, zero string copy and fast number conversions.
 
+* Support serialization/deserialization for c++ types:
+  bool, char, int, unsigned int, long, unsigned long, float, double, std::string and char*.
+  
 * Support serialization/deserialization for c++ standard containers:
   array, vector, deque, list, forward_list, set, multiset, unordered_set, unordered_multiset.
 
