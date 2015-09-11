@@ -212,7 +212,9 @@ struct json_traits<int&>
 
         long v_cpy = std::strtol(buffer, nullptr, 10);
 
-        if(errno || std::numeric_limits<int>::max() < v_cpy) // check range
+        if(errno ||
+                     v_cpy > std::numeric_limits<int>::max() ||
+                     v_cpy < std::numeric_limits<int>::min() )
             throw type_error("Int out of range");
         value = v_cpy;
 
@@ -279,10 +281,12 @@ struct json_traits<unsigned int&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';            //null-terminated
 
-        long v_cpy = std::strtol(buffer, nullptr, 10);
+        unsigned long v_cpy = std::strtoul(buffer, nullptr, 10);
 
-        if(errno || std::numeric_limits<int>::max() < v_cpy) // check range
-            throw type_error("Int out of range");
+        if(errno ||
+                     v_cpy > std::numeric_limits<unsigned int>::max() ||
+                     v_cpy < std::numeric_limits<unsigned int>::min() ) // check range
+            throw type_error("Unsigned int out of range");
         value = v_cpy;
 
 //        value = atoi( buffer );              //converting value

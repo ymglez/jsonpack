@@ -75,10 +75,18 @@ struct json_traits<float&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
+#ifndef _MSC_VER
         value = std::strtof(buffer, nullptr);
-
         if(errno) // check range
             throw type_error("Float out of range");
+#else
+        double v_cpy = std::strtod(buffer, nullptr);
+        if(errno ||
+                v_cpy > std::numeric_limits<float>::max() ||
+                v_cpy < std::numeric_limits<float>::min() )
+            throw type_error("Float out of range");
+		value = static_cast<float>(v_cpy);
+#endif
     }
 
     static bool match_token_type(const jsonpack::value &v)
