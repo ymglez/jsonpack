@@ -75,7 +75,10 @@ struct json_traits<float&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = atof( buffer );
+        value = std::strtof(buffer, nullptr);
+
+        if(errno) // check range
+            throw type_error("Float out of range");
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -135,7 +138,10 @@ struct json_traits<double&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = atof( buffer );
+        value = std::strtod(buffer, nullptr);
+
+        if(errno) // check range
+            throw type_error("Double out of range");
     }
 
     static bool match_token_type(const jsonpack::value &v)

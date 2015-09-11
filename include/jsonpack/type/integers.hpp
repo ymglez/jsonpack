@@ -210,7 +210,13 @@ struct json_traits<int&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = atoi( buffer );             //converting value
+        long v_cpy = std::strtol(buffer, nullptr, 10);
+
+        if(errno || std::numeric_limits<int>::max() < v_cpy) // check range
+            throw type_error("Int out of range");
+        value = v_cpy;
+
+//        value = atoi( buffer );             //converting value
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -271,9 +277,15 @@ struct json_traits<unsigned int&>
         char * str_value = json_ptr+p._pos;   //pointing to the start
         char buffer[LONG_MAX_DIGITS + 1];
         memcpy(buffer, str_value, p._count);
-        buffer[p._count] = '\0';        //null-terminated
+        buffer[p._count] = '\0';            //null-terminated
 
-        value = atoi( buffer );              //converting value
+        long v_cpy = std::strtol(buffer, nullptr, 10);
+
+        if(errno || std::numeric_limits<int>::max() < v_cpy) // check range
+            throw type_error("Int out of range");
+        value = v_cpy;
+
+//        value = atoi( buffer );              //converting value
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -335,7 +347,10 @@ struct json_traits<long&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = atol( buffer );
+        value = std::strtol(buffer, nullptr, 10);
+
+        if(errno) // check range
+            throw type_error("Long out of range");
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -403,7 +418,12 @@ struct json_traits<unsigned long&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = atol( buffer );
+        value = std::strtoul(buffer, nullptr, 10);
+
+        if(errno) // check range
+            throw type_error("Unsigned long out of range");
+
+//        value = atol( buffer );
     }
 
     static bool match_token_type(const jsonpack::value &v)
