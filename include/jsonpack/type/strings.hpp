@@ -34,22 +34,11 @@ struct json_traits<char*>
 
     static void append(buffer &json, const char *key, const char* value)
     {
-        if(value != nullptr)
-        {
-            json.append("\"" , 1);
-            json.append( key, strlen(key) ); //key
-            json.append("\":\"", 3);
-            json.append( value  , strlen(value) ); //value
-            json.append("\",", 2);
-        }
-        else
-        {
-            json.append("\"" , 1);
-            json.append( key, strlen(key) ); //key
-            json.append("\":", 2);
-            json.append( "null"  , 4 ); //value
-            json.append(",", 1);
-        }
+        json.append("\"" , 1);
+        json.append( key, strlen(key) ); //"key"
+        json.append("\":", 2);
+
+        append(json, value);
     }
 
     static void append(buffer &json, const char* value)
@@ -57,12 +46,12 @@ struct json_traits<char*>
         if(value != nullptr)
         {
             json.append("\"", 1);
-            json.append( value != nullptr ? value : "null" , value != nullptr ? strlen(value) : 4 ); //value
+            json.append( value, strlen(value)); //value
             json.append("\",", 2);
         }
         else
         {
-            json.append( "null" , 4 ); //value
+            json.append( "null," , 5 ); //null
         }
     }
 
@@ -130,17 +119,24 @@ struct json_traits<std::string>
     static void append(buffer &json, const char *key, const std::string &value)
     {
         json.append("\"" , 1);
-        json.append( key, strlen(key) ); //key
-        json.append("\":\"", 3);
-        json.append( value.empty() ? "null" : value.c_str() , value.empty() ? 4 : value.length() ); //value
-        json.append("\",", 2);
+        json.append( key, strlen(key) ); //"key"
+        json.append("\":", 2);
+
+        append(json, value);
     }
 
     static void append(buffer &json, const std::string &value)
     {
-        json.append("\"", 1);
-        json.append( value.c_str() , value.length() ); //value
-        json.append("\",", 2);
+        if(! value.empty() )    //:"value"
+        {
+            json.append("\"", 1);
+            json.append( value.c_str(), value.length() );
+            json.append("\",", 2);
+        }
+        else                    //:null
+        {
+            json.append( "null,", 5);
+        }
     }
 
 };
