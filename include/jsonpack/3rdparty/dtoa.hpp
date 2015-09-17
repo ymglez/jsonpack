@@ -2,13 +2,6 @@
 #include <assert.h>
 #include <math.h>
 
-//#if defined(_MSC_VER)
-//#include "msinttypes/stdint.h"
-//#include <intrin.h>
-//#else
-//#include <stdint.h>
-//#endif
-
 #include <stdint.h>
 
 #define UINT64_C2(h, l) ((static_cast<uint64_t>(h) << 32) | static_cast<uint64_t>(l))
