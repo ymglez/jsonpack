@@ -14,7 +14,6 @@ IF (NOT CMAKE_BUILD_TYPE)
 ENDIF ()
 
 
-OPTION(JSONPACK_BUILD_DOC "Build jsonpack documentation." OFF)
 OPTION(JSONPACK_BUILD_EXAMPLES "Build jsonpack examples." OFF)
 
 SET (prefix ${CMAKE_INSTALL_PREFIX})
@@ -29,17 +28,10 @@ ELSEIF(WIN32)
 ENDIF()
 SET(CMAKE_INSTALL_DIR "${_CMAKE_INSTALL_DIR}" CACHE PATH "The directory cmake fiels are installed in")
 
-# TODO documentation
-if(JSONPACK_BUILD_DOC)
-    add_subdirectory(doc)
-endif()
-
 # TODO example
-if(JSONPACK_BUILD_EXAMPLES)
-    add_subdirectory(example)
-endif()
-
-
+IF(JSONPACK_BUILD_EXAMPLES)
+    ADD_SUBDIRECTORY(example)
+ENDIF()
 
 SET (3rdparty_SOURCES src/3rdparty/format.cpp)
 
@@ -79,13 +71,11 @@ CONFIGURE_FILE (${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
                 ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
                 @ONLY)
 
-
 INCLUDE_DIRECTORIES (
     ./
     include/
     ${CMAKE_CURRENT_BINARY_DIR}/include/
 )
-
 
 ADD_LIBRARY (jsonpack SHARED
     ${jsonpack_SOURCES}
