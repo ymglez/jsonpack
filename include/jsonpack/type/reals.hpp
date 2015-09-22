@@ -69,10 +69,10 @@ struct json_traits<float&>
     static void extract(const jsonpack::value &v, char* json_ptr, float &value)
     {
         position p = v._pos;
-        char * str_value = json_ptr+p._pos;   //pointing to the start
 
+        char * str_value = json_ptr+p._pos;   //pointing to the start
         char buffer[DOUBLE_MAX_DIGITS + 1];
-        memcpy(buffer, str_value, p._count);
+        memcpy(buffer, str_value, p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS + 1);
         buffer[p._count] = '\0';        //null-terminated
 
 #ifndef _MSC_VER
@@ -143,7 +143,7 @@ struct json_traits<double&>
         char * str_value = json_ptr+p._pos;   //pointing to the start
 
         char buffer[DOUBLE_MAX_DIGITS + 1];
-        memcpy(buffer, str_value, p._count);
+        memcpy(buffer, str_value, p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS + 1);
         buffer[p._count] = '\0';        //null-terminated
 
         value = std::strtod(buffer, nullptr);

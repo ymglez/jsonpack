@@ -33,13 +33,13 @@
 /**
  * Integer size definitions
  */
-#define INT_MAX_DIGITS 10
+#define INT_MAX_DIGITS 11
 #define UINT_MAX_DIGITS INT_MAX_DIGITS
 
 #define LONG_MAX_DIGITS INT_MAX_DIGITS
 #define ULONG_MAX_DIGITS INT_MAX_DIGITS
 
-#define LONGLONG_MAX_DIGITS 19
+#define LONGLONG_MAX_DIGITS 20
 #define ULONGLONG_MAX_DIGITS 20
 
 /**

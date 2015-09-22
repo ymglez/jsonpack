@@ -205,6 +205,9 @@ struct json_traits<int&>
 
         position p = v._pos;
 
+        if( p._count > INT_MAX_DIGITS + 1)
+            throw type_error("Int out of range");
+
         char * str_value = json_ptr+p._pos;   //pointing to the start
         char buffer[LONG_MAX_DIGITS + 1];
         memcpy(buffer, str_value, p._count);
@@ -218,7 +221,6 @@ struct json_traits<int&>
             throw type_error("Int out of range");
         value = v_cpy;
 
-//        value = atoi( buffer );             //converting value
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -274,6 +276,9 @@ struct json_traits<unsigned int&>
     static void extract(const jsonpack::value &v, char* json_ptr, unsigned int &value)
     {
         position p = v._pos;
+
+        if( p._count > LONG_MAX_DIGITS + 1)
+            throw type_error("Unsigned int out of range");
 
         //TODO check for sign
         char * str_value = json_ptr+p._pos;   //pointing to the start
@@ -346,6 +351,9 @@ struct json_traits<long&>
     {
         position p = v._pos;
 
+        if( p._count > LONG_MAX_DIGITS + 1)
+            throw type_error("Long out of range");
+
         char * str_value = json_ptr+p._pos;   //pointing to the start
         char buffer[LONG_MAX_DIGITS + 1];
         memcpy(buffer, str_value, p._count);
@@ -415,6 +423,9 @@ struct json_traits<unsigned long&>
     static void extract(const jsonpack::value &v, char* json_ptr, unsigned long &value)
     {
         position p = v._pos;
+
+        if( p._count > LONG_MAX_DIGITS + 1)
+            throw type_error("Unsigned long out of range");
 
         //TODO check for sign
         char * str_value = json_ptr+p._pos;   //pointing to the start
