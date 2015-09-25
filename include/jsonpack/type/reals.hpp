@@ -70,10 +70,11 @@ struct json_traits<float&>
     {
         position p = v._pos;
 
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = json_ptr + p._pos;   //pointing to the start
         char buffer[DOUBLE_MAX_DIGITS + 1];
-        memcpy(buffer, str_value, p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS + 1);
-        buffer[p._count] = '\0';        //null-terminated
+        const unsigned long len = p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS ;
+        memcpy(buffer, str_value, len);
+        buffer[len] = '\0';    //null-terminated
 
 #ifndef _MSC_VER
         value = std::strtof(buffer, nullptr);
@@ -140,11 +141,11 @@ struct json_traits<double&>
     static void extract(const jsonpack::value &v, char* json_ptr, double &value)
     {
         position p = v._pos;
-        char * str_value = json_ptr+p._pos;   //pointing to the start
-
+        char * str_value = json_ptr + p._pos; //pointing to the start
         char buffer[DOUBLE_MAX_DIGITS + 1];
-        memcpy(buffer, str_value, p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS + 1);
-        buffer[p._count] = '\0';        //null-terminated
+        const unsigned long len = p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS ;
+        memcpy(buffer, str_value, len);
+        buffer[len] = '\0';     //null-terminated
 
         value = std::strtod(buffer, nullptr);
 
