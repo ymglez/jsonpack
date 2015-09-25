@@ -1,7 +1,7 @@
 /**
  *  Jsonpack - Serialize and deserialize routines for c++11 standard
  *
- *  Copyright (c) 2015 Yadiel Martinez Gonlazez <ymglez2015@gmail.com>
+ *  Copyright (c) 2015 Yadiel Martinez Gonzalez <ymglez2015@gmail.com>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
