@@ -85,7 +85,7 @@
             std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
             jsonpack::clean_object(_members);                           \
-        }else{throw jsonpack::invalid_json();}                          \
+        }else{throw jsonpack::invalid_json(jsonpack::parser::error_.c_str());}  \
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
     {                                                                   \
@@ -137,7 +137,7 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
     }
     else
     {
-        throw jsonpack::invalid_json("");
+        throw jsonpack::invalid_json(jsonpack::parser::error_.c_str());
     }
 
     delete_array(arr);

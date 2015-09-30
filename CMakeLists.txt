@@ -92,8 +92,8 @@ SET_TARGET_PROPERTIES (jsonpack PROPERTIES IMPORT_SUFFIX "_import.lib")
 SET_TARGET_PROPERTIES (jsonpack PROPERTIES SOVERSION 3 VERSION 4.0.0)
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    SET_PROPERTY (TARGET jsonpack APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions -finline-limit=64")
-    SET_PROPERTY (TARGET jsonpack-static APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions -finline-limit=64")
+    SET_PROPERTY (TARGET jsonpack APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions")
+    SET_PROPERTY (TARGET jsonpack-static APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions")
 
     # disabiling 3rdparty's warnings
     SET_SOURCE_FILES_PROPERTIES(${3rdparty_SOURCES} PROPERTIES COMPILE_FLAGS "-Wno-error -Wno-extra -Wno-effc++")
