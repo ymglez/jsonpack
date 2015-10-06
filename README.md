@@ -90,12 +90,12 @@ You will need:
 
     ### Using terminal
 
-    $ cd jsonpack
-	$ mkdir build
-	$ cd build
-    $ cmake .. -DCMAKE_BUILD_TYPE=Release
-    $ make
-    $ sudo make install
+        $ cd jsonpack
+        $ mkdir build
+        $ cd build
+        $ cmake .. -DCMAKE_BUILD_TYPE=Release
+        $ make
+        $ sudo make install
 
     ### GUI on Windows
 
