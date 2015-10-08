@@ -27,6 +27,7 @@ you only should take care about managing your C++ objects and JsonPack will make
 ## Example
 ----------
 ~~~~~~~~~~cpp
+#include <string>
 #include <jsonpack.hpp>
 
 struct  DataObject

@@ -35,7 +35,7 @@ static inline void make_json(buffer &json, const std::string &UNUSED(key) )
 template <typename T, typename ...Types >
 static inline void make_json(buffer &json, const std::string &keys, const T& val, const Types& ...values )
 {
-    register std::string::size_type pos = keys.find(',');
+    std::string::size_type pos = keys.find(',');
 
     type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , val);
 

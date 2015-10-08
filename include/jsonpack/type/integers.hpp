@@ -288,9 +288,7 @@ struct json_traits<unsigned int&>
 
         unsigned long v_cpy = std::strtoul(buffer, nullptr, 10);
 
-        if(errno ||
-                     v_cpy > std::numeric_limits<unsigned int>::max() ||
-                     v_cpy < std::numeric_limits<unsigned int>::min() ) // check range
+        if(errno || v_cpy > std::numeric_limits<unsigned int>::max() ) // check range
             throw type_error("Unsigned int out of range");
         value = v_cpy;
 
