@@ -175,7 +175,7 @@ jsonpack_token_type scanner::other_value()
 
 jsonpack_token_type scanner::number()
 {
-    register uint_fast8_t state = 1;
+    uint_fast8_t state = 1;
     _start_token_pos = _i;
 
     if(_c == '+' || _c == '-')
@@ -287,7 +287,7 @@ std::string parser::error_;
 //---------------------------------------------------------------------------------------------------
 bool parser::match(const jsonpack_token_type &token)
 {
-    register bool ok = (_tk == token);
+    bool ok = (_tk == token);
     advance();
     if(!ok)
 	{
@@ -403,7 +403,7 @@ bool parser::value(key k, object_t &members)
 
         object_t* new_obj = new object_t();  // create obj
 
-        register bool object_ok = item_list(*new_obj);          //fill obj
+        bool object_ok = item_list(*new_obj);          //fill obj
 
         if(object_ok)
         {
@@ -427,7 +427,7 @@ bool parser::value(key k, object_t &members)
 
         array_t* new_array = new array_t();   // create arr
 
-        register bool array_ok = array_list(*new_array);         // fill arr
+        bool array_ok = array_list(*new_array);         // fill arr
         if(array_ok)
         {
             jsonpack::value p;                                  //create value width field _arr
@@ -498,7 +498,7 @@ bool parser::value( array_t &elemets)
 
         object_t* new_obj = new object_t();  // create obj
 
-        register bool object_ok = item_list(*new_obj);          //fill obj
+        bool object_ok = item_list(*new_obj);          //fill obj
 
         if(object_ok)
         {
@@ -522,7 +522,7 @@ bool parser::value( array_t &elemets)
 
         array_t* new_array = new array_t();   // create arr
 
-        register bool array_ok = array_list(*new_array);         // fill arr
+        bool array_ok = array_list(*new_array);         // fill arr
         if(array_ok)
         {
             jsonpack::value p;                                  //create value width field _arr
