@@ -19,8 +19,6 @@
 #ifndef JSONPACK_JSON_HELPER_H
 #define JSONPACK_JSON_HELPER_H
 
-
-//#include <sstream>
 #include <string.h>
 
 #include <jsonpack/3rdparty/format.h> //fast conversion from integers to string

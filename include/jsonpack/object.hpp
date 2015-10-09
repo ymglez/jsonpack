@@ -23,10 +23,6 @@
 #include <unordered_map>
 #include <string.h>
 
-#ifdef _MSC_VER
-#include <xhash>
-#endif
-
 #include "jsonpack/namespace.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
@@ -54,7 +50,7 @@ struct key
 };
 
 /**
- * hash function for non null-terminated byte c strings
+ * hash function for non null-terminated byte strings
  * http://www.cse.yorku.ca/~oz/hash.html
  */
 inline unsigned long _hash_bytes(const char* __str, const unsigned long & _bytes)
@@ -80,7 +76,6 @@ struct key_hash
     {
         return _hash_bytes(__val._ptr , __val._bytes);
     }
-
 };
 
 /**

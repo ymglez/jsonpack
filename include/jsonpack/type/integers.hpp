@@ -20,6 +20,7 @@
 #define JSONPACK_INTEGERS_HPP
 
 
+#include "jsonpack/config.hpp"
 #include "jsonpack/type/json_traits_base.hpp"
 
 
@@ -71,11 +72,10 @@ struct json_traits<bool&>
         }
     }
 
-    static void extract( const jsonpack::value &v, char* json_ptr, bool &value)
+    static void extract( const jsonpack::value &v, char* UNUSED(json_ptr), bool &value)
     {
         position p = v._pos;
-        char * value_str = json_ptr+p._pos;   //pointing to the start
-        value = ( memcmp(value_str, "true", 4) == 0 )||( memcmp(value_str, "TRUE", 4) == 0 );
+        value = ( p._type == JTK_TRUE );
     }
 
     static bool match_token_type(const jsonpack::value &v)
