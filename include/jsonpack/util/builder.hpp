@@ -27,25 +27,23 @@
 
 #include "jsonpack/buffer.hpp"
 
-
 /**
  * Integer size definitions
  */
-#define INT_MAX_DIGITS 11
-#define UINT_MAX_DIGITS INT_MAX_DIGITS
+static int constexpr INT_MAX_DIGITS    =   std::numeric_limits<int>::digits10 + 3 ;
+static int constexpr UINT_MAX_DIGITS   =   std::numeric_limits<unsigned>::digits10 + 3;
 
-#define LONG_MAX_DIGITS INT_MAX_DIGITS
-#define ULONG_MAX_DIGITS INT_MAX_DIGITS
+static int constexpr LONG_MAX_DIGITS   =   std::numeric_limits<long>::digits10 + 3;
+static int constexpr ULONG_MAX_DIGITS  =   std::numeric_limits<unsigned long>::digits10 + 3;
 
-#define LONGLONG_MAX_DIGITS 20
-#define ULONGLONG_MAX_DIGITS 20
+static int constexpr LONGLONG_MAX_DIGITS   =   std::numeric_limits<long long>::digits10 + 3;
+static int constexpr ULONGLONG_MAX_DIGITS  =   std::numeric_limits<unsigned long long>::digits10 + 3;
 
 /**
  * Real size definitions
  */
-#define FLOAT_MAX_DIGITS 21
-#define DOUBLE_MAX_DIGITS 22
-
+static int constexpr FLOAT_MAX_DIGITS   =   21;
+static int constexpr DOUBLE_MAX_DIGITS  =   22;
 
 JSONPACK_API_BEGIN_NAMESPACE
 UTIL_BEGIN_NAMESPACE

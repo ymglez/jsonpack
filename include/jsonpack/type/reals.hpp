@@ -71,8 +71,8 @@ struct json_traits<float&>
         position p = v._pos;
 
         char * str_value = json_ptr + p._pos;   //pointing to the start
-        char buffer[DOUBLE_MAX_DIGITS + 1];
-        const unsigned long len = p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS ;
+        char buffer[DOUBLE_MAX_DIGITS];
+        const unsigned long len = p._count < DOUBLE_MAX_DIGITS ? p._count : DOUBLE_MAX_DIGITS - 1 ;
         memcpy(buffer, str_value, len);
         buffer[len] = '\0';    //null-terminated
 
@@ -142,8 +142,8 @@ struct json_traits<double&>
     {
         position p = v._pos;
         char * str_value = json_ptr + p._pos; //pointing to the start
-        char buffer[DOUBLE_MAX_DIGITS + 1];
-        const unsigned long len = p._count < DOUBLE_MAX_DIGITS + 1 ? p._count : DOUBLE_MAX_DIGITS ;
+        char buffer[DOUBLE_MAX_DIGITS];
+        const unsigned long len = p._count < DOUBLE_MAX_DIGITS ? p._count : DOUBLE_MAX_DIGITS - 1 ;
         memcpy(buffer, str_value, len);
         buffer[len] = '\0';     //null-terminated
 

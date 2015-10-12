@@ -13,7 +13,8 @@ you only should take care about managing your C++ objects and JsonPack will make
 * Very fast, zero string copy and fast number conversions.
 
 * Support serialization/deserialization for c++ types:
-  bool, char, int, unsigned int, long, unsigned long, float, double, std::string and char*.
+  bool, char, int, unsigned int, long, unsigned long,
+  long long,unsigned long long, float, double, std::string and char*.
   
 * Support serialization/deserialization for c++ standard containers:
   array, vector, deque, list, forward_list, set, multiset, unordered_set, unordered_multiset.
