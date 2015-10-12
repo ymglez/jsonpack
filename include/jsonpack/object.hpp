@@ -113,7 +113,7 @@ struct position
     unsigned long _count;
 
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__APPLE__)
     position& operator =(const position &rvalue)
     {
         _type = rvalue._type;
@@ -121,7 +121,6 @@ struct position
         _count = rvalue._count;
         return *this;
     }
-
 #endif
 
 };

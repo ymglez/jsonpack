@@ -25,6 +25,7 @@
     + STRINGIFY(found) + std::string(" at ") + STRINGIFY(pos)
 
 #include <string.h>
+#include <string>
 
 #include "jsonpack/exceptions.hpp"
 #include "jsonpack/parser.hpp"
