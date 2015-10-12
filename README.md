@@ -1,14 +1,12 @@
-JsonPack
+#JsonPack
 
 ## Overview
------------
 
 JsonPack is a high-performance and extremely easy-to-use JSON serialization
 library for C++ 11, it provide a absolute abstraction layer of this Data Interchange Format. From now on,
 you only should take care about managing your C++ objects and JsonPack will make the rest.
 
 ## Features
------------
 
 * Easy-to-use, contains a very short and intuitive API. See Example section
 
@@ -25,9 +23,8 @@ you only should take care about managing your C++ objects and JsonPack will make
 * JSON keys match with C++ identifiers name convention.
 
 ## Example
-----------
-~~~~~~~~~~cpp
-#include <string>
+
+```cpp
 #include <jsonpack.hpp>
 
 struct  DataObject
@@ -79,42 +76,63 @@ int main()
 
     return 0;
 }
-~~~~~~~~~~
+```
 
 ## Build
---------
 
-You will need:
+### You will need:
 
- - cmake >= 2.8.0
- - gcc >= 4.7 OR msvc >= 11
+- cmake >= 2.8.0
+- gcc >= 4.7 OR msvc >= 11 OR clang >= 2.9
 
-    ### Using terminal
+### Using terminal
 
-        $ cd jsonpack
-        $ mkdir build
-        $ cd build
-        $ cmake .. -DCMAKE_BUILD_TYPE=Release
-        $ make
-        $ sudo make install
+* Without example:
 
-    ### GUI on Windows
+  ```bash
+  $ cd jsonpack
+  $ mkdir build
+  $ cd build
+  $ cmake .. -DCMAKE_BUILD_TYPE=Release
+  $ make
+  $ sudo make install
+  ```
 
-    1. Launch cmake GUI client
+* With example:
 
-    2. Set 'Where is the source code:' text box and 'Where to build
-    the binaries:' text box.
+  ```bash
+  $ cd jsonpack
+  $ mkdir build
+  $ cd build
+  $ cmake ..  -DJSONPACK_BUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
+  $ make
+  $ sudo make install
+  ```
 
-    3. Click 'Configure' button.
 
-    4. Choose your Visual Studio version.
+### GUI on Windows
 
-    5. Click 'Generate' button.
+1. Launch cmake GUI client
 
-    6. Open the created jsonpack.sln on Visual Studio.
+2. Set 'Where is the source code:' text box and 'Where to build the binaries:' text box.
 
-    7. Build all
+3. Click 'Configure' button.
 
+4. Choose your Visual Studio version.
+
+5. Click 'Generate' button.
+
+6. Open the created jsonpack.sln on Visual Studio.
+
+7. Build all
+
+## Contributing
+
+1. Fork it!
+2. Create your feature branch: git checkout -b my-new-feature
+3. Commit your changes: git commit -am 'Add some feature'
+4. Push to the branch: git push origin my-new-feature
+5. Submit a pull request :D
 
 ## License
 ----------

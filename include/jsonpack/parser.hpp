@@ -21,7 +21,7 @@
 
 #include <cctype>
 #include <stdint.h>
-
+#include <string>
 #include "jsonpack/object.hpp"
 
 

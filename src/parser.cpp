@@ -405,7 +405,7 @@ bool parser::value(key k, object_t &members)
         object_t* new_obj = new object_t();  // create obj
 
         bool object_ok = item_list(*new_obj);          //fill obj
-
+        
         if(object_ok)
         {
             jsonpack::value p;                                  //create value width field _obj
@@ -500,7 +500,7 @@ bool parser::value( array_t &elemets)
         object_t* new_obj = new object_t();  // create obj
 
         bool object_ok = item_list(*new_obj);          //fill obj
-
+        
         if(object_ok)
         {
             jsonpack::value p;                                  //create value width field _obj
