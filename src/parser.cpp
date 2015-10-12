@@ -175,7 +175,12 @@ jsonpack_token_type scanner::other_value()
 
 jsonpack_token_type scanner::number()
 {
+#if defined(__apple_build_version__) && (__apple_build_version__ >= 6000051)
+    uint_fast8_t state = 1;
+#else
     register uint_fast8_t state = 1;
+#endif
+    
     _start_token_pos = _i;
 
     if(_c == '+' || _c == '-')
@@ -287,7 +292,12 @@ std::string parser::error_;
 //---------------------------------------------------------------------------------------------------
 bool parser::match(const jsonpack_token_type &token)
 {
+#if defined(__apple_build_version__) && (__apple_build_version__ >= 6000051)
+    bool ok = (_tk == token);
+#else
     register bool ok = (_tk == token);
+#endif
+    
     advance();
     if(!ok)
 	{
@@ -402,9 +412,12 @@ bool parser::value(key k, object_t &members)
         advance();
 
         object_t* new_obj = new object_t();  // create obj
-
+#if defined(__apple_build_version__) && (__apple_build_version__ >= 6000051)
+        bool object_ok = item_list(*new_obj);          //fill obj
+#else
         register bool object_ok = item_list(*new_obj);          //fill obj
-
+#endif
+        
         if(object_ok)
         {
             jsonpack::value p;                                  //create value width field _obj
@@ -426,8 +439,11 @@ bool parser::value(key k, object_t &members)
         advance();
 
         array_t* new_array = new array_t();   // create arr
-
+#if defined(__apple_build_version__) && (__apple_build_version__ >= 6000051)
+        bool array_ok = array_list(*new_array);         // fill arr
+#else
         register bool array_ok = array_list(*new_array);         // fill arr
+#endif
         if(array_ok)
         {
             jsonpack::value p;                                  //create value width field _arr
@@ -497,9 +513,12 @@ bool parser::value( array_t &elemets)
         advance();
 
         object_t* new_obj = new object_t();  // create obj
-
+#if defined(__apple_build_version__) && (__apple_build_version__ >= 6000051)
+        bool object_ok = item_list(*new_obj);          //fill obj
+#else
         register bool object_ok = item_list(*new_obj);          //fill obj
-
+#endif
+        
         if(object_ok)
         {
             jsonpack::value p;                                  //create value width field _obj
@@ -521,8 +540,12 @@ bool parser::value( array_t &elemets)
         advance();
 
         array_t* new_array = new array_t();   // create arr
-
+#if defined(__apple_build_version__) && (__apple_build_version__ >= 6000051)
+        bool array_ok = array_list(*new_array);         // fill arr
+#else
         register bool array_ok = array_list(*new_array);         // fill arr
+#endif
+        
         if(array_ok)
         {
             jsonpack::value p;                                  //create value width field _arr

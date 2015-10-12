@@ -23,10 +23,12 @@
 #include <unordered_map>
 #include <string.h>
 
-#ifndef _MSC_VER
-#include <bits/hash_bytes.h>
+#if !defined(_MSC_VER) && !defined(__APPLE__)
+    #include <bits/hash_bytes.h>
+#elif defined(__APPLE__)
+    #include <functional>
 #else
-#include <xhash>
+    #include <xhash>
 #endif
 
 #include "jsonpack/namespace.hpp"
@@ -55,6 +57,25 @@ struct key
 
 };
 
+/**
+ *  * hash function for non null-terminated byte c strings
+ *   * http://www.cse.yorku.ca/~oz/hash.html
+ *    */
+inline unsigned long _hash_bytes(const char* __str, const unsigned long & _bytes)
+{
+    unsigned long hash = 5381, count = _bytes;
+    int c ;
+
+    while (count--)
+    {
+        c = *__str++;
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    }
+
+    return hash;
+}
+
+
 
 /**
  * functor to hash keys in unordered_map
@@ -63,8 +84,10 @@ struct key_hash
 {
     std::size_t operator()( key const &__val) const
     {
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__APPLE__)
         return std::_Hash_bytes(__val._ptr, __val._bytes, static_cast<std::size_t>(0xc70f6907UL));
+#elif defined(__APPLE__)
+        return _hash_bytes(__val._ptr, __val._bytes);
 #else
 		return std::_Hash_seq( (const unsigned char*)__val._ptr, __val._bytes);
 #endif
@@ -107,16 +130,15 @@ struct position
     unsigned long _pos;
     unsigned long _count;
 
-
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__APPLE__)
     position& operator =(const position &rvalue)
     {
-        _type = rvalue._type;
-        _pos = rvalue._pos;
-        _count = rvalue._count;
+        this->_type = rvalue._type;
+        this->_pos = rvalue._pos;
+        this->_count = rvalue._count;
+        
         return *this;
     }
-
 #endif
 
 };

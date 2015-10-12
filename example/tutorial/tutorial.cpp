@@ -8,7 +8,7 @@ struct  DataObject
 	bool isObject = true;
 	char caracter = 0;
 	char *cstr = (char*)"Hello world";
-
+    
 	// The defined members, will be the JSON attributes set
 	// Pairs <"key" : value>, are: <"member-name" : member-value >
 	DEFINE_JSON_ATTRIBUTES(mFloat, mInt, mCad, isObject, caracter, cstr)
