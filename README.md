@@ -83,7 +83,7 @@ int main()
 ### You will need:
 
 - cmake >= 2.8.0
-- gcc >= 4.7 OR msvc >= 11 OR clang 2.9
+- gcc >= 4.7 OR msvc >= 11 OR clang >= 2.9
 
 ### Using terminal
 
