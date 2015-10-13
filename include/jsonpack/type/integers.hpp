@@ -515,7 +515,7 @@ struct json_traits<long long&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = std::strtoull(buffer, nullptr, 10);
+        value = std::strtoll(buffer, nullptr, 10);
 
         if(errno) // check range
             throw type_error("Long long out of range");
@@ -579,7 +579,7 @@ struct json_traits<unsigned long long&>
     {
         position p = v._pos;
 
-        if( p._count > ULONGLONG_MAX_DIGITS - 1)
+        if( p._count >= ULONGLONG_MAX_DIGITS)
             throw type_error("Unsigned long long out of range");
 
         //TODO check for sign
@@ -588,10 +588,10 @@ struct json_traits<unsigned long long&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
-        value = std::strtoll(buffer, nullptr, 10);
+        value = std::strtoull(buffer, nullptr, 10);
 
         if(errno) // check range
-            throw type_error("Long long out of range");
+            throw type_error("Unsigned Long long out of range");
 
     }
 
