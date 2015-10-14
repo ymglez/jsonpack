@@ -24,26 +24,27 @@
 #include <jsonpack/3rdparty/format.h> //fast conversion from integers to string
 #include <jsonpack/3rdparty/dtoa.hpp> //fast conversion from reals to string
 
-
 #include "jsonpack/buffer.hpp"
 
 /**
  * Integer size definitions
  */
-static int constexpr INT_MAX_DIGITS    =   std::numeric_limits<int>::digits10 + 3 ;
-static int constexpr UINT_MAX_DIGITS   =   std::numeric_limits<unsigned>::digits10 + 3;
+#define INT_MAX_DIGITS	std::numeric_limits<int>::digits10 + 3
+#define UINT_MAX_DIGITS std::numeric_limits<unsigned>::digits10 + 3
 
-static int constexpr LONG_MAX_DIGITS   =   std::numeric_limits<long>::digits10 + 3;
-static int constexpr ULONG_MAX_DIGITS  =   std::numeric_limits<unsigned long>::digits10 + 3;
+#define LONG_MAX_DIGITS		std::numeric_limits<long>::digits10 + 3
+#define ULONG_MAX_DIGITS	std::numeric_limits<unsigned long>::digits10 + 3
 
-static int constexpr LONGLONG_MAX_DIGITS   =   std::numeric_limits<long long>::digits10 + 3;
-static int constexpr ULONGLONG_MAX_DIGITS  =   std::numeric_limits<unsigned long long>::digits10 + 3;
+#define LONGLONG_MAX_DIGITS		std::numeric_limits<long long>::digits10 + 3
+#define ULONGLONG_MAX_DIGITS	std::numeric_limits<unsigned long long>::digits10 + 3
 
 /**
  * Real size definitions
+ * TODO fix 
  */
-static int constexpr FLOAT_MAX_DIGITS   =   21;
-static int constexpr DOUBLE_MAX_DIGITS  =   22;
+#define FLOAT_MAX_DIGITS	21 + 2
+#define DOUBLE_MAX_DIGITS	22 + 2
+
 
 JSONPACK_API_BEGIN_NAMESPACE
 UTIL_BEGIN_NAMESPACE
@@ -56,7 +57,7 @@ static inline std::string trim(std::string s)
 }
 
 /**
- *
+ * helper for stringify values
  */
 struct json_builder
 {
@@ -107,7 +108,7 @@ struct json_builder
     template<typename Real>
     static void append_real(buffer &json, const char *key, const Real &value)
     {
-        char buf[DOUBLE_MAX_DIGITS + 2] ; //signs
+        char buf[DOUBLE_MAX_DIGITS] ; //signs
 
         dtoa_milo(value, buf);
 
@@ -121,7 +122,7 @@ struct json_builder
     template<typename Real>
     static void append_real(buffer &json, const Real &value)
     {
-        char buf[DOUBLE_MAX_DIGITS + 2] ; //signs
+        char buf[DOUBLE_MAX_DIGITS] ; //signs
 
         dtoa_milo(value, buf);
 

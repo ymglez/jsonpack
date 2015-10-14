@@ -515,8 +515,11 @@ struct json_traits<long long&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
+#ifdef _MSC_VER
+        value = _strtoi64(buffer, nullptr, 10);
+#else
         value = std::strtoll(buffer, nullptr, 10);
-
+#endif
         if(errno) // check range
             throw type_error("Long long out of range");
 
@@ -588,8 +591,11 @@ struct json_traits<unsigned long long&>
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
 
+#ifdef _MSC_VER
+        value = _strtoui64(buffer, nullptr, 10);
+#else
         value = std::strtoull(buffer, nullptr, 10);
-
+#endif
         if(errno) // check range
             throw type_error("Unsigned Long long out of range");
 
