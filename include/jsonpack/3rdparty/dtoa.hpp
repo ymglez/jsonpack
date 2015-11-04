@@ -19,7 +19,6 @@
 #pragma once
 #include <assert.h>
 #include <math.h>
-
 #include <stdint.h>
 
 #define UINT64_C2(h, l) ((static_cast<uint64_t>(h) << 32) | static_cast<uint64_t>(l))
@@ -40,7 +39,7 @@ struct DiyFp {
 		if (biased_e != 0) {
 			f = significand + kDpHiddenBit;
 			e = biased_e - kDpExponentBias;
-		} 
+		}
 		else {
 			f = significand;
 			e = kDpMinExponent + 1;
@@ -60,7 +59,7 @@ struct DiyFp {
 		if (l & (uint64_t(1) << 63)) // rounding
 			h++;
 		return DiyFp(h, e + rhs.e + 64);
-#elif (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && defined(__x86_64__)
+#elif (__GNUC__ > 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && defined(__x86_64__)
 		unsigned __int128 p = static_cast<unsigned __int128>(f) * static_cast<unsigned __int128>(rhs.f);
 		uint64_t h = p >> 64;
 		uint64_t l = static_cast<uint64_t>(p);
@@ -259,7 +258,7 @@ inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buff
 			case  3: d = p1 /        100; p1 %=        100; break;
 			case  2: d = p1 /         10; p1 %=         10; break;
 			case  1: d = p1;              p1 =           0; break;
-			default: 
+			default:
 #if defined(_MSC_VER)
 				__assume(0);
 #elif __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
@@ -410,4 +409,3 @@ inline void dtoa_milo(double value, char* buffer) {
         Prettify(buffer, length, K);
 	}
 }
-
