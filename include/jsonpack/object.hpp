@@ -33,20 +33,27 @@ JSONPACK_API_BEGIN_NAMESPACE
 struct key
 {
 
-    const char * _ptr;
-    std::size_t _bytes;
-
     bool operator== (const key &k1) const
     {
         std::size_t min =  std::min( k1._bytes, _bytes );
-		bool ret = ( memcmp(k1._ptr, _ptr, min) == 0 );
+        bool ret = ( memcmp(k1._ptr, _ptr, min) == 0 );
         return ret;
     }
 
     key():_ptr(nullptr), _bytes(0){}
 
-    key(const key& k):_ptr(k._ptr),_bytes(k._bytes)  {}
+    key(const key& k):
+        _ptr(k._ptr),
+        _bytes(k._bytes)
+    {}
 
+#ifndef _MSC_VER
+    const char * _ptr = nullptr;
+    std::size_t _bytes = 0;
+#else
+    const char * _ptr;
+    std::size_t _bytes;
+#endif
 };
 
 /**

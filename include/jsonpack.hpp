@@ -52,12 +52,13 @@
         return json.release();                                          \
     }                                                                   \
     void json_unpack(const char* json, const std::size_t &len)          \
-    {                                                                   \
-         if(jsonpack::parser::json_validate(json, len, _members))       \
+    {                                                                               \
+         jsonpack::parser p;                                            \
+         if(p.json_validate(json, len, _members))       \
          {                                                              \
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
             jsonpack::clean_object(_members);                           \
-        }else{throw jsonpack::invalid_json(jsonpack::parser::error_.c_str());}                          \
+        }else{throw jsonpack::invalid_json(p.err_msg().c_str());}                          \
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
     {                                                                   \
@@ -80,12 +81,13 @@
     void json_unpack(const char* json, const std::size_t &len)          \
     {                                                                   \
         jsonpack::object_t _members = jsonpack::object_t(32);           \
-         if(jsonpack::parser::json_validate(json, len, _members))       \
+		jsonpack::parser p;												\
+         if(p.json_validate(json, len, _members))       				\
          {                                                              \
             std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
             jsonpack::clean_object(_members);                           \
-        }else{throw jsonpack::invalid_json(jsonpack::parser::error_.c_str());}  \
+        }else{throw jsonpack::invalid_json(p.err_msg().c_str());}  		\
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
     {                                                                   \
@@ -127,7 +129,8 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
 {
     array_t *arr = new array_t();
 
-    if(parser::json_validate(json, len, *arr))
+    parser p;
+    if(p.json_validate(json, len, *arr))
     {
         value v;
         v._arr = arr;
@@ -137,7 +140,7 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
     }
     else
     {
-        throw jsonpack::invalid_json(jsonpack::parser::error_.c_str());
+        throw jsonpack::invalid_json(p.err_msg().c_str());
     }
 
     delete_array(arr);

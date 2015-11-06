@@ -35,6 +35,33 @@ JSONPACK_API_BEGIN_NAMESPACE
 struct scanner
 {
 
+    scanner():
+        _source(nullptr),
+        _i(0),
+        _size(0),
+        _start_token_pos(0),
+        _c('\0')
+    {}
+
+    scanner(const scanner &s):
+        _source(s._source),
+        _i(s._i),
+        _size(s._size),
+        _start_token_pos(s._start_token_pos),
+        _c(s._c)
+    {}
+
+    ~scanner()
+    {
+        _source = nullptr;
+    }
+
+    scanner& operator=(const jsonpack::scanner& s)
+    {
+        _source = s._source;
+        return *this;
+    }
+
     void init(const char *json, const std::size_t &len);
 
     void advance();
@@ -67,8 +94,7 @@ struct scanner
     value get_last_value(bool expect_str_literal);
 
 
-
-//disabling warning on GNU
+    //disabling warning on GNU
 #ifndef _MSC_VER
     const char * _source = nullptr;
     uint_fast32_t _i = 0;
@@ -87,8 +113,6 @@ struct scanner
     char _c;
 #endif
 
-
-
 };
 
 /** ****************************************************************************
@@ -99,30 +123,39 @@ struct scanner
 struct parser
 {
 
-    static bool json_validate(const char *json, const std::size_t &len, object_t & members);
-    static bool json_validate(const char *json,const std::size_t &len, array_t &elemets );
+    parser():
+        _tk(JTK_INVALID),
+        _s()
+    {}
 
-    static std::string error_;
+    parser(const parser &p):
+        _tk(p._tk),
+        _s(p._s)
+    {}
+
+    bool json_validate(const char *json, const std::size_t &len, object_t & members);
+    bool json_validate(const char *json,const std::size_t &len, array_t &elemets );
+
+    std::string err_msg();
 
 private:
-    static bool match(const jsonpack_token_type &token);
+    bool match(const jsonpack_token_type &token);
 
-    static void advance();
+    void advance();
+
+    bool item_list(object_t &members);
+
+    bool item(object_t &members);
+
+    bool value(key k, object_t &members);
+
+    bool value(array_t &elemets);
+
+    bool array_list(array_t &elemets);
 
 
-    static bool item_list(object_t &members);
-
-    static bool item(object_t &members);
-
-    static bool value(key k, object_t &members);
-
-    static bool value(array_t &elemets);
-
-    static bool array_list(array_t &elemets);
-
-
-    static jsonpack_token_type _tk;
-    static scanner _s;
+    jsonpack_token_type _tk;
+    scanner _s;
 
 };
 

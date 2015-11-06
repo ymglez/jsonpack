@@ -17,13 +17,6 @@
  *  limitations under the License.
  */
 
-
-#define STRINGIFY(str) #str
-
-#define JSONPACK_ERROR_UNEXPECTED( expect, found, pos ) \
-    std::string("Expected ") + STRINGIFY(expect) + std::string(", and found ") \
-    + STRINGIFY(found) + std::string(" at ") + STRINGIFY(pos)
-
 #include <string.h>
 #include <string>
 
@@ -31,31 +24,7 @@
 #include "jsonpack/parser.hpp"
 
 
-
 JSONPACK_API_BEGIN_NAMESPACE
-
-
-static const std::string token_str[] =
-{
-    "{",
-    "}",
-    ":",
-    ",",
-    "[",
-    "]",
-    "String Literal",
-
-    "Integer",
-    "Real",
-
-    "BOOLEAN",
-    "BOOLEAN",
-    "NULL",
-
-    "Invalid Token"
-};
-
-
 
 /** ****************************************************************************
  ******************************** SCANER ***************************************
@@ -109,6 +78,9 @@ jsonpack_token_type scanner::next()
         advance();
         return JTK_COMMA;
         break;
+    case '\'':
+        return string_literal();
+        break;
     case '"':
         return string_literal();
         break;
@@ -131,7 +103,7 @@ jsonpack_token_type scanner::string_literal()
     _start_token_pos = _i;
     advance();
 
-    while( _c != '"' && _i < _size )
+    while( _c != '"' && _c != '\'' && _i < _size )
     {
         advance();
     }
@@ -281,24 +253,12 @@ value scanner::get_last_value(bool expect_str_literal = false)
  ******************************** PARSER ***************************************
  *******************************************************************************/
 
-jsonpack_token_type parser::_tk;
-scanner parser::_s;
-std::string parser::error_;
-
 //---------------------------------------------------------------------------------------------------
 bool parser::match(const jsonpack_token_type &token)
 {
     bool ok = (_tk == token);
     advance();
-    if(!ok)
-	{
-        error_ = "Expect \"";
-		error_.append( token_str[token] );
 
-		error_.append("\", but found \""); 
-		error_.append( token_str[_tk] );
-		error_.append("\"") ;
-	}
     return ok;
 }
 
@@ -312,9 +272,6 @@ void parser::advance()
 //---------------------------------------------------------------------------------------------------
 bool parser::json_validate(const char *json,const std::size_t &len, object_t &members )
 {
-
-    error_ = "";
-
     _s.init(json, len);
     advance();
 
@@ -324,12 +281,18 @@ bool parser::json_validate(const char *json,const std::size_t &len, object_t &me
 //---------------------------------------------------------------------------------------------------
 bool parser::json_validate(const char *json,const std::size_t &len, array_t &elemets )
 {
-    error_ = "";
-
     _s.init(json, len);
     advance();
 
     return match(JTK_OPEN_BRACKET) && array_list(elemets) && match(JTK_CLOSE_BRACKET);
+}
+
+//---------------------------------------------------------------------------------------------------
+std::string parser::err_msg()
+{
+    char buff[125];
+    sprintf(buff, "error near \'%c\' at position %d", _s._c, _s._i);
+    return std::string(buff);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -365,13 +328,6 @@ bool parser::item(object_t &members)
         return match(JTK_COLON) && value(k, members); // : value
     }
 		
-    error_ = "Expect key \"";
-	error_.append( token_str[JTK_STRING_LITERAL] );
-
-	error_.append("\", but found \""); 
-	error_.append( token_str[_tk] );
-	error_.append("\"") ;
-
     return false;
 }
 
@@ -392,7 +348,6 @@ bool parser::value(key k, object_t &members)
         jsonpack::value val = _s.get_last_value(_tk == JTK_STRING_LITERAL);
         val._pos._type = _tk;
         members[k] = val;
-//        members.emplace_hint(members.end(), k, val);
 
         advance();
         return true;
@@ -413,7 +368,6 @@ bool parser::value(key k, object_t &members)
             p._field = _OBJ;
 
             members[k] = p;                                     // add to the map
-//            members.emplace_hint(members.end(), k, p);
 
             return match(JTK_CLOSE_KEY);
         }
@@ -436,17 +390,12 @@ bool parser::value(key k, object_t &members)
             p._field = _ARR;
 
             members[k] = p;                                     // add to the map
-//            members.emplace_hint(members.end(), k, p);
 
             return match(JTK_CLOSE_BRACKET);
         }
         delete_array(new_array);
         return false;
     }
-
-	error_ = "Expect valid JSON value , but found \"";
-	error_.append( token_str[_tk] );
-	error_.append("\"") ;
 
     return false;
 }
@@ -487,7 +436,6 @@ bool parser::value( array_t &elemets)
         jsonpack::value vpos = _s.get_last_value(_tk == JTK_STRING_LITERAL);
         vpos._pos._type = _tk;
         elemets.push_back(vpos);
-//        elemets.emplace_back(vpos);
 
         advance();
         return true;
@@ -508,7 +456,6 @@ bool parser::value( array_t &elemets)
             p._field = _OBJ;
 
             elemets.push_back(p);                               // add to the map
-//            elemets.emplace_back(p);
 
             return match(JTK_CLOSE_KEY);
         }
@@ -531,17 +478,12 @@ bool parser::value( array_t &elemets)
             p._field = _ARR;
 
             elemets.push_back(p);                               // add to the vector
-//            elemets.emplace_back(p);
 
             return match(JTK_CLOSE_BRACKET);
         }
         delete_array(new_array);
         return false;
     }
-
-	error_ = "Expect valid JSON value , but found \"";
-	error_.append( token_str[_tk] );
-	error_.append("\"") ;
 
     return false;
 }
