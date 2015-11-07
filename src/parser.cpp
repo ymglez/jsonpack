@@ -253,6 +253,16 @@ value scanner::get_last_value(bool expect_str_literal = false)
  ******************************** PARSER ***************************************
  *******************************************************************************/
 
+parser::parser():
+        _tk(JTK_INVALID),
+        _s()
+{}
+
+parser::parser(const parser &p):
+        _tk(p._tk),
+        _s(p._s)
+{}
+
 //---------------------------------------------------------------------------------------------------
 bool parser::match(const jsonpack_token_type &token)
 {

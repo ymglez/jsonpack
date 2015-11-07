@@ -122,16 +122,15 @@ struct scanner
 
 struct parser
 {
+	/**
+	 * Default constructor
+	 */
+    parser();
 
-    parser():
-        _tk(JTK_INVALID),
-        _s()
-    {}
-
-    parser(const parser &p):
-        _tk(p._tk),
-        _s(p._s)
-    {}
+	/**
+	 * Copy constructor
+	 */
+    parser(const parser &p);
 
     bool json_validate(const char *json, const std::size_t &len, object_t & members);
     bool json_validate(const char *json,const std::size_t &len, array_t &elemets );
