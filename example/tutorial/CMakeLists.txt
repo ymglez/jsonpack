@@ -4,7 +4,11 @@ SET(SOURCES tutorial.cpp)
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include")
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions -finline-limit=64 ${CMAKE_CXX_FLAGS}")
+IF(APPLE)
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 ${CMAKE_CXX_FLAGS}")
+ELSE()
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions -finline-limit=64 ${CMAKE_CXX_FLAGS}")
+ENDIF()
 
 ADD_EXECUTABLE(${JSONPACK_TUTORIAL_NAME} ${SOURCES})
 
