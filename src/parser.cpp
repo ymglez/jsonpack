@@ -301,7 +301,7 @@ bool parser::json_validate(const char *json,const std::size_t &len, array_t &ele
 std::string parser::err_msg()
 {
     char buff[125];
-    sprintf(buff, "error near \'%c\' at position %d", _s._c, _s._i);
+    sprintf(buff, "error near \'%c\' at position %lu", _s._c, _s._i);
     return std::string(buff);
 }
 
