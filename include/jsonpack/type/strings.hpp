@@ -26,89 +26,6 @@
 JSONPACK_API_BEGIN_NAMESPACE
 TYPE_BEGIN_NAMESPACE
 
-//-------------------------- CHAR* -----------------------------------
-
-template<>
-struct json_traits<char*>
-{
-
-    static void append(buffer &json, const char *key, const char* value)
-    {
-        json.append("\"" , 1);
-        json.append( key, strlen(key) ); //"key"
-        json.append("\":", 2);
-
-        append(json, value);
-    }
-
-    static void append(buffer &json, const char* value)
-    {
-        if(value != nullptr)
-        {
-            json.append("\"", 1);
-            json.append( value, strlen(value)); //value
-            json.append("\",", 2);
-        }
-        else
-        {
-            json.append( "null," , 5 ); //null
-        }
-    }
-
-};
-
-template<>
-struct json_traits<char*&>
-{
-
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, char* &value)
-    {
-        jsonpack::key k;
-        k._bytes = len;
-        k._ptr = key;
-
-        object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
-        {
-            if( match_token_type(found->second) )
-            {
-                extract(found->second, json_ptr, value);
-            }
-            else
-            {
-                std::string msg = "Invalid string value for key: ";
-                msg += key;
-                throw type_error( msg.data() );
-            }
-        }
-    }
-
-    static void extract(const jsonpack::value &v, char* json_ptr, char* &value)
-    {
-
-        position p = v._pos;
-
-        if(p._type != JTK_NULL)
-        {
-            value = (char*)malloc( p._count + 1) ;
-            if(!value) throw alloc_error();
-            memcpy( value, json_ptr + p._pos, p._count);
-            value[p._count] = '\0';
-        }
-        else
-        {
-           value = nullptr;
-        }
-
-    }
-
-    static bool match_token_type(const jsonpack::value &v)
-    {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_STRING_LITERAL || v._pos._type == JTK_NULL ) );
-    }
-
-};
 
 //-------------------------- STD::STRING -----------------------------------
 
@@ -129,9 +46,7 @@ struct json_traits<std::string>
     {
         if(! value.empty() )    //:"value"
         {
-            json.append("\"", 1);
-            json.append( value.c_str(), value.length() );
-            json.append("\",", 2);
+            util::json_builder::append_string(json, value.c_str(), value.length() );
         }
         else                    //:null
         {
@@ -172,8 +87,39 @@ struct json_traits<std::string&>
         position p = v._pos;
         if(p._type != JTK_NULL)
         {
-            value.resize(p._count);
-            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
+            // pritty but slow and dangerous
+
+//            value.resize(p._count);
+//            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
+
+//            unsigned i = 0;
+//            value.erase(std::remove_if(value.begin(), value.end(),
+//                        [&i, value](char c)->bool
+//                        {
+//                            bool esc = ( c == '\\' && (i < value.length()-1 ) && (sizeof(char) == 1 || unsigned(value[i+1]) < 256) && util::escaped[(unsigned char)value[i+1]] );
+//                            i++;
+//                            return esc;
+//                        }),
+//                        value.end() );
+
+
+            //hard coded but fast and safe
+
+             if (value.capacity() <  p._count + 1)
+                 value.reserve(p._count + 1);
+
+            char* val_ptr = json_ptr + p._pos;
+            for(char* i = val_ptr ; i != val_ptr + p._count ; ++i)
+            {
+                if( *i == '\\' )
+                {
+                    ++i;
+                    if( (i != val_ptr + p._count) && ( sizeof(char) == 1 || unsigned(*i) < 256) && util::escaped[(unsigned char)*i] )
+                        value.push_back(*i);
+                }
+                else
+                    value.push_back(*i);
+            }
         }
     }
 
