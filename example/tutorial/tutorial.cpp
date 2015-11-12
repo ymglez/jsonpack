@@ -21,7 +21,7 @@ int main()
 
 	src.mFloat = 3.1415926535897932384626433832795;
 	src.mInt = 362880;
-	src.mCad = "This is a test";
+	src.mCad = "This, \" is a \", \'test";
 	src.isObject = true;
 	src.caracter = '$';
 
