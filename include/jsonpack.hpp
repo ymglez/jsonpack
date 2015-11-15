@@ -66,6 +66,7 @@
     }                                                                   \
     private:                                                            \
     std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
+    /*static constexpr char _keys[] = #__VA_ARGS__ ; */                   \
     jsonpack::object_t _members = jsonpack::object_t(32);
 #else
 #define DEFINE_JSON_ATTRIBUTES(...)                                     \
