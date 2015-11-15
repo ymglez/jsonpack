@@ -105,6 +105,8 @@ jsonpack_token_type scanner::string_literal()
 
     while( _c != '"' && _c != '\'' && _i < _size )
     {
+        if( _c == '\\') // escape
+            advance();
         advance();
     }
 
