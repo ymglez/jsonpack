@@ -38,7 +38,7 @@ struct json_traits<bool>
 {
     static void append(buffer &json, const char *key, const bool &value)
     {
-        util::json_builder::append_string(json, key, value ? "true" : "false");
+        util::json_builder::append_value(json, key, value ? "true" : "false");
     }
 
     static void append(buffer &json, const bool &value) //append value in array
@@ -103,10 +103,10 @@ struct json_traits<char>
         if( std::isgraph(value) )
         {
             char c[4] = {'"', value, '"', '\0'};
-            util::json_builder::append_string(json, key, c);
+            util::json_builder::append_value(json, key, c);
         }
         else
-            util::json_builder::append_string(json, key, "null");
+            util::json_builder::append_value(json, key, "null");
     }
 
     static void append(buffer &json, const char &value)

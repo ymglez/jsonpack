@@ -37,7 +37,7 @@ struct json_traits
      */
     static void append(buffer &json, const char *key, const T &value)
     {
-        util::json_builder::append_string(json, key, const_cast<T&>(value).json_pack() );
+        util::json_builder::append_value(json, key, const_cast<T&>(value).json_pack() );
     }
 
     /**
