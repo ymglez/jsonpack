@@ -7,7 +7,7 @@ struct  DataObject
 	std::string mCad = "";
 	bool isObject = true;
 	char caracter = 0;
-    
+
 	// The defined members, will be the JSON attributes set
 	// Pairs <"key" : value>, are: <"member-name" : member-value >
 	DEFINE_JSON_ATTRIBUTES(mFloat, mInt, mCad, isObject, caracter)

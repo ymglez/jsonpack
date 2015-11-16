@@ -79,7 +79,7 @@ jsonpack_token_type scanner::next()
         return JTK_COMMA;
         break;
     case '"':
-        return string_literal();
+       return string_literal();
         break;
 
     default:
@@ -300,8 +300,7 @@ bool parser::json_validate(const char *json,const std::size_t &len, array_t &ele
 std::string parser::err_msg()
 {
     char buff[125];
-    sprintf(buff, "error near \'%c\' at position %d\0", _s._c, _s._i);
-    return std::string(buff);
+	sprintf(buff, "error near \'%c\' at position %u", _s._c, _s._i);    return std::string(buff);
 }
 
 //---------------------------------------------------------------------------------------------------

@@ -17,7 +17,11 @@ IF (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Debug CACHE STRING "Build Type")
 ENDIF ()
 
+#
+# OPTIONS
+#
 OPTION(JSONPACK_BUILD_EXAMPLES "Build jsonpack examples." OFF)
+OPTION(JSONPACK_BUILD_TEST "Build all tests." OFF)
 
 SET (prefix ${CMAKE_INSTALL_PREFIX})
 SET (exec_prefix "\${prefix}")
@@ -151,6 +155,13 @@ INSTALL (FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
     DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
     COMPONENT pkgconfig)
 
-
+#
+# TEST
+#
+IF(JSONPACK_BUILD_TEST)
+    find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
+    ENABLE_TESTING()
+    ADD_SUBDIRECTORY(test/)
+ENDIF()
 
 
