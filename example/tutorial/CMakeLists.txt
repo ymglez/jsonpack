@@ -4,12 +4,18 @@ SET(SOURCES tutorial.cpp)
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include")
 
-IF(APPLE)
+IF(APPLE OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     SET(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 ${CMAKE_CXX_FLAGS}")
-ELSE()
+ENDIF()
+
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     SET(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions -finline-limit=64 ${CMAKE_CXX_FLAGS}")
 ENDIF()
 
 ADD_EXECUTABLE(${JSONPACK_TUTORIAL_NAME} ${SOURCES})
 
-TARGET_LINK_LIBRARIES(${JSONPACK_TUTORIAL_NAME} jsonpack)
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	TARGET_LINK_LIBRARIES(${JSONPACK_TUTORIAL_NAME} jsonpack-static)
+ELSE()
+	TARGET_LINK_LIBRARIES(${JSONPACK_TUTORIAL_NAME} jsonpack)
+ENDIF()

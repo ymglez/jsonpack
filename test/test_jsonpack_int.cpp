@@ -22,7 +22,9 @@
 
 struct  TestInt
 {
-    int test_int = 0;
+	TestInt():test_int(0){}
+
+    int test_int;
     DEFINE_JSON_ATTRIBUTES(test_int)
 };
 

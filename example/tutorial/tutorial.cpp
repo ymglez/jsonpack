@@ -2,11 +2,19 @@
 
 struct  DataObject
 {
-	int mInt = 0;
-	float mFloat = 0.0;
-	std::string mCad = "";
-	bool isObject = true;
-	char caracter = 0;
+	DataObject():
+		mInt(0),
+		mFloat(0.0),
+		mCad(""),
+		isObject(true),
+		caracter(0)
+	{}
+
+	int mInt;
+	float mFloat;
+	std::string mCad;
+	bool isObject;
+	char caracter;
 
 	// The defined members, will be the JSON attributes set
 	// Pairs <"key" : value>, are: <"member-name" : member-value >
