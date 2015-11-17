@@ -78,11 +78,11 @@ struct json_traits<float&>
 
 #ifndef _MSC_VER
         value = std::strtof(buffer, nullptr);
-        if(errno) // check range
+        if(errno == ERANGE) // check range
             throw type_error("Float out of range");
 #else
         double v_cpy = std::strtod(buffer, nullptr);
-        if(errno ||
+        if((errno == ERANGE) ||
                 v_cpy > std::numeric_limits<float>::max() ||
                 v_cpy < std::numeric_limits<float>::min() )
             throw type_error("Float out of range");
@@ -149,7 +149,7 @@ struct json_traits<double&>
 
         value = std::strtod(buffer, nullptr);
 
-        if(errno) // check range
+        if(errno == ERANGE) // check range
             throw type_error("Double out of range");
     }
 

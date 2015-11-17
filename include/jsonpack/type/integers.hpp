@@ -208,7 +208,6 @@ struct json_traits<int&>
 
     static void extract(const jsonpack::value &v, char* json_ptr, int &value)
     {
-
         position p = v._pos;
 
         if( p._count >= INT_MAX_DIGITS)
@@ -220,8 +219,7 @@ struct json_traits<int&>
         buffer[p._count] = '\0';        //null-terminated
 
         long v_cpy = std::strtol(buffer, nullptr, 10);
-
-        if(errno ||
+        if((errno == ERANGE) ||
                      v_cpy > std::numeric_limits<int>::max() ||
                      v_cpy < std::numeric_limits<int>::min() )
             throw type_error("Int out of range");
@@ -297,7 +295,7 @@ struct json_traits<unsigned int&>
 
         unsigned long v_cpy = std::strtoul(buffer, nullptr, 10);
 
-        if(errno || v_cpy > std::numeric_limits<unsigned int>::max() ) // check range
+        if((errno == ERANGE) || v_cpy > std::numeric_limits<unsigned int>::max() ) // check range
             throw type_error("Unsigned int out of range");
         value = v_cpy;
     }
@@ -368,7 +366,7 @@ struct json_traits<long&>
 
         value = std::strtol(buffer, nullptr, 10);
 
-        if(errno) // check range
+        if(errno == ERANGE) // check range
             throw type_error("Long out of range");
     }
 
@@ -442,7 +440,7 @@ struct json_traits<unsigned long&>
 
         value = std::strtoul(buffer, nullptr, 10);
 
-        if(errno) // check range
+        if(errno == ERANGE) // check range
             throw type_error("Unsigned long out of range");
 
 //        value = atol( buffer );
@@ -520,7 +518,7 @@ struct json_traits<long long&>
 #else
         value = std::strtoll(buffer, nullptr, 10);
 #endif
-        if(errno) // check range
+        if(errno == ERANGE) // check range
             throw type_error("Long long out of range");
 
     }
@@ -596,7 +594,7 @@ struct json_traits<unsigned long long&>
 #else
         value = std::strtoull(buffer, nullptr, 10);
 #endif
-        if(errno) // check range
+        if(errno == ERANGE) // check range
             throw type_error("Unsigned Long long out of range");
 
     }
