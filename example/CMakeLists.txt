@@ -1,0 +1,26 @@
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include")
+
+IF(APPLE OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 ${CMAKE_CXX_FLAGS}")
+ENDIF()
+
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -march=native -Wall -pedantic -Wextra -Weffc++ -Werror -O3 -finline-functions -finline-limit=64 ${CMAKE_CXX_FLAGS}")
+ENDIF()
+
+#
+# ADD EXAMPLES
+#
+FILE (GLOB_RECURSE examples_SRCs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+FOREACH (SRC_FILE ${examples_SRCs})
+
+	GET_FILENAME_COMPONENT (FILE_NAME ${SRC_FILE} NAME_WE)
+	
+	ADD_EXECUTABLE(${FILE_NAME} ${SRC_FILE})
+
+	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+		TARGET_LINK_LIBRARIES(${FILE_NAME} jsonpack-static)
+	ELSE()
+		TARGET_LINK_LIBRARIES(${FILE_NAME} jsonpack)
+	ENDIF()
+ENDFOREACH (SRC_FILE ${examples_SRCs})

@@ -25,7 +25,7 @@ struct  TestInt
 	TestInt():test_int(0){}
 
     int test_int;
-    DEFINE_JSON_ATTRIBUTES(test_int)
+    DEFINE_JSON_ATTRIBUTES(test_int) 
 };
 
 

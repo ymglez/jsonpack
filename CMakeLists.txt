@@ -52,7 +52,7 @@ SET(CMAKE_INSTALL_DIR "${_CMAKE_INSTALL_DIR}" CACHE PATH "The directory cmake fi
 
 # TODO example
 IF(JSONPACK_BUILD_EXAMPLES)
-    ADD_SUBDIRECTORY(example/tutorial/)
+    ADD_SUBDIRECTORY(example/)
 ENDIF()
 
 SET (3rdparty_SOURCES src/3rdparty/format.cpp)
