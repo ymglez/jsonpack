@@ -10,7 +10,7 @@ you only should take care about managing your C++ objects and JsonPack will make
 
 * Easy-to-use, contains a very short and intuitive API. See Example section
 
-* Very fast, zero string copy and fast number conversions.
+* Very fast: template metaprograming, zero string copy and fast number conversions.
 
 * Support serialization/deserialization for c++ types:
   bool, char, int, unsigned int, long, unsigned long,
@@ -19,9 +19,12 @@ you only should take care about managing your C++ objects and JsonPack will make
 * Support serialization/deserialization for c++ standard containers:
   array, vector, deque, list, forward_list, set, multiset, unordered_set, unordered_multiset.
 
-* Parsing error management
+* Parsing error management.
 
-* JSON keys match with C++ identifiers name convention.
+* JSON keys match with C++ identifiers name convention when json blob read directly
+  into the data object.
+
+* DOM style parsing with nice data recovering.
 
 ## Example
 

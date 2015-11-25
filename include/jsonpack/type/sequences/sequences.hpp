@@ -454,6 +454,7 @@ struct json_traits<std::unordered_set<T>& >
     {
         sequence_traits< std::unordered_set<T>& >::extract(v, json_ptr, value);
     }
+    //TODO Remove
     static void insert_data(const T& data, std::unordered_set<T> &value)
     {
         value.insert(value.rbegin() , data);

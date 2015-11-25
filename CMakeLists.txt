@@ -71,6 +71,7 @@ LIST (APPEND jsonpack_HEADERS
     include/jsonpack/parser.hpp
     include/jsonpack/types.hpp
     include/jsonpack/config.hpp
+    include/jsonpack/umap.hpp
     include/jsonpack/util/builder.hpp
     include/jsonpack/type/integers.hpp
     include/jsonpack/type/reals.hpp

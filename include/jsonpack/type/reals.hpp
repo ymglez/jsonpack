@@ -66,11 +66,13 @@ struct json_traits<float&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, float &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), float &value)
     {
         position p = v._pos;
 
-        char * str_value = json_ptr + p._pos;   //pointing to the start
+//        char * str_value = json_ptr + p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[DOUBLE_MAX_DIGITS];
         const unsigned long len = p._count < DOUBLE_MAX_DIGITS ? p._count : DOUBLE_MAX_DIGITS - 1 ;
         memcpy(buffer, str_value, len);
@@ -138,10 +140,12 @@ struct json_traits<double&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, double &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), double &value)
     {
         position p = v._pos;
-        char * str_value = json_ptr + p._pos; //pointing to the start
+//        char * str_value = json_ptr + p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[DOUBLE_MAX_DIGITS];
         const unsigned long len = p._count < DOUBLE_MAX_DIGITS ? p._count : DOUBLE_MAX_DIGITS - 1 ;
         memcpy(buffer, str_value, len);

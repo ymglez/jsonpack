@@ -147,9 +147,10 @@ struct json_traits<char&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, char &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), char &value)
     {
-        value = v._pos._type != JTK_NULL ? json_ptr[v._pos._pos] : 0;
+//        value = v._pos._type != JTK_NULL ? json_ptr[v._pos._pos] : 0;
+        value = v._pos._type != JTK_NULL ? *(v._pos._pos) : 0;
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -206,14 +207,16 @@ struct json_traits<int&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, int &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), int &value)
     {
         position p = v._pos;
 
         if( p._count >= INT_MAX_DIGITS)
             throw type_error("Int out of range");
 
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[LONG_MAX_DIGITS];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
@@ -280,7 +283,7 @@ struct json_traits<unsigned int&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, unsigned int &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), unsigned int &value)
     {
         position p = v._pos;
 
@@ -288,7 +291,9 @@ struct json_traits<unsigned int&>
             throw type_error("Unsigned int out of range");
 
         //TODO check for sign
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[LONG_MAX_DIGITS];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';            //null-terminated
@@ -352,14 +357,16 @@ struct json_traits<long&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, long &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), long &value)
     {
         position p = v._pos;
 
         if( p._count >= LONG_MAX_DIGITS)
             throw type_error("Long out of range");
 
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[LONG_MAX_DIGITS];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
@@ -425,7 +432,7 @@ struct json_traits<unsigned long&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, unsigned long &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), unsigned long &value)
     {
         position p = v._pos;
 
@@ -433,7 +440,9 @@ struct json_traits<unsigned long&>
             throw type_error("Unsigned long out of range");
 
         //TODO check for sign
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[ULONG_MAX_DIGITS];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
@@ -500,7 +509,7 @@ struct json_traits<long long&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, long long &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), long long &value)
     {
         position p = v._pos;
 
@@ -508,7 +517,9 @@ struct json_traits<long long&>
             throw type_error("Long long out of range");
 
         //TODO check for sign
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[LONGLONG_MAX_DIGITS];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
@@ -576,7 +587,7 @@ struct json_traits<unsigned long long&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, unsigned long long &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), unsigned long long &value)
     {
         position p = v._pos;
 
@@ -584,7 +595,9 @@ struct json_traits<unsigned long long&>
             throw type_error("Unsigned long long out of range");
 
         //TODO check for sign
-        char * str_value = json_ptr+p._pos;   //pointing to the start
+//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+
         char buffer[ULONGLONG_MAX_DIGITS];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated

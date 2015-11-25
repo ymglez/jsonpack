@@ -237,7 +237,7 @@ value scanner::get_last_value(bool expect_str_literal = false)
 {
     value p;
     position vpos;
-    vpos._pos = _start_token_pos + expect_str_literal;
+    vpos._pos = const_cast<char*>(_source +(_start_token_pos + expect_str_literal));
     vpos._count = _i - _start_token_pos - 2*expect_str_literal;
     vpos._type = JTK_INVALID; //avoiding initializer warnig
 

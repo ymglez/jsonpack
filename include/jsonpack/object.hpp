@@ -20,41 +20,11 @@
 #define JSONPACK_ARRAY_OBJECT_HPP
 
 #include <vector>
-#include <unordered_map>
 #include <string.h>
 
-#include "jsonpack/namespace.hpp"
+#include "jsonpack/umap.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
-
-/**
- * Represent a keys in the json string
- */
-struct key
-{
-
-    bool operator== (const key &k1) const
-    {
-        std::size_t min =  std::min( k1._bytes, _bytes );
-        bool ret = ( memcmp(k1._ptr, _ptr, min) == 0 );
-        return ret;
-    }
-
-    key():_ptr(nullptr), _bytes(0){}
-
-    key(const key& k):
-        _ptr(k._ptr),
-        _bytes(k._bytes)
-    {}
-
-#ifndef _MSC_VER
-    const char * _ptr = nullptr;
-    std::size_t _bytes = 0;
-#else
-    const char * _ptr;
-    std::size_t _bytes;
-#endif
-};
 
 /**
  * hash function for non null-terminated byte strings
@@ -75,7 +45,7 @@ inline unsigned long _hash_bytes(const char* __str, const unsigned long & _bytes
 }
 
 /**
- * functor to hash keys in unordered_map
+ * Functor to hash keys in unordered_map
  */
 struct key_hash
 {
@@ -109,16 +79,14 @@ enum jsonpack_token_type
     JTK_INVALID = 12
 };
 
-
 /**
  * Position of a value in string json
  */
 struct position
 {
     jsonpack_token_type _type;
-    unsigned long _pos;
+    char* _pos;
     unsigned long _count;
-
 
 #if !defined(_MSC_VER) && !defined(__APPLE__)
     position& operator =(const position &rvalue)
@@ -129,16 +97,14 @@ struct position
         return *this;
     }
 #endif
-
 };
-
 
 struct value;
 
 /**
  * Collection of key/value pairs (javascript object)
  */
-typedef std::unordered_map<key, value, key_hash >  object_t;
+typedef jsonpack::umap<key, value, key_hash >  object_t;
 
 /**
  * Sequence of values
@@ -152,9 +118,14 @@ enum fields
 {
     _POS,
     _OBJ,
-    _ARR
+    _ARR,
+    _NULL
 };
 
+TYPE_BEGIN_NAMESPACE
+    template<typename T>
+    struct json_traits;
+JSONPACK_API_END_NAMESPACE //type
 
 /**
  * Represent a JSON value. The union wrapper can represents a:
@@ -164,6 +135,8 @@ enum fields
  */
 struct value
 {
+    explicit value():_field(_NULL){}
+
     fields _field;
 
     union
@@ -190,6 +163,37 @@ struct value
         }
 
         return *this;
+    }
+
+    /**
+     * Get the current json value into the given reference,
+     * performing conversion
+     */
+    template<typename T>
+    void operator()(T& _val)
+    {
+        if( !type::json_traits<T&>::match_token_type(*this) )
+            throw type_error("Types mismatch");
+
+        type::json_traits<T&>::extract(*this, nullptr, _val);
+    }
+
+    /**
+     * Lookup when json value is an object
+     */
+    value operator[](const std::string &__str_key)
+    {
+        if(_field != _OBJ) throw type_error("current value is not an object!");
+            return _obj->operator [](__str_key.c_str());
+    }
+
+    /**
+     * Lookup when json value is an array
+     */
+    value operator[](const std::size_t __index)
+    {
+        if(_field != _ARR) throw type_error("current value is not an array!");
+            return _arr->operator [](__index);
     }
 };
 
@@ -257,23 +261,6 @@ static inline void clean_object(object_t & obj)
         }
     }
 }
-
-/*
-enum value_field
-{
-    _NULL,
-    _STR,
-    _BOOL,
-    _INTEGER,
-    _REAL,
-    _ARRAY,
-    _OBJECT
-
-};
-
-}*/
-
-
 
 
 JSONPACK_API_END_NAMESPACE

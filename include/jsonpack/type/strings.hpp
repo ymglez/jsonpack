@@ -82,7 +82,7 @@ struct json_traits<std::string&>
         }
     }
 
-    static void extract(const jsonpack::value &v, char* json_ptr, std::string &value)
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), std::string &value)
     {
         position p = v._pos;
         if(p._type != JTK_NULL)
@@ -108,7 +108,8 @@ struct json_traits<std::string&>
              if (value.capacity() <  p._count + 1)
                  value.reserve(p._count + 1);
 
-            char* val_ptr = json_ptr + p._pos;
+//             char* val_ptr = json_ptr + p._pos;
+            char* val_ptr = p._pos;
             for(char* i = val_ptr ; i != val_ptr + p._count ; ++i)
             {
                 if( *i == '\\' )
