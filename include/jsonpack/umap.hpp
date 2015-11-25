@@ -1,8 +1,27 @@
+/**
+ *  Jsonpack - JSON object representation
+ *
+ *  Copyright (c) 2015 Yadiel Martinez Gonzalez <ymglez2015@gmail.com>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 #ifndef JSONPACK_UMAP_HPP
 #define JSONPACK_UMAP_HPP
 
 #include <unordered_map>
 
+#include "jsonpack/parser.hpp"
 #include "jsonpack/exceptions.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
@@ -57,9 +76,12 @@ public:
     typedef typename base_map::const_iterator const_iterator;
 
     base_map _umap;
+    jsonpack::parser _p;
 public:
 
-    explicit umap(size_type __n = 10):_umap(__n)
+    explicit umap(size_type __n = 10):
+        _umap(__n),
+        _p()
     {}
 
     iterator begin() noexcept
@@ -106,6 +128,15 @@ public:
         msg += str_key;
         msg+= "' not found!";
         throw jsonpack_error( msg.c_str() );
+    }
+
+    /**
+     * Parse json string into a jsonpack::object (this)
+     */
+    void json_unpack(const char* json, const std::size_t &len)
+    {
+        if(!_p.json_validate(json, len, *this))
+            throw jsonpack_error( _p.err_msg().c_str() );
     }
 };
 

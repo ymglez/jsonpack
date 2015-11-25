@@ -1,5 +1,5 @@
 /**
- *  Jsonpack - JSON object representation
+ *  Jsonpack - JSON value representation
  *
  *  Copyright (c) 2015 Yadiel Martinez Gonzalez <ymglez2015@gmail.com>
  *
@@ -58,7 +58,7 @@ struct key_hash
 /**
  * JSON tokens
  */
-enum jsonpack_token_type
+enum jsonpack_token_type : unsigned
 {
     JTK_OPEN_KEY = 0,
     JTK_CLOSE_KEY = 1,

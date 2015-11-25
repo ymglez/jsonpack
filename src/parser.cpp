@@ -20,9 +20,9 @@
 #include <string.h>
 #include <string>
 
-#include "jsonpack/exceptions.hpp"
 #include "jsonpack/parser.hpp"
-
+#include "jsonpack/object.hpp"
+#include "jsonpack/exceptions.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
 
