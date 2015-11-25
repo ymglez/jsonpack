@@ -27,7 +27,7 @@ int main()
 	// manage my object
 	DataObject src, out;
 
-	src.mFloat = 3.1415926535897932384626433832795;
+	src.mFloat = 3.1415926535897932384626433832795f;
 	src.mInt = 362880;
 	src.mCad = "This, \" is a \", \'test";
 	src.isObject = true;

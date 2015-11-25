@@ -1,5 +1,5 @@
 /**
- *  Jsonpack - C++ variadic templates compiler features
+ *  Jsonpack - C++ compiler features
  *
  *  Copyright (c) 2015 Yadiel Martinez Gonzalez <ymglez2015@gmail.com>
  *
@@ -22,6 +22,14 @@
 #if defined __cplusplus
 #   if (__cplusplus >= 201103) & !defined(_MSC_VER)
 #       define JSONPACK_USE_VARIADIC_TEMPLATES
+#   endif
+#endif
+
+#if defined __cplusplus
+#   if (__cplusplus >= 201103) & !defined(_MSC_VER)
+#       define noexcept noexcept
+#	else
+#		define noexcept
 #   endif
 #endif
 

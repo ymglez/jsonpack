@@ -23,6 +23,7 @@
 
 #include "jsonpack/parser.hpp"
 #include "jsonpack/exceptions.hpp"
+#include "jsonpack/config.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
 

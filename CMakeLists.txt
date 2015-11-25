@@ -136,7 +136,7 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     ADD_DEFINITIONS(-D_VARIADIC_MAX=10
                     -D_CRT_SECURE_NO_WARNINGS
                     -D_SCL_SECURE_NO_WARNINGS
-                    -wd4800 -wd4804 -wd4018) # disabiling 3rdparty's warnings
+                    -wd4800 -wd4804 -wd4018 -wd4099) # disabiling 3rdparty's warnings
 
     IF (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         STRING(REGEX REPLACE "/W[0-4]" "/W3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
