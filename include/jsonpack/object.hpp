@@ -188,12 +188,42 @@ struct value
     }
 
     /**
-     * Lookup when json value is an array
+     * Vector operations when json value is an array
+     * throw exception if current value is not an array
      */
     value operator[](const std::size_t __index)
     {
         if(_field != _ARR) throw type_error("current value is not an array!");
-            return _arr->operator [](__index);
+        return _arr->operator [](__index);
+    }
+    std::size_t size() const
+    {
+        if(_field != _ARR) throw type_error("current value is not an array!");
+        return _arr->size();
+    }
+
+    array_t::iterator begin()
+    {
+        if(_field != _ARR) throw type_error("current value is not an array!");
+        return _arr->begin();
+    }
+
+    array_t::const_iterator begin() const
+    {
+        if(_field != _ARR) throw type_error("current value is not an array!");
+        return _arr->begin();
+    }
+
+    array_t::iterator end()
+    {
+        if(_field != _ARR) throw type_error("current value is not an array!");
+        return _arr->end();
+    }
+
+    array_t::const_iterator end() const
+    {
+        if(_field != _ARR) throw type_error("current value is not an array!");
+        return _arr->end();
     }
 };
 

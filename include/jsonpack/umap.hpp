@@ -114,6 +114,7 @@ public:
 
     /**
      * Overload for easy lookup. Throw exception on fail
+     * return a copy of element or throw exception
      */
     mapped_type operator[](const char* str_key)
     {
