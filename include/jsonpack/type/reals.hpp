@@ -88,7 +88,7 @@ struct json_traits<float&>
                 v_cpy > std::numeric_limits<float>::max() ||
                 v_cpy < std::numeric_limits<float>::min() )
             throw type_error("Float out of range");
-		value = static_cast<float>(v_cpy);
+        value = static_cast<float>(v_cpy);
 #endif
     }
 

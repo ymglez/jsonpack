@@ -42,8 +42,8 @@
  * Real size definitions
  * TODO fix 
  */
-#define FLOAT_MAX_DIGITS	21 + 2
-#define DOUBLE_MAX_DIGITS	22 + 2
+#define FLOAT_MAX_DIGITS	64
+#define DOUBLE_MAX_DIGITS	64
 
 
 JSONPACK_API_BEGIN_NAMESPACE
@@ -145,7 +145,7 @@ struct json_builder
     template<typename Real>
     static void append_real(buffer &json, const char *key, const Real &value)
     {
-        char buf[DOUBLE_MAX_DIGITS] ; //signs
+        char buf[DOUBLE_MAX_DIGITS] ;
 
         dtoa_milo(value, buf);
 
