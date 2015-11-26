@@ -37,7 +37,7 @@ struct key_hash;
 enum jsonpack_token_type : unsigned;
 
 template<class _Key, class _Value, class _Hasher>
-struct umap;
+class umap;
 
 typedef umap<key, value, key_hash> object_t;
 typedef std::vector<value>  array_t;
