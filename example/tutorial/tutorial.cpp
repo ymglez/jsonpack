@@ -40,10 +40,9 @@ int main()
 	//deserialize json
 	try
 	{
-	  out.json_unpack(serialized, strlen(serialized) );
-	  printf("\nobject: \nout.mFloat=%0.16f\nout.mInt=%d\nout.mCad=%s\nout.isObject=%d\nout.caracter=%c\n",
-			  out.mFloat, out.mInt, out.mCad.data(), out.isObject, out.caracter
-			 );
+		out.json_unpack(serialized, strlen(serialized) );
+		printf("\ndeserialized object: \nout.mFloat=%0.16f\nout.mInt=%d\nout.mCad=%s\nout.isObject=%d\nout.caracter=%c\n",
+			out.mFloat, out.mInt, out.mCad.data(), out.isObject, out.caracter );
 	}
 	catch (jsonpack::jsonpack_error &e)
 	{
@@ -52,6 +51,7 @@ int main()
 
 
 	free(serialized);
+
 	getchar();
 
 	return 0;

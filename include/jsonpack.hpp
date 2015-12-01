@@ -52,13 +52,13 @@
         return json.release();                                          \
     }                                                                   \
     void json_unpack(const char* json, const std::size_t &len)          \
-    {                                                                               \
+    {                                                                   \
          jsonpack::parser p;                                            \
-         if(p.json_validate(json, len, _members))       \
+         if(p.json_validate(json, len, _members))                       \
          {                                                              \
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
-            jsonpack::clean_object(_members);                           \
-        }else{throw jsonpack::invalid_json(p.err_msg().c_str());}                          \
+            jsonpack::clear(&_members);                          \
+        }else{throw jsonpack::invalid_json(p.err_msg().c_str());}       \
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
     {                                                                   \
@@ -87,7 +87,7 @@
          {                                                              \
             std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
-            jsonpack::clean_object(_members);                           \
+            jsonpack::clear(&_members);									\
         }else{throw jsonpack::invalid_json(p.err_msg().c_str());}  		\
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \

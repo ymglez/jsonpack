@@ -39,8 +39,11 @@ enum jsonpack_token_type : unsigned;
 template<class _Key, class _Value, class _Hasher>
 class umap;
 
+template<typename _Tp>
+class vector;
+
 typedef umap<key, value, key_hash> object_t;
-typedef std::vector<value>  array_t;
+typedef vector<value>  array_t;
 
 /** ****************************************************************************
  ******************************** SCANNER **************************************

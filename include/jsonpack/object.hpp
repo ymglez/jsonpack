@@ -22,6 +22,7 @@
 #include <vector>
 #include <string.h>
 
+#include "jsonpack/vector.hpp"
 #include "jsonpack/umap.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
@@ -99,6 +100,12 @@ struct position
 #endif
 };
 
+/**
+ * Forward
+ */
+static inline void clear(object_t *obj);
+static inline void clear(array_t *arr);
+
 struct value;
 
 /**
@@ -109,7 +116,7 @@ typedef jsonpack::umap<key, value, key_hash >  object_t;
 /**
  * Sequence of values
  */
-typedef std::vector<value> array_t;
+typedef vector<value> array_t;
 
 /**
  * For union active field control
@@ -135,7 +142,7 @@ JSONPACK_API_END_NAMESPACE //type
  */
 struct value
 {
-    explicit value():_field(_NULL){}
+    value():_field(_NULL){}
 
     fields _field;
 
@@ -166,8 +173,31 @@ struct value
     }
 
     /**
+     * Type check
+     */
+    bool is_null()
+    { return (_field == _NULL || (_field == _POS && _pos._type == JTK_NULL ) ); }
+
+    bool is_boolean()
+    { return (_field == _POS && ( _pos._type == JTK_TRUE || _pos._type == JTK_FALSE ) ); }
+
+    bool is_integer()
+    { return (_field == _POS && _pos._type == JTK_INTEGER ); }
+
+    bool is_real()
+    { return (_field == _POS && _pos._type == JTK_REAL ); }
+
+    bool is_object()
+    { return (_field == _OBJ); }
+
+    bool is_array()
+    { return (_field == _ARR); }
+
+
+    /**
      * Get the current json value into the given reference,
-     * performing conversion
+     * performing conversion when json value is
+     * LITERAL VALUE
      */
     template<typename T>
     void operator()(T& _val)
@@ -179,7 +209,8 @@ struct value
     }
 
     /**
-     * Lookup when json value is an object
+     * Lookup when json value is
+     * OBJECT
      */
     value operator[](const std::string &__str_key)
     {
@@ -188,14 +219,15 @@ struct value
     }
 
     /**
-     * Vector operations when json value is an array
-     * throw exception if current value is not an array
+     * Vector operations when json value is
+     * ARRAY
      */
     value operator[](const std::size_t __index)
     {
         if(_field != _ARR) throw type_error("current value is not an array!");
         return _arr->operator [](__index);
     }
+
     std::size_t size() const
     {
         if(_field != _ARR) throw type_error("current value is not an array!");
@@ -227,27 +259,12 @@ struct value
     }
 };
 
-//forward
-static inline void delete_object(object_t *obj);
-
 /**
  * Function to free array_t
  */
 static inline void delete_array(array_t *arr)
 {
-    for(array_t::iterator elem = arr->begin(); elem != arr->end(); elem++)
-    {
-        if((*elem)._field == _OBJ)
-        {
-            delete_object((*elem)._obj);
-        }
-        else if((*elem)._field == _ARR)
-        {
-            delete_array((*elem)._arr);
-        }
-    }
-
-    arr->clear();
+    clear(arr);
     delete arr;
     arr = nullptr;
 }
@@ -256,6 +273,16 @@ static inline void delete_array(array_t *arr)
  * Function to free object_t
  */
 static inline void delete_object(object_t *obj)
+{
+    clear(obj);
+    delete obj;
+    obj = nullptr;
+}
+
+/**
+ * Function to free internal elements
+ */
+static inline void clear(object_t* obj)
 {
     for(object_t::iterator it = obj->begin(); it != obj->end(); it++)
     {
@@ -270,26 +297,26 @@ static inline void delete_object(object_t *obj)
     }
 
     obj->clear();
-    delete obj;
-    obj = nullptr;
 }
 
 /**
  * Function to free internal elements
  */
-static inline void clean_object(object_t & obj)
+static inline void clear(array_t* arr)
 {
-    for(object_t::iterator it = obj.begin(); it != obj.end(); it++)
+   for(array_t::iterator elem = arr->begin(); elem != arr->end(); elem++)
     {
-        if(it->second._field == _OBJ)
+        if((*elem)._field == _OBJ)
         {
-            delete_object(it->second._obj);
+            delete_object((*elem)._obj);
         }
-        else if(it->second._field == _ARR)
+        else if((*elem)._field == _ARR)
         {
-            delete_array(it->second._arr);
+            delete_array((*elem)._arr);
         }
     }
+
+    arr->clear();
 }
 
 

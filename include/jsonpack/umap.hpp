@@ -59,7 +59,8 @@ struct key
 
 /**
  * Collection of key/value pairs (javascript object)
- * std::unordered_map adapter overloading operator[](const char*) for easy lookup
+ * std::unordered_map adapter overloading operator[](const char*) for easy lookup,
+ * added json_unpack() member for parsing json object
  */
 template<class _KeyType,
          class _ValType,
@@ -113,8 +114,8 @@ public:
     { _umap.clear(); }
 
     /**
-     * Overload for easy lookup. Throw exception on fail
-     * return a copy of element or throw exception
+     * Overload for easy lookup.
+     * Return a copy of element or throw exception if not found
      */
     mapped_type operator[](const char* str_key)
     {
@@ -133,7 +134,7 @@ public:
     }
 
     /**
-     * Parse json string into a jsonpack::object (this)
+     * Parse json string into a jsonpack::object_t or jsonpack::array_t(this)
      */
     void json_unpack(const char* json, const std::size_t &len)
     {
