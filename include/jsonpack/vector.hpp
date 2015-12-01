@@ -47,6 +47,8 @@ public:
 
 private:
     base_vector _vect;
+	jsonpack::parser _p;
+
 public:
     vector():_vect()
     {}
@@ -77,6 +79,15 @@ public:
 
     void push_back(const value_type& __x)
     { _vect.push_back(__x);}
+
+	    /**
+     * Parse json string into a jsonpack::object_t or jsonpack::array_t(this)
+     */
+    void json_unpack(const char* json, const std::size_t &len)
+    {
+        if(!_p.json_validate(json, len, *this))
+            throw jsonpack_error( _p.err_msg().c_str() );
+    }
 
 };
 

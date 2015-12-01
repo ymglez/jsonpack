@@ -61,7 +61,7 @@ LIST (APPEND jsonpack_SOURCES
     src/parser.cpp
     src/3rdparty/format.cpp
 )
-
+ 
 LIST (APPEND jsonpack_HEADERS
     include/jsonpack.hpp
     include/jsonpack/buffer.hpp
