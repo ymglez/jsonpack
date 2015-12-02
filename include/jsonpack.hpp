@@ -40,35 +40,6 @@
 #endif
 #endif
 
-
-#ifndef _MSC_VER
-#define DEFINE_JSON_ATTRIBUTES(...)                                     \
-    public:                                                             \
-    char* json_pack()                                                   \
-    {                                                                   \
-        jsonpack::buffer json;                                          \
-        json.append( "{" , 1);                                          \
-        jsonpack::make_json(json, _keys ,__VA_ARGS__);                  \
-        return json.release();                                          \
-    }                                                                   \
-    void json_unpack(const char* json, const std::size_t &len)          \
-    {                                                                   \
-         jsonpack::parser p;                                            \
-         if(p.json_validate(json, len, _members))                       \
-         {                                                              \
-            jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
-            jsonpack::clear(&_members);                          \
-        }else{throw jsonpack::invalid_json(p.err_msg().c_str());}       \
-    }                                                                   \
-    void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
-    {                                                                   \
-            jsonpack::make_object(json, json_ptr, _keys, __VA_ARGS__);  \
-    }                                                                   \
-    private:                                                            \
-    std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
-    /*static constexpr char _keys[] = #__VA_ARGS__ ; */                   \
-    jsonpack::object_t _members = jsonpack::object_t(32);
-#else
 #define DEFINE_JSON_ATTRIBUTES(...)                                     \
     public:                                                             \
     char* json_pack()                                                   \
@@ -81,13 +52,13 @@
     }                                                                   \
     void json_unpack(const char* json, const std::size_t &len)          \
     {                                                                   \
-        jsonpack::object_t _members = jsonpack::object_t(32);           \
-		jsonpack::parser p;												\
+        jsonpack::object_t _members(32, false);                         \
+        jsonpack::parser p;												\
          if(p.json_validate(json, len, _members))       				\
          {                                                              \
             std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
-            jsonpack::clear(&_members);									\
+            jsonpack::parser::clear(&_members);									\
         }else{throw jsonpack::invalid_json(p.err_msg().c_str());}  		\
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
@@ -95,8 +66,6 @@
         std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
         jsonpack::make_object(json, json_ptr, _keys, __VA_ARGS__);      \
     }
-#endif
-
 
 
 JSONPACK_API_BEGIN_NAMESPACE
@@ -128,7 +97,7 @@ inline char* json_pack_sequence(const Seq& seq)
 template<typename Seq>
 inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& seq)
 {
-    array_t *arr = new array_t();
+    array_t *arr = new array_t(false);
 
     parser p;
     if(p.json_validate(json, len, *arr))
@@ -144,7 +113,7 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
         throw jsonpack::invalid_json(p.err_msg().c_str());
     }
 
-    delete_array(arr);
+    parser::delete_array(arr);
 }
 
 

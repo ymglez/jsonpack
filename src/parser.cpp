@@ -247,6 +247,55 @@ value scanner::get_last_value(bool expect_str_literal = false)
     return p;
 }
 
+void parser::delete_array(array_t *arr)
+{
+    clear(arr);
+    delete arr;
+    arr = nullptr;
+
+}
+
+void parser::delete_object(object_t *obj)
+{
+    clear(obj);
+    delete obj;
+    obj = nullptr;
+
+}
+
+void parser::clear(object_t* obj)
+{
+    for(object_t::iterator it = obj->begin(); it != obj->end(); it++)
+    {
+        if(it->second._field == _OBJ)
+        {
+            delete_object(it->second._obj);
+        }
+        else if(it->second._field == _ARR)
+        {
+            delete_array(it->second._arr);
+        }
+    }
+
+    obj->clear();
+}
+
+void parser::clear(array_t* arr)
+{
+   for(array_t::iterator elem = arr->begin(); elem != arr->end(); elem++)
+    {
+        if((*elem)._field == _OBJ)
+        {
+            delete_object((*elem)._obj);
+        }
+        else if((*elem)._field == _ARR)
+        {
+            delete_array((*elem)._arr);
+        }
+    }
+
+    arr->clear();
+}
 
 /** ****************************************************************************
  ******************************** PARSER ***************************************
@@ -365,7 +414,7 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        object_t* new_obj = new object_t();  // create obj
+        object_t* new_obj = new object_t(members._auto_clear);  // create obj
 
         bool object_ok = item_list(*new_obj);          //fill obj
         
@@ -388,7 +437,7 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        array_t* new_array = new array_t();   // create arr
+        array_t* new_array = new array_t(members._auto_clear);   // create arr
 
         bool array_ok = array_list(*new_array);         // fill arr
         if(array_ok)
@@ -453,7 +502,7 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        object_t* new_obj = new object_t();  // create obj
+        object_t* new_obj = new object_t(elemets._auto_clear);  // create obj
 
         bool object_ok = item_list(*new_obj);          //fill obj
         
@@ -476,7 +525,7 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        array_t* new_array = new array_t();   // create arr
+        array_t* new_array = new array_t(elemets._auto_clear);   // create arr
 
         bool array_ok = array_list(*new_array);         // fill arr
         if(array_ok)

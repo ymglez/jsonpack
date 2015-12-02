@@ -100,12 +100,6 @@ struct position
 #endif
 };
 
-/**
- * Forward
- */
-static inline void clear(object_t *obj);
-static inline void clear(array_t *arr);
-
 struct value;
 
 /**
@@ -259,65 +253,6 @@ struct value
     }
 };
 
-/**
- * Function to free array_t
- */
-static inline void delete_array(array_t *arr)
-{
-    clear(arr);
-    delete arr;
-    arr = nullptr;
-}
-
-/**
- * Function to free object_t
- */
-static inline void delete_object(object_t *obj)
-{
-    clear(obj);
-    delete obj;
-    obj = nullptr;
-}
-
-/**
- * Function to free internal elements
- */
-static inline void clear(object_t* obj)
-{
-    for(object_t::iterator it = obj->begin(); it != obj->end(); it++)
-    {
-        if(it->second._field == _OBJ)
-        {
-            delete_object(it->second._obj);
-        }
-        else if(it->second._field == _ARR)
-        {
-            delete_array(it->second._arr);
-        }
-    }
-
-    obj->clear();
-}
-
-/**
- * Function to free internal elements
- */
-static inline void clear(array_t* arr)
-{
-   for(array_t::iterator elem = arr->begin(); elem != arr->end(); elem++)
-    {
-        if((*elem)._field == _OBJ)
-        {
-            delete_object((*elem)._obj);
-        }
-        else if((*elem)._field == _ARR)
-        {
-            delete_array((*elem)._arr);
-        }
-    }
-
-    arr->clear();
-}
 
 
 JSONPACK_API_END_NAMESPACE

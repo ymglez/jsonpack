@@ -41,8 +41,7 @@ int main()
 		
 		printf("\nresult: \nout.mFloat=%0.16f\nout.mInt=%d\nout.mCad=%s\nout.isObject=%d\nout.caracter=%c\n",
               out.mFloat, out.mInt, out.mCad.data(), out.isObject, out.caracter );
-		
-		jsonpack::clear(&document_obj);
+
 
 		//DOM style parse json array
 		jsonpack::array_t document_list;
@@ -56,7 +55,6 @@ int main()
 			printf(" %f", result);
 		}
 		printf("\n");
-		jsonpack::clear(&document_list);
 		
     }
     catch (jsonpack::jsonpack_error &e)

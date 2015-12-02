@@ -45,13 +45,24 @@ public:
     typedef typename base_vector::const_iterator    const_iterator;
     typedef size_t                                  size_type;
 
+    bool _auto_clear;
+
 private:
     base_vector _vect;
-	jsonpack::parser _p;
+    jsonpack::parser _p;
 
 public:
-    vector():_vect()
+    vector(bool auto_clear = true):
+        _auto_clear(auto_clear),
+        _vect(),
+        _p()
     {}
+
+    ~vector()
+    {
+        if(_auto_clear)
+            parser::clear(this);
+    }
 
     iterator begin() noexcept
     { return _vect.begin(); }
@@ -80,7 +91,7 @@ public:
     void push_back(const value_type& __x)
     { _vect.push_back(__x);}
 
-	    /**
+    /**
      * Parse json string into a jsonpack::object_t or jsonpack::array_t(this)
      */
     void json_unpack(const char* json, const std::size_t &len)

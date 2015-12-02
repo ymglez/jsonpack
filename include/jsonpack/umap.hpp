@@ -79,12 +79,26 @@ public:
 
     base_map _umap;
     jsonpack::parser _p;
+    bool _auto_clear;
 public:
 
-    explicit umap(size_type __n = 10):
+    explicit umap(size_type __n, bool auto_clear):
         _umap(__n),
-        _p()
+        _p(),
+        _auto_clear(auto_clear)
     {}
+
+    explicit umap(bool auto_clear = true):
+        _umap(),
+        _p(),
+        _auto_clear(auto_clear)
+    {}
+
+    ~umap()
+    {
+        if(_auto_clear)
+            parser::clear(this);
+    }
 
     iterator begin() noexcept
     {return _umap.begin();}

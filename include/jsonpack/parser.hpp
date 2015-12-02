@@ -135,8 +135,6 @@ struct scanner
 /** ****************************************************************************
  ******************************** PARSER ***************************************
  *******************************************************************************/
-
-
 struct parser
 {
 	/**
@@ -153,6 +151,27 @@ struct parser
     bool json_validate(const char *json,const std::size_t &len, array_t &elemets );
 
     std::string err_msg();
+
+    /**
+     * Function to free array_t
+     */
+    static void delete_array(array_t *arr);
+
+
+    /**
+     * Function to free object_t
+     */
+    static void delete_object(object_t *obj);
+
+    /**
+     * Function to free internal elements in object
+     */
+    static void clear(object_t* obj);
+
+    /**
+     * Function to free internal elements in array
+     */
+    static void clear(array_t* arr);
 
 private:
     bool match(const jsonpack_token_type &token);
