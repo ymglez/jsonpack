@@ -27,11 +27,3 @@ INSTALL (DIRECTORY files
     DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 INSTALL (TARGETS jsonpack_benchmarks
     DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-
-ADD_EXECUTABLE(nlohmann_benchmarks 
-	benchmarks_nlohmann.cpp
-	benchpress.hpp
-	json.hpp)
-
-INSTALL (TARGETS nlohmann_benchmarks
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
