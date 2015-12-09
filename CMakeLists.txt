@@ -141,7 +141,7 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
     ENDIF ()
 
-	# Visual C++ default stack size is 1MB. This is not enough for clang to
+	# Visual C++ default stack size is 1MB. This is not enough to
 	# instantiate templates up to the default maximum depth allowed, 256.
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -STACK:4194304")
 
@@ -173,5 +173,6 @@ ENDIF()
 # BENCHMARKS
 IF(JSONPACK_BUILD_BENCHMARKS)
     ADD_SUBDIRECTORY(benchmarks/)
+    INSTALL (TARGETS jsonpack DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 ENDIF()
 

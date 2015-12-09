@@ -19,12 +19,24 @@
 #define JSONPACK_VECTOR_HPP
 
 #include <vector>
+#include <array>
+#include <deque>
+#include <list>
+#include <forward_list>
+#include <set>
+#include <unordered_set>
+#include <type_traits>
 
 #include "jsonpack/parser.hpp"
 #include "jsonpack/exceptions.hpp"
 #include "jsonpack/config.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
+
+TYPE_BEGIN_NAMESPACE
+template<typename T>
+struct json_traits;
+JSONPACK_API_END_NAMESPACE //type
 
 /**
  * std::vector adapter overloading operator[](const char*) for easy lookup,
@@ -98,6 +110,123 @@ public:
     {
         if(!_p.json_validate(json, len, *this))
             throw jsonpack_error( _p.err_msg().c_str() );
+    }
+
+    /**
+     * Explicit type conversion between current JSON array
+     * and a compatible non-pointer standard sequence containers
+     */
+    template< typename Seq>
+    void operator()(Seq & seq)
+    {
+        seq = get<Seq>();
+    }
+
+
+    /**
+     * Explicit type conversion between current JSON array
+     * and a compatible non-pointer standard sequence containers:
+     * vector, deque, list, set, multiset, unordered_set, unordered_multiset
+     */
+    template< typename Seq, typename
+              std::enable_if<
+                  std::is_same<std::vector<typename Seq::value_type> ,Seq>::value or
+                  std::is_same<std::deque<typename Seq::value_type> ,Seq>::value or
+                  std::is_same<std::list<typename Seq::value_type> ,Seq>::value or
+                  std::is_same<std::set<typename Seq::value_type> ,Seq>::value or
+                  std::is_same<std::multiset<typename Seq::value_type> ,Seq>::value or
+                  std::is_same<std::unordered_set<typename Seq::value_type> ,Seq>::value or
+                  std::is_same<std::unordered_multiset<typename Seq::value_type> ,Seq>::value
+                  ,int>::type = 0 >
+    Seq get() const
+    {
+        Seq  arr;
+        typedef typename Seq::value_type type_t;
+        for(const auto &it : *this)
+        {
+#ifndef _MSC_VER
+            // Initialize before use
+            type_t val = {};
+#else
+            type_t val;
+#endif
+            if( type::json_traits<type_t&>::match_token_type(it) )
+            {
+                type::json_traits<type_t&>::extract(it, nullptr, val);
+                arr.insert(arr.end(), val);
+            }
+            else
+            {
+                throw type_error( "Array item type mismatch" );
+            }
+        }
+        return arr;
+    }
+
+    /**
+     * Explicit type conversion between current JSON array
+     * and a compatible non-pointer standard sequence container: forward_list
+     */
+    template< typename FList, typename
+              std::enable_if<
+                  std::is_same<std::forward_list<typename FList::value_type> ,FList>::value
+                  ,int>::type = 0 >
+    FList get() const
+    {
+        FList  arr;
+        typedef typename FList::value_type type_t;
+        for(const auto &it : *this)
+        {
+#ifndef _MSC_VER
+            // Initialize before use
+            type_t val = {};
+#else
+            type_t val;
+#endif
+            if( type::json_traits<type_t&>::match_token_type(it) )
+            {
+                type::json_traits<type_t&>::extract(it, nullptr, val);
+                arr.push_front(val);
+            }
+            else
+            {
+                throw type_error( "Array item type mismatch" );
+            }
+        }
+        return arr;
+    }
+
+    /**
+     * Explicit type conversion between current JSON array
+     * and a compatible non-pointer standard sequence container: array
+     */
+    template< typename A, typename
+              std::enable_if<
+                  std::is_same<std::array<typename A::value_type, std::tuple_size<A>::value > ,A>::value
+                  ,int>::type = 0 >
+    A get() const
+    {
+        A  arr;
+        typedef typename A::value_type type_t;
+        for(std::size_t i = 0 ; i < arr.size(); ++i)
+        {
+#ifndef _MSC_VER
+            // Initialize before use
+            type_t val = {};
+#else
+            type_t val;
+#endif
+            if( type::json_traits<type_t&>::match_token_type(this->operator [](i) ) )
+            {
+                type::json_traits<type_t&>::extract(this->operator [](i), nullptr, val);
+                arr[i] = val;
+            }
+            else
+            {
+                throw type_error( "Array item type mismatch" );
+            }
+        }
+        return arr;
     }
 
 };

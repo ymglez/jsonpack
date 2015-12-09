@@ -121,7 +121,11 @@ struct sequence_traits<Seq&>
                 throw type_error( "Array item type mismatch" );
             }
         }
+    }
 
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
     }
 };
 
@@ -189,11 +193,13 @@ struct json_traits<std::array<T,N>& >
             {
                 throw type_error( "Array item type mismatch" );
             }
-
-
         }
     }
 
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
+    }
 };
 
 
@@ -227,6 +233,11 @@ struct json_traits<std::vector<T>& >
     {
         sequence_traits< std::vector<T>& >::extract(v, json_ptr, value);
     }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
+    }
 };
 
 /** **********************************************************************
@@ -244,6 +255,11 @@ struct json_traits< std::deque<T> >
     {
         sequence_traits< std::deque<T> >::append(json, value);
     }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
+    }
 };
 
 template<typename T>
@@ -257,6 +273,11 @@ struct json_traits<std::deque<T>& >
     static void extract(const jsonpack::value &v, char* json_ptr, std::deque<T> &value)
     {
         sequence_traits< std::deque<T>& >::extract(v, json_ptr, value);
+    }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
     }
 };
 
@@ -288,6 +309,11 @@ struct json_traits<std::list<T>& >
     static void extract(const jsonpack::value &v, char* json_ptr, std::list<T> &value)
     {
         sequence_traits< std::list<T>& >::extract(v, json_ptr, value);
+    }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
     }
 };
 
@@ -358,8 +384,12 @@ struct json_traits<std::forward_list<T>& >
             {
                 throw type_error( "Forward_list item type mismatch" );
             }
-
         }
+    }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
     }
 };
 
@@ -392,6 +422,11 @@ struct json_traits<std::set<T>& >
     {
         sequence_traits< std::set<T>& >::extract(v, json_ptr, value);
     }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
+    }
 };
 
 /** **********************************************************************
@@ -422,6 +457,11 @@ struct json_traits<std::multiset<T>& >
     static void extract(const jsonpack::value &v, char* json_ptr, std::multiset<T> &value)
     {
         sequence_traits< std::multiset<T>& >::extract(v, json_ptr, value);
+    }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
     }
 };
 
@@ -454,10 +494,10 @@ struct json_traits<std::unordered_set<T>& >
     {
         sequence_traits< std::unordered_set<T>& >::extract(v, json_ptr, value);
     }
-    //TODO Remove
-    static void insert_data(const T& data, std::unordered_set<T> &value)
+
+    static bool match_token_type(const jsonpack::value &v)
     {
-        value.insert(value.rbegin() , data);
+        return (v._field == _ARR);
     }
 };
 
@@ -489,6 +529,11 @@ struct json_traits<std::unordered_multiset<T>& >
     static void extract(const jsonpack::value &v, char* json_ptr, std::unordered_multiset<T> &value)
     {
         sequence_traits< std::unordered_multiset<T>& >::extract(v, json_ptr, value);
+    }
+
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _ARR);
     }
 };
 

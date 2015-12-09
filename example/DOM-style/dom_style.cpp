@@ -20,40 +20,51 @@ struct  DataObject
 int main()
 {
     DataObject out;
-	std::vector<double> real_list; 
-	
+
 	std::string json_obj = "{\"mFloat\":3.1415926535897932384626433832795,\"mInt\":362880,\"mCad\":\"This, \\\" is a 'test\",\"isObject\":true,\"caracter\":\"$\"}";
 
-	std::string json_arr = "[45.254, 487.000025255, 0000.658]";
+    std::string json_arr = "[45.254, 487.000025255, 0.658]";
     
     try
     {
 		//DOM style parse json object
-		jsonpack::object_t document_obj;
+        jsonpack::object_t obj;
 
-		document_obj.json_unpack(json_obj.c_str(), json_obj.length() );
+        obj.json_unpack(json_obj.c_str(), json_obj.length() );
 		
-		document_obj["mFloat"](out.mFloat);
-		document_obj["mInt"](out.mInt);
-		document_obj["mCad"](out.mCad);
-		document_obj["isObject"](out.isObject);
-		document_obj["caracter"](out.caracter);
-		
+        // Explicit type conversion: two ways
+
+//        obj["mFloat"](out.mFloat);
+        out.mFloat = obj["mFloat"].get<float>();
+
+//        obj["mInt"](out.mInt);
+        out.mInt = obj["mInt"].get<int>();
+
+//        document_obj["mCad"](out.mCad);
+        out.mCad = obj["mCad"].get<std::string>();
+
+//        obj["isObject"](out.isObject);
+        out.isObject = obj["isObject"].get<bool>();
+
+//        obj["caracter"](out.caracter);
+        out.caracter = obj["caracter"].get<char>();
+
 		printf("\nresult: \nout.mFloat=%0.16f\nout.mInt=%d\nout.mCad=%s\nout.isObject=%d\nout.caracter=%c\n",
               out.mFloat, out.mInt, out.mCad.data(), out.isObject, out.caracter );
 
-
 		//DOM style parse json array
-		jsonpack::array_t document_list;
-		float result = 0;
+        jsonpack::array_t list;
 
-		document_list.json_unpack(json_arr.c_str(), json_arr.length() );
-		for(auto item : document_list)
-		{
-			item(result);
-			real_list.push_back(result);
-			printf(" %f", result);
-		}
+        list.json_unpack(json_arr.c_str(), json_arr.length() );
+
+        //can be: array, deque, list, forward_list, set, multiset, unordered_set and unordered_multiset.
+//        std::vector<double> real_list;
+//        list(real_list);
+        auto real_list = list.get<std::vector<double>>();
+
+        for(auto v : real_list)
+            printf("%f ", v);
+
 		printf("\n");
 		
     }
