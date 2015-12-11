@@ -113,7 +113,11 @@ public:
  */
 class registration {
     static registration*        d_this;
+#ifndef _MSC_VER
     std::vector<benchmark_info> d_benchmarks = {};
+#else
+	std::vector<benchmark_info> d_benchmarks;
+#endif
 
 public:
     static registration* get_ptr() {

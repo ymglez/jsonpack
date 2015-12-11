@@ -128,17 +128,17 @@ public:
      * and a compatible non-pointer standard sequence containers:
      * vector, deque, list, set, multiset, unordered_set, unordered_multiset
      */
-    template< typename Seq, typename
-              std::enable_if<
-                  std::is_same<std::vector<typename Seq::value_type> ,Seq>::value or
-                  std::is_same<std::deque<typename Seq::value_type> ,Seq>::value or
-                  std::is_same<std::list<typename Seq::value_type> ,Seq>::value or
-                  std::is_same<std::set<typename Seq::value_type> ,Seq>::value or
-                  std::is_same<std::multiset<typename Seq::value_type> ,Seq>::value or
-                  std::is_same<std::unordered_set<typename Seq::value_type> ,Seq>::value or
-                  std::is_same<std::unordered_multiset<typename Seq::value_type> ,Seq>::value
-                  ,int>::type = 0 >
-    Seq get() const
+    template< typename Seq >
+    Seq get(typename
+            std::enable_if<
+            std::is_same<std::vector<typename Seq::value_type> ,Seq>::value ||
+            std::is_same<std::deque<typename Seq::value_type> ,Seq>::value ||
+            std::is_same<std::list<typename Seq::value_type> ,Seq>::value ||
+            std::is_same<std::set<typename Seq::value_type> ,Seq>::value ||
+            std::is_same<std::multiset<typename Seq::value_type> ,Seq>::value ||
+            std::is_same<std::unordered_set<typename Seq::value_type> ,Seq>::value ||
+            std::is_same<std::unordered_multiset<typename Seq::value_type> ,Seq>::value
+            ,int>::type* = nullptr) const
     {
         Seq  arr;
         typedef typename Seq::value_type type_t;
@@ -167,11 +167,11 @@ public:
      * Explicit type conversion between current JSON array
      * and a compatible non-pointer standard sequence container: forward_list
      */
-    template< typename FList, typename
+    template< typename FList >
+    FList get(typename
               std::enable_if<
-                  std::is_same<std::forward_list<typename FList::value_type> ,FList>::value
-                  ,int>::type = 0 >
-    FList get() const
+              std::is_same<std::forward_list<typename FList::value_type> ,FList>::value
+              ,int>::type* = nullptr) const
     {
         FList  arr;
         typedef typename FList::value_type type_t;
@@ -200,11 +200,11 @@ public:
      * Explicit type conversion between current JSON array
      * and a compatible non-pointer standard sequence container: array
      */
-    template< typename A, typename
-              std::enable_if<
-                  std::is_same<std::array<typename A::value_type, std::tuple_size<A>::value > ,A>::value
-                  ,int>::type = 0 >
-    A get() const
+    template< typename A >
+    A get(typename
+          std::enable_if<
+          std::is_same<std::array<typename A::value_type, std::tuple_size<A>::value > ,A>::value
+          ,int>::type* = nullptr) const
     {
         A  arr;
         typedef typename A::value_type type_t;

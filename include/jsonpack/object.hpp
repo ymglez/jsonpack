@@ -124,8 +124,8 @@ enum fields
 };
 
 TYPE_BEGIN_NAMESPACE
-    template<typename T>
-    struct json_traits;
+template<typename T>
+struct json_traits;
 
 JSONPACK_API_END_NAMESPACE //type
 
@@ -193,11 +193,11 @@ struct value
      * Explicit type conversion between current JSON value
      * and a compatible non-pointer type.
      */
-    template<typename T, typename
-             std::enable_if<
-                 not std::is_pointer<T>::value
-                 ,int>::type = 0 >
-    T get() const
+    template<typename T>
+    T get(typename
+          std::enable_if<
+          ! std::is_pointer<T>::value
+          ,int>::type* = nullptr ) const
     {
         T  _val;
         type::json_traits<T&>::extract(*this, nullptr, _val);
@@ -209,11 +209,11 @@ struct value
      * Explicit type conversion between the current json value
      * and the given reference
      */
-    template<typename T, typename
-             std::enable_if<
-                 not std::is_pointer<T>::value
-                 ,int>::type = 0>
-    void operator()(T& _val)
+    template<typename T >
+    void operator()(T& _val, typename
+                    std::enable_if<
+                    ! std::is_pointer<T>::value
+                    ,int>::type* = nullptr)
     {
         if(_field == _POS && !type::json_traits<T&>::match_token_type(*this) )
             throw type_error("Types mismatch");
@@ -228,7 +228,7 @@ struct value
     value operator[](const std::string &__str_key)
     {
         if(_field != _OBJ) throw type_error("current value is not an object!");
-            return _obj->operator [](__str_key.c_str());
+        return _obj->operator [](__str_key.c_str());
     }
 
     /**
