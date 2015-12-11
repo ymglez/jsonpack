@@ -265,7 +265,7 @@ void parser::delete_object(object_t *obj)
 
 void parser::clear(object_t* obj)
 {
-    for(object_t::iterator it = obj->begin(); it != obj->end(); it++)
+    for(object_t::iterator it = obj->begin(); it != obj->end(); ++it)
     {
         if(it->second._field == _OBJ)
         {
@@ -282,7 +282,7 @@ void parser::clear(object_t* obj)
 
 void parser::clear(array_t* arr)
 {
-   for(array_t::iterator elem = arr->begin(); elem != arr->end(); elem++)
+   for(array_t::iterator elem = arr->begin(); elem != arr->end(); ++elem)
     {
         if((*elem)._field == _OBJ)
         {

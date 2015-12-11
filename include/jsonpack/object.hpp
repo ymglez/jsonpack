@@ -193,7 +193,10 @@ struct value
      * Explicit type conversion between current JSON value
      * and a compatible non-pointer type.
      */
-    template<typename T>
+    template<typename T, typename
+             std::enable_if<
+                 not std::is_pointer<T>::value
+                 ,int>::type = 0 >
     T get() const
     {
         T  _val;
@@ -206,7 +209,10 @@ struct value
      * Explicit type conversion between the current json value
      * and the given reference
      */
-    template<typename T>
+    template<typename T, typename
+             std::enable_if<
+                 not std::is_pointer<T>::value
+                 ,int>::type = 0>
     void operator()(T& _val)
     {
         if(_field == _POS && !type::json_traits<T&>::match_token_type(*this) )
