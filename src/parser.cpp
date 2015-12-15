@@ -170,6 +170,7 @@ jsonpack_token_type scanner::number()
             while( std::isdigit( _c ) && _i < _size );
 
             if(_c == '.') state = 2;
+			else if(_c == 'e' || _c == 'E') state = 4;
             else return JTK_INTEGER;
 
             break;
