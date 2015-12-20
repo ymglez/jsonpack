@@ -70,6 +70,7 @@ LIST (APPEND jsonpack_HEADERS
     include/jsonpack/umap.hpp
     include/jsonpack/vector.hpp
     include/jsonpack/util/builder.hpp
+    include/jsonpack/util/utf8.hpp
     include/jsonpack/type/integers.hpp
     include/jsonpack/type/reals.hpp
     include/jsonpack/type/simple_type.hpp

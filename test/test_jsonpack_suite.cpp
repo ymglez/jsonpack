@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(unpack_object_fail_json_org)
                     "json_tests/fail11.json",	
                     "json_tests/fail12.json",
                     //"json_tests/fail13.json",	// {"Numbers cannot have leading zeroes": 013}
-                    //"json_tests/fail14.json",	// {"Numbers cannot be hex": 0x14}
+                    "json_tests/fail14.json",	// {"Numbers cannot be hex": 0x14}
                     "json_tests/fail19.json",
                     "json_tests/fail20.json",
                     "json_tests/fail21.json",
@@ -53,29 +53,29 @@ BOOST_AUTO_TEST_CASE(unpack_array_fail_json_org)
 {
     // test cases are from http://json.org/JSON_checker/
 	std::string files[] = {
-                    "json_tests/fail2.json",
-                    //"json_tests/fail4.json",  ["extra comma",]
-                    //"json_tests/fail5.json",	["double extra comma",,]
-                    "json_tests/fail6.json",
-                    //"json_tests/fail7.json",	["Illegal backslash escape: \017"]
-                    //"json_tests/fail8.json",	["Extra close"]]
-                    //"json_tests/fail15.json",	["Illegal backslash escape: \x15"]
-                    "json_tests/fail16.json",
-                    //"json_tests/fail17.json", ["Illegal backslash escape: \017"]
+                    "json_tests/fail2.json",	// ["Unclosed array"
+                    //"json_tests/fail4.json",  // ["extra comma",]
+                    "json_tests/fail5.json",	// ["double extra comma",,]
+                    "json_tests/fail6.json",	// [   , "<-- missing value"]
+                    //"json_tests/fail7.json",	// ["Comma after the close"],
+                    //"json_tests/fail8.json",	// ["Extra close"]]
+                    "json_tests/fail15.json",	// ["Illegal backslash escape: \x15"]
+                    "json_tests/fail16.json",	// [\naked]
+                    "json_tests/fail17.json",	// ["Illegal backslash escape: \017"]
                     //"json_tests/fail18.json",	// [[[[[[[[[[[[[[[[[[[["Too deep"]]]]]]]]]]]]]]]]]]]]
-                    "json_tests/fail22.json",
-                    "json_tests/fail23.json",
-                    "json_tests/fail24.json",
-                    //"json_tests/fail25.json",	// ["	tab	character	in	string	"]
-                    //"json_tests/fail26.json",	// ["tab\   character\   in\  string\  "]
-                    //"json_tests/fail27.json",	// ["line 
+                    "json_tests/fail22.json",	// ["Colon instead of comma": false]
+                    "json_tests/fail23.json",	// ["Bad value", truth]
+                    "json_tests/fail24.json",	// ['single quote']
+                    "json_tests/fail25.json",	// ["	tab	character	in	string	"]
+                    "json_tests/fail26.json",	// ["tab\   character\   in\  string\  "]
+                    "json_tests/fail27.json",	// ["line 
 												//	break"]
-                    //"json_tests/fail28.json",	// ["line\ 
+                    "json_tests/fail28.json",	// ["line\ 
 												//	break"]
-                    "json_tests/fail29.json",
-                    "json_tests/fail30.json",
-                    "json_tests/fail31.json",
-                    "json_tests/fail33.json"
+                    "json_tests/fail29.json",	// [0e]
+                    "json_tests/fail30.json",	// [0e+]
+                    "json_tests/fail31.json",	// [0e+-1]
+                    "json_tests/fail33.json"	// ["mismatch"}
 				};
 
         for (auto filename : files)
@@ -84,6 +84,15 @@ BOOST_AUTO_TEST_CASE(unpack_array_fail_json_org)
 			std::string json( (std::istreambuf_iterator<char>(inputs_json) ), (std::istreambuf_iterator<char>() ));
 
 			jsonpack::array_t j;
+
+			try
+			{
+				j.json_unpack(json.c_str(), json.length() );
+			}
+			catch(const jsonpack::invalid_json &e)
+			{
+				printf("ERROR: %s FILE: %s\n", e.what(), filename.c_str() );
+			}
 
 			BOOST_CHECK_THROW(j.json_unpack(json.c_str(), json.length() ), jsonpack::invalid_json);
         }

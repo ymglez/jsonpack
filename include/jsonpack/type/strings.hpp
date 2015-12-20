@@ -22,6 +22,7 @@
 #include <algorithm>
 
 #include "jsonpack/type/json_traits_base.hpp"
+#include "jsonpack/util/utf8.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
 TYPE_BEGIN_NAMESPACE
@@ -89,37 +90,101 @@ struct json_traits<std::string&>
         {
             // pritty but slow and dangerous
 
-//            value.resize(p._count);
-//            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
+            //            value.resize(p._count);
+            //            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
 
-//            unsigned i = 0;
-//            value.erase(std::remove_if(value.begin(), value.end(),
-//                        [&i, value](char c)->bool
-//                        {
-//                            bool esc = ( c == '\\' && (i < value.length()-1 ) && (sizeof(char) == 1 || unsigned(value[i+1]) < 256) && util::escaped[(unsigned char)value[i+1]] );
-//                            i++;
-//                            return esc;
-//                        }),
-//                        value.end() );
+            //            unsigned i = 0;
+            //            value.erase(std::remove_if(value.begin(), value.end(),
+            //                        [&i, value](char c)->bool
+            //                        {
+            //                            bool esc = ( c == '\\' && (i < value.length()-1 ) && (sizeof(char) == 1 || unsigned(value[i+1]) < 256) && util::escaped[(unsigned char)value[i+1]] );
+            //                            i++;
+            //                            return esc;
+            //                        }),
+            //                        value.end() );
 
 
             //hard coded but fast and safe
 
-             if (value.capacity() <  p._count + 1)
-                 value.reserve(p._count + 1);
+            if (value.capacity() <  p._count + 1)
+                value.reserve(p._count + 1);
 
-//             char* val_ptr = json_ptr + p._pos;
             char* val_ptr = p._pos;
             for(char* i = val_ptr ; i != val_ptr + p._count ; ++i)
             {
-                if( *i == '\\' )
+                char c = *i;
+                if( c == '\\' )
                 {
-                    ++i;
-                    if( (i != val_ptr + p._count) && ( sizeof(char) == 1 || unsigned(*i) < 256) && util::escaped[(unsigned char)*i] )
-                        value.push_back(*i);
+                    c = *(++i);
+
+                    switch (c)
+                    {
+                    case '"':
+                    case '\\':
+                    case '/':
+                        value.push_back( (char)c );
+                        break;
+                    case 'b':
+                        value.push_back('\b');
+                        break;
+                    case 'f':
+                        value.push_back('\f');
+                        break;
+                    case 'n':
+                        value.push_back('\n');
+                        break;
+                    case 'r':
+                        value.push_back('\r');
+                        break;
+                    case 't':
+                        value.push_back('\t');
+                        break;
+                    default: // 'u' unicode escape
+                        uint16_t uc = 0, lc = 0;
+                        util::utf8::uchar_t codepoint;
+
+                        util::parse_hex(i, uc);
+
+                        if (uc >= 0xD800 && uc <= 0xDFFF)
+                        {
+                            /* Handle UTF-16 surrogate pair. */
+                            if (*i++ != '\\' || *i++ != 'u' || !util::parse_hex(i, lc))
+                                throw type_error("Incomplete surrogate pair");
+
+                            if (!util::utf8::from_surrogate_pair(uc, lc, codepoint))
+                                throw type_error("Invalid surrogate pair");
+                        }
+                        else if (uc == 0)
+                        {
+                            throw type_error("Unicode disallow \\u0000");
+                        }
+                        else
+                        {
+                            codepoint = uc;
+                        }
+
+                        char b[4];
+                        int len = util::utf8::write_char(codepoint, b);
+
+                        value.append(b, len);
+
+                        i += 4;
+                        break;
+
+                    }
                 }
                 else
-                    value.push_back(*i);
+                {
+                    /* Validate and echo a UTF-8 character. */
+//                    size_t len;
+
+//                    i--;
+//                    len = util::utf8::validate_char(i);
+//                    if (len == 0)
+//                        throw invalid_json("Invalid UTF-8 character");
+
+                    value.push_back(c);
+                }
             }
         }
     }

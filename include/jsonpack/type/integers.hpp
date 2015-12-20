@@ -38,14 +38,13 @@ struct json_traits<bool>
 {
     static void append(buffer &json, const char *key, const bool &value)
     {
-        util::json_builder::append_value(json, key, value ? "true" : "false");
+		util::json_builder::append_value(json, key, value ? "true" : "false" );
     }
 
     static void append(buffer &json, const bool &value) //append value in array
     {
         json.append(value ? "true," : "false,", value ? 5 :6 );
     }
-
 };
 
 template<>
@@ -149,7 +148,6 @@ struct json_traits<char&>
 
     static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), char &value)
     {
-//        value = v._pos._type != JTK_NULL ? json_ptr[v._pos._pos] : 0;
         value = v._pos._type != JTK_NULL ? *(v._pos._pos) : 0;
     }
 

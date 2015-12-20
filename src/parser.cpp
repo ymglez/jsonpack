@@ -38,6 +38,7 @@ void scanner::init(const char* json, const std::size_t &len)
         _source = (_size != 0) ? json : nullptr;
         _i = 0;
         _c = _source[0];
+//        _c = *_source;
     }
     else
     {
@@ -48,6 +49,9 @@ void scanner::init(const char* json, const std::size_t &len)
 void scanner::advance()
 {
     _c = _source[++_i];
+//    ++_source;
+//    _c = *_source;
+
 }
 
 jsonpack_token_type scanner::next()
@@ -103,7 +107,38 @@ jsonpack_token_type scanner::string_literal()
     while( _c != '"' && _i < _size )
     {
         if( _c == '\\') // escape
+        {
             advance();
+            switch (_c)
+            {
+            case '"':
+            case '\\':
+            case '/':
+            case 'b':
+            case 'f':
+            case 'n':
+            case 'r':
+            case 't':
+                break;
+            case 'u':
+                for (unsigned i = 0; i < 4; ++i)
+                {
+                    advance();
+                    if (!(_c >= '0' && _c <= '9') &&
+                            !(_c >= 'A' && _c <= 'F') &&
+                            !(_c >= 'a' && _c <= 'f') )
+                        throw invalid_json("Invalid unicode escape hex value");
+                }
+                break;
+            default:
+                throw invalid_json("Invalid escape");
+            }
+        }
+        else if ((unsigned)_c < 0x20)
+        {
+            throw invalid_json("Control characters are not allowed in string literals");
+        }
+
         advance();
     }
 

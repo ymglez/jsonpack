@@ -25,6 +25,7 @@
 #include <jsonpack/3rdparty/dtoa.hpp> //fast conversion from reals to string
 
 #include "jsonpack/buffer.hpp"
+#include "jsonpack/util/utf8.hpp"
 
 /**
  * Integer size definitions
@@ -40,7 +41,7 @@
 
 /**
  * Real size definitions
- * TODO fix 
+ * TODO fix
  */
 #define FLOAT_MAX_DIGITS	64
 #define DOUBLE_MAX_DIGITS	64
@@ -52,22 +53,50 @@ UTIL_BEGIN_NAMESPACE
 static inline std::string trim(std::string s)
 {
     s.erase(std::remove(s.begin(), s.end(), ' '),
-                   s.end());
+            s.end());
     return s;
 }
 
-/**
- * escaped characters
- */
-#define NULL_CHAR_32 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    static const char escaped[256] = {
-        NULL_CHAR_32, 0, 0,'\"', 0, 0, 0, 0, '\'', 0, 0, 0, 0, 0, 0, 0, 0,
-        NULL_CHAR_32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\n', 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        NULL_CHAR_32, NULL_CHAR_32, NULL_CHAR_32, NULL_CHAR_32
-    };
-#undef NULL_CHAR_32
+static int write_hex(buffer &json, uint16_t val)
+{
+    char out[4];
+    const char *hex = "0123456789ABCDEF";
+
+    out[0] = hex[(val >> 12) & 0xF];
+    out[1] = hex[(val >> 8)  & 0xF];
+    out[2] = hex[(val >> 4)  & 0xF];
+    out[3] = hex[ val        & 0xF];
+
+    json.append(out, 4);
+    return 4;
+}
+
+static bool parse_hex(const char *sp, uint16_t &out)
+{
+    const char *s = sp;
+    uint16_t ret = 0;
+    uint16_t i;
+    uint16_t tmp;
+
+    for (i = 0; i < 4; i++)
+    {
+        char c = *(++s);
+        if (c >= '0' && c <= '9')
+            tmp = (uint16_t)(c - '0');
+        else if (c >= 'A' && c <= 'F')
+            tmp = (uint16_t)(c - 'A' + 10);
+        else if (c >= 'a' && c <= 'f')
+            tmp = (uint16_t)(c - 'a' + 10);
+        else
+            return false;
+
+        ret = (uint16_t)((ret << 4) + tmp);
+    }
+
+    out = ret;
+    sp = s;
+    return true;
+}
 
 /**
  * helper for stringify values
@@ -76,29 +105,97 @@ struct json_builder
 {
     static inline void append_value(buffer &json, const char* key, const char* value)
     {
-        json.append("\"" , 1);
-        json.append( key, strlen(key) ); //key
-        json.append("\":", 2);
-        json.append( value, strlen(value) ); //value
-        json.append(",", 1);
+        json.append("\"", 1);
+		json.append(key, strlen(key));
+		json.append("\":", 2);
+		json.append(value, strlen(value) );
+		json.append(",", 1);
     }
 
-    static inline void append_string(buffer &json, const char* value, const std::size_t &len)
+    static inline void append_string(buffer &json, const char* value, const std::size_t &UNUSED(len))
     {
         if( value != nullptr )
         {
             json.append("\"", 1);
 
-            for( unsigned i = 0; i < len ; ++i)
+            const char* str = value;
+            while (*str != 0)
             {
-                if( (sizeof(char) == 1 || unsigned(value[i]) < 256) && escaped[(unsigned char)value[i]] )
+                char c = *str++;
+
+                switch (c)
                 {
-                    json.append("\\", 1);   //escape
-                    json.append(value + i, 1);
+                case '"':
+                    json.append("\\\"",2);
+                    break;
+                case '\\':
+                    json.append("\\\\",2);
+                    break;
+                case '\b':
+                    json.append("\\b",2);
+                    break;
+                case '\f':
+                    json.append("\\f",2);
+                    break;
+                case '\n':
+                    json.append("\\n",2);
+                    break;
+                case '\r':
+                    json.append("\\r",2);
+                    break;
+                case '\t':
+                    json.append("\\t",2);
+
+                    break;
+                default:
+
+                    str--;
+
+                    size_t count = utf8::validate_char(str);
+                    if (count == 0)
+                    {
+                        throw invalid_json("Invalid utf-8");
+                    }
+                    else if (c < 0x1F)
+                    {
+                        /* Encode using \u.... */
+                        uint32_t codepoint;
+                        str += utf8::read_char(str, codepoint);
+
+                        if (codepoint <= 0xFFFF)
+                        {
+                            json.append("\\u", 2);
+                            write_hex(json, (uint16_t)codepoint);
+                        }
+                        else
+                        {
+                            /* Produce a surrogate pair. */
+                            uint16_t uc, lc;
+
+                            if(codepoint <= 0x10FFFF)
+                                throw invalid_json("Invalid utf-8");
+
+                            //assert(codepoint <= 0x10FFFF);
+
+                            utf8::to_surrogate_pair(codepoint, uc, lc);
+
+                            json.append("\\u", 2);
+                            write_hex(json, uc);
+
+                            json.append("\\u", 2);
+                            write_hex(json, lc);
+                        }
+                    }
+                    else
+                    {
+                        json.append(str, count);
+                        str += count;
+                    }
+
+                    break;
                 }
-                else
-                    json.append(value + i, 1);
             }
+
             json.append("\",", 2);
         }
         else
