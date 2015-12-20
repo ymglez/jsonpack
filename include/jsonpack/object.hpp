@@ -80,6 +80,7 @@ enum jsonpack_token_type : unsigned
     JTK_INVALID = 12
 };
 
+
 /**
  * Position of a value in string json
  */

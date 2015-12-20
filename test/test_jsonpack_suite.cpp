@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(unpack_object_fail_json_org)
                     "json_tests/fail11.json",	
                     "json_tests/fail12.json",
                     //"json_tests/fail13.json",	// {"Numbers cannot have leading zeroes": 013}
-                    "json_tests/fail14.json",	// {"Numbers cannot be hex": 0x14}
+                    "json_tests/fail14.json",
                     "json_tests/fail19.json",
                     "json_tests/fail20.json",
                     "json_tests/fail21.json",

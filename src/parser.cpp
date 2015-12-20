@@ -38,7 +38,6 @@ void scanner::init(const char* json, const std::size_t &len)
         _source = (_size != 0) ? json : nullptr;
         _i = 0;
         _c = _source[0];
-//        _c = *_source;
     }
     else
     {
@@ -49,9 +48,6 @@ void scanner::init(const char* json, const std::size_t &len)
 void scanner::advance()
 {
     _c = _source[++_i];
-//    ++_source;
-//    _c = *_source;
-
 }
 
 jsonpack_token_type scanner::next()
@@ -127,16 +123,16 @@ jsonpack_token_type scanner::string_literal()
                     if (!(_c >= '0' && _c <= '9') &&
                             !(_c >= 'A' && _c <= 'F') &&
                             !(_c >= 'a' && _c <= 'f') )
-                        throw invalid_json("Invalid unicode escape hex value");
+                        throw invalid_json("JSON syntax error: Invalid unicode escape hex value");
                 }
                 break;
             default:
-                throw invalid_json("Invalid escape");
+                throw invalid_json("JSON syntax error: Invalid escape");
             }
         }
         else if ((unsigned)_c < 0x20)
         {
-            throw invalid_json("Control characters are not allowed in string literals");
+            throw invalid_json("JSON syntax error: Control characters are not allowed in string literals");
         }
 
         advance();
@@ -177,7 +173,6 @@ jsonpack_token_type scanner::other_value()
     }
 
     return JTK_INVALID;
-
 }
 
 jsonpack_token_type scanner::number()
@@ -352,6 +347,30 @@ bool parser::match(const jsonpack_token_type &token)
 {
     bool ok = (_tk == token);
     advance();
+	if(!ok)
+	{
+		std::string token_str[] = 
+		{
+			"Open object",
+			"Close object",
+			"Colon",
+			"Comma",
+			"Open array",
+			"Close array",
+			"String value",
+			"Number value",
+			"Number value",
+			"Boolean value",
+			"Boolean value",
+			"Null value",
+			"Ivalid value"
+		};
+
+		char msg[256];
+		sprintf(msg, "JSON syntax error: Expect '%s' but found '%s' at %d", token_str[token].c_str(), token_str[_tk].c_str(), _s._i);
+
+		throw invalid_json(msg);
+	}
 
     return ok;
 }
@@ -369,7 +388,7 @@ bool parser::json_validate(const char *json,const std::size_t &len, object_t &me
     _s.init(json, len);
     advance();
 
-    return match(JTK_OPEN_KEY) && item_list(members) && match(JTK_CLOSE_KEY);
+	return match(JTK_OPEN_KEY) && item_list(members) && match(JTK_CLOSE_KEY);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -378,14 +397,14 @@ bool parser::json_validate(const char *json,const std::size_t &len, array_t &ele
     _s.init(json, len);
     advance();
 
-    return match(JTK_OPEN_BRACKET) && array_list(elemets) && match(JTK_CLOSE_BRACKET);
+	return match(JTK_OPEN_BRACKET) && array_list(elemets) && match(JTK_CLOSE_BRACKET);
 }
 
 //---------------------------------------------------------------------------------------------------
 std::string parser::err_msg()
 {
     char buff[125];
-	sprintf(buff, "error near \'%c\' at position %u", _s._c, _s._i);    return std::string(buff);
+	sprintf(buff, "JSON syntax error: near \'%c\' at position %u", _s._c, _s._i);    return std::string(buff);
 }
 
 //---------------------------------------------------------------------------------------------------
