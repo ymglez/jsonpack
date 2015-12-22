@@ -244,6 +244,78 @@ struct json_traits<T&, typename std::enable_if<has_to_integral<T, int(T::*)() co
     }
 };
 
+//****************************************************************************
+//Any enum
+//****************************************************************************
+template<typename T >
+struct json_traits<T, typename std::enable_if<std::is_enum<T>::value>::type >
+{
+	static void append(buffer &json, const char *key, const T &value)
+	{
+		util::json_builder::append_integer(json, key, (int)value);
+	}
+	
+	static void append(buffer &json, const T &value)
+	{
+		util::json_builder::append_integer(json, (int)value);
+	}
+};
+
+template<typename T >
+struct json_traits<T&, typename std::enable_if<std::is_enum<T>::value>::type >
+{
+	static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, T &value)
+	{
+		jsonpack::key k;
+		k._bytes = len;
+		k._ptr = key;
+		
+		object_t::const_iterator found = json.find(k);
+		if( found != json.end() )    // exist the current key
+		{
+			if( match_token_type(found->second) )
+			{
+				extract(found->second, json_ptr, value);
+			}
+			else
+			{
+				std::string msg = "Invalid int value for key: ";
+				msg += key;
+				throw type_error( msg.data() );
+			}
+		}
+	}
+	
+	static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), T &value)
+	{
+		position p = v._pos;
+		
+		if( p._count >= INT_MAX_DIGITS)
+			throw type_error("Int out of range");
+		
+		//        char * str_value = json_ptr+p._pos;   //pointing to the start
+		char * str_value = p._pos;   //pointing to the start
+		
+		char buffer[LONG_MAX_DIGITS];
+		memcpy(buffer, str_value, p._count);
+		buffer[p._count] = '\0';        //null-terminated
+		
+		long v_cpy = std::strtol(buffer, nullptr, 10);
+		if((errno == ERANGE) ||
+			v_cpy > std::numeric_limits<int>::max() ||
+			v_cpy < std::numeric_limits<int>::min() )
+			throw type_error("Int out of range");
+		value = (T)v_cpy;
+		
+	}
+	
+	static bool match_token_type(const jsonpack::value &v)
+	{
+		return (v._field == _POS &&
+				  (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
+	}
+};
+
 //**************************************************************
 //*********************** INT **********************************
 //**************************************************************
