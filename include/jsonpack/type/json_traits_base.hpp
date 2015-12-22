@@ -29,7 +29,7 @@ TYPE_BEGIN_NAMESPACE
  * Type traits base for json operations
  * specialization for object types
  */
-template<typename T>
+template<typename T, typename=void>
 struct json_traits
 {
     /**
@@ -51,8 +51,8 @@ struct json_traits
     }
 };
 
-template<typename T>
-struct json_traits<T&>
+template<typename T, typename U>
+struct json_traits<T&, U>
 {
     /**
      *

@@ -33,11 +33,6 @@
 
 JSONPACK_API_BEGIN_NAMESPACE
 
-TYPE_BEGIN_NAMESPACE
-template<typename T>
-struct json_traits;
-JSONPACK_API_END_NAMESPACE //type
-
 /**
  * std::vector adapter overloading operator[](const char*) for easy lookup,
  * added json_unpack() member for parsing json array
@@ -150,9 +145,9 @@ public:
 #else
             type_t val;
 #endif
-            if( type::json_traits<type_t&>::match_token_type(it) )
+            if( json_traits<type_t&>::match_token_type(it) )
             {
-                type::json_traits<type_t&>::extract(it, nullptr, val);
+                json_traits<type_t&>::extract(it, nullptr, val);
                 arr.insert(arr.end(), val);
             }
             else
@@ -183,9 +178,9 @@ public:
 #else
             type_t val;
 #endif
-            if( type::json_traits<type_t&>::match_token_type(it) )
+            if( json_traits<type_t&>::match_token_type(it) )
             {
-                type::json_traits<type_t&>::extract(it, nullptr, val);
+                json_traits<type_t&>::extract(it, nullptr, val);
                 arr.push_front(val);
             }
             else
@@ -216,9 +211,9 @@ public:
 #else
             type_t val;
 #endif
-            if( type::json_traits<type_t&>::match_token_type(this->operator [](i) ) )
+            if( json_traits<type_t&>::match_token_type(this->operator [](i) ) )
             {
-                type::json_traits<type_t&>::extract(this->operator [](i), nullptr, val);
+                json_traits<type_t&>::extract(this->operator [](i), nullptr, val);
                 arr[i] = val;
             }
             else

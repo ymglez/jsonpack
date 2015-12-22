@@ -34,7 +34,7 @@ TYPE_BEGIN_NAMESPACE
  *  bool type traits specialization
  */
 template<>
-struct json_traits<bool>
+struct json_traits<bool, void>
 {
     static void append(buffer &json, const char *key, const bool &value)
     {
@@ -49,7 +49,7 @@ struct json_traits<bool>
 };
 
 template<>
-struct json_traits<bool&>
+struct json_traits<bool&, void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, bool &value)
@@ -95,7 +95,7 @@ struct json_traits<bool&>
  *  char type traits specialization
  */
 template<>
-struct json_traits<char>
+struct json_traits<char, void>
 {
 
     static void append(buffer &json, const char *key, const char &value)
@@ -122,7 +122,7 @@ struct json_traits<char>
 };
 
 template<>
-struct json_traits<char&>
+struct json_traits<char&, void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, char &value)
@@ -160,6 +160,90 @@ struct json_traits<char&>
     }
 };
 
+#define HAS_MEM_FUNC(func, name)                                        \
+    template<typename T, typename Sign>                                 \
+    struct name {                                                       \
+        typedef char yes[1];                                            \
+        typedef char no [2];                                            \
+        template <typename U, U> struct type_check;                     \
+        template <typename _1> static yes &chk(type_check<Sign, &_1::func > *); \
+        template <typename   > static no  &chk(...);                    \
+        static bool const value = sizeof(chk<T>(0)) == sizeof(yes);     \
+    }
+HAS_MEM_FUNC(_to_integral, has_to_integral);
+
+//****************************************************************************
+//Anything with int _to_integral() (+ _from_integral(), i.e. any BetterEnum
+//****************************************************************************
+template<typename T >
+struct json_traits<T, typename std::enable_if<has_to_integral<T, int(T::*)() const>::value>::type >
+{
+	static void append(buffer &json, const char *key, const T &value)
+	{
+		util::json_builder::append_integer(json, key, value._to_integral());
+	}
+	
+	static void append(buffer &json, const T &value)
+	{
+		util::json_builder::append_integer(json, value._to_integral());
+	}
+};
+
+template<typename T >
+struct json_traits<T&, typename std::enable_if<has_to_integral<T, int(T::*)() const>::value>::type >
+{
+    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, T &value)
+    {
+        jsonpack::key k;
+        k._bytes = len;
+        k._ptr = key;
+        
+        object_t::const_iterator found = json.find(k);
+        if( found != json.end() )    // exist the current key
+        {
+            if( match_token_type(found->second) )
+            {
+                extract(found->second, json_ptr, value);
+            }
+            else
+            {
+                std::string msg = "Invalid int value for key: ";
+                msg += key;
+                throw type_error( msg.data() );
+            }
+        }
+    }
+    
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), T &value)
+    {
+        position p = v._pos;
+        
+        if( p._count >= INT_MAX_DIGITS)
+            throw type_error("Int out of range");
+        
+        //        char * str_value = json_ptr+p._pos;   //pointing to the start
+        char * str_value = p._pos;   //pointing to the start
+        
+        char buffer[LONG_MAX_DIGITS];
+        memcpy(buffer, str_value, p._count);
+        buffer[p._count] = '\0';        //null-terminated
+        
+        long v_cpy = std::strtol(buffer, nullptr, 10);
+        if((errno == ERANGE) ||
+           v_cpy > std::numeric_limits<int>::max() ||
+           v_cpy < std::numeric_limits<int>::min() )
+            throw type_error("Int out of range");
+        value = T::_from_integral(v_cpy);
+        
+    }
+    
+    static bool match_token_type(const jsonpack::value &v)
+    {
+        return (v._field == _POS &&
+                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
+    }
+};
+
 //**************************************************************
 //*********************** INT **********************************
 //**************************************************************
@@ -167,7 +251,7 @@ struct json_traits<char&>
  *  int type traits specialization
  */
 template<>
-struct json_traits<int>
+struct json_traits<int, void>
 {
 
     static void append(buffer &json, const char *key, const int &value)
@@ -182,7 +266,7 @@ struct json_traits<int>
 };
 
 template<>
-struct json_traits<int&>
+struct json_traits<int&, void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, int &value)
@@ -245,7 +329,7 @@ struct json_traits<int&>
  *  unsigned int type traits specialization
  */
 template<>
-struct json_traits<unsigned int>
+struct json_traits<unsigned int, void>
 {
     static void append(buffer &json, const char *key, const unsigned int &value)
     {
@@ -259,7 +343,7 @@ struct json_traits<unsigned int>
 };
 
 template<>
-struct json_traits<unsigned int&>
+struct json_traits<unsigned int&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, unsigned int &value)
     {
@@ -319,7 +403,7 @@ struct json_traits<unsigned int&>
  *  long type traits specialization
  */
 template<>
-struct json_traits<long>
+struct json_traits<long, void>
 {
     static void append(buffer &json, const char *key, const long &value)
     {
@@ -333,7 +417,7 @@ struct json_traits<long>
 };
 
 template<>
-struct json_traits<long&>
+struct json_traits<long&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, long &value)
     {
@@ -392,7 +476,7 @@ struct json_traits<long&>
  *  unsigned long type traits specialization
  */
 template<>
-struct json_traits<unsigned long>
+struct json_traits<unsigned long, void>
 {
 
     static void append(buffer &json, const char *key, const unsigned long &value)
@@ -408,7 +492,7 @@ struct json_traits<unsigned long>
 };
 
 template<>
-struct json_traits<unsigned long&>
+struct json_traits<unsigned long&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, unsigned long &value)
     {
@@ -469,7 +553,7 @@ struct json_traits<unsigned long&>
  *  unsigned long type traits specialization
  */
 template<>
-struct json_traits<long long>
+struct json_traits<long long, void>
 {
 
     static void append(buffer &json, const char *key, const long long &value)
@@ -485,7 +569,7 @@ struct json_traits<long long>
 };
 
 template<>
-struct json_traits<long long&>
+struct json_traits<long long&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, long long &value)
     {
@@ -548,7 +632,7 @@ struct json_traits<long long&>
  *  unsigned long type traits specialization
  */
 template<>
-struct json_traits<unsigned long long>
+struct json_traits<unsigned long long, void>
 {
 
     static void append(buffer &json, const char *key, const unsigned long long &value)
@@ -563,7 +647,7 @@ struct json_traits<unsigned long long>
 };
 
 template<>
-struct json_traits<unsigned long long&>
+struct json_traits<unsigned long long&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, unsigned long long &value)
     {

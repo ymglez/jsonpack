@@ -27,7 +27,7 @@ TYPE_BEGIN_NAMESPACE
 
 //-------------------------- FLOAT --------------------------------
 template<>
-struct json_traits<float>
+struct json_traits<float, void>
 {
 
     static void append(buffer &json, const char *key, const float &value)
@@ -42,7 +42,7 @@ struct json_traits<float>
 };
 
 template<>
-struct json_traits<float&>
+struct json_traits<float&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, float &value)
     {
@@ -102,7 +102,7 @@ struct json_traits<float&>
 
 //-------------------------- DOUBLE --------------------------------
 template<>
-struct json_traits<double>
+struct json_traits<double, void>
 {
     static void append(buffer &json, const char *key, const double &value)
     {
@@ -116,7 +116,7 @@ struct json_traits<double>
 };
 
 template<>
-struct json_traits<double&>
+struct json_traits<double&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, double &value)
     {

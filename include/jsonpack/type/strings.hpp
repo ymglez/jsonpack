@@ -30,7 +30,7 @@ TYPE_BEGIN_NAMESPACE
 //-------------------------- STD::STRING -----------------------------------
 
 template<>
-struct json_traits<std::string>
+struct json_traits<std::string, void>
 {
 
     static void append(buffer &json, const char *key, const std::string &value)
@@ -57,7 +57,7 @@ struct json_traits<std::string>
 };
 
 template<>
-struct json_traits<std::string&>
+struct json_traits<std::string&, void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::string &value)
