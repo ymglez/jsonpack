@@ -50,7 +50,7 @@ struct sequence_traits
 
         for(const auto &v : value)
         {
-            json_traits<type_t>::append(json, v);
+            json_traits<type_t, void>::append(json, v);
         }
 
         json.erase_last_comma();
@@ -63,7 +63,7 @@ struct sequence_traits
 
         for(const auto &v : value)
         {
-            json_traits<type_t>::append(json, v);
+            json_traits<type_t, void>::append(json, v);
         }
         json.erase_last_comma();
         json.append("],", 2);
@@ -111,9 +111,9 @@ struct sequence_traits<Seq&>
 #else
             type_t val;
 #endif  
-            if( json_traits<type_t&>::match_token_type(it) )
+            if( json_extract_traits<type_t&>::match_token_type(it) )
             {
-                json_traits<type_t&>::extract(it, json_ptr, val);
+                json_extract_traits<type_t&>::extract(it, json_ptr, val);
                 value.insert(value.end(), val); //faster way in each container
             }
             else
@@ -147,7 +147,7 @@ struct json_traits< std::array<T,N> >
 };
 
 template<typename T, std::size_t N >
-struct json_traits<std::array<T,N>& >
+struct json_extract_traits<std::array<T,N>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::array<T,N> &value)
     {
@@ -222,7 +222,7 @@ struct json_traits< std::vector<T> >
 };
 
 template<typename T>
-struct json_traits<std::vector<T>& >
+struct json_extract_traits<std::vector<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::vector<T> &value)
     {
@@ -263,7 +263,7 @@ struct json_traits< std::deque<T> >
 };
 
 template<typename T>
-struct json_traits<std::deque<T>& >
+struct json_extract_traits<std::deque<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::deque<T> &value)
     {
@@ -299,7 +299,7 @@ struct json_traits< std::list<T> >
 };
 
 template<typename T>
-struct json_traits<std::list<T>& >
+struct json_extract_traits<std::list<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::list<T> &value)
     {
@@ -336,7 +336,7 @@ struct json_traits< std::forward_list<T> >
 
 // get elements in inverse order
 template<typename T>
-struct json_traits<std::forward_list<T>& >
+struct json_extract_traits<std::forward_list<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::forward_list<T> &value)
     {
@@ -411,7 +411,7 @@ struct json_traits< std::set<T> >
 };
 
 template<typename T>
-struct json_traits<std::set<T>& >
+struct json_extract_traits<std::set<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::set<T> &value)
     {
@@ -447,7 +447,7 @@ struct json_traits< std::multiset<T> >
 };
 
 template<typename T>
-struct json_traits<std::multiset<T>& >
+struct json_extract_traits<std::multiset<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::multiset<T> &value)
     {
@@ -483,7 +483,7 @@ struct json_traits< std::unordered_set<T> >
 };
 
 template<typename T>
-struct json_traits<std::unordered_set<T>& >
+struct json_extract_traits<std::unordered_set<T>& >
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::unordered_set<T> &value)
     {

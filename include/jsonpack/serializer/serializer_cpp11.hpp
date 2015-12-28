@@ -54,7 +54,7 @@ static inline void make_object(const object_t &json_obj, char* json_ptr, const s
 
     std::string current_key = keys.substr(0, pos);
 
-    type::json_traits<T&>::extract(json_obj, json_ptr, current_key.c_str(), current_key.length(), val);
+    type::json_extract_traits<T&>::extract(json_obj, json_ptr, current_key.c_str(), current_key.length(), val);
 
     make_object(json_obj, json_ptr, keys.substr(pos+1, keys.length()-1 ).c_str(), values...);
 }

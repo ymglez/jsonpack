@@ -57,7 +57,7 @@ struct json_traits<std::string, void>
 };
 
 template<>
-struct json_traits<std::string&, void>
+struct json_extract_traits<std::string&>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::string &value)

@@ -48,6 +48,8 @@ typedef vector<value>  array_t;
 template<typename T, typename = void>
 struct json_traits;
 
+template<typename T, typename = void>
+struct json_extract_traits;
 
 
 /** ****************************************************************************

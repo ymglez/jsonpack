@@ -123,6 +123,11 @@ enum fields
     _NULL
 };
 
+TYPE_BEGIN_NAMESPACE
+template<typename T, typename>
+struct json_extract_traits;
+JSONPACK_API_END_NAMESPACE //type
+
 /**
  * Represent a JSON value. The union wrapper can represents a:
  * - position of: integer, real, UTF-8 string, boolean or null
@@ -194,7 +199,7 @@ struct value
           ,int>::type* = nullptr ) const
     {
         T  _val;
-        json_traits<T&>::extract(*this, nullptr, _val);
+        type::json_extract_traits<T&>::extract(*this, nullptr, _val);
         return _val;
     }
 
@@ -212,7 +217,7 @@ struct value
         if(_field == _POS && !json_traits<T&>::match_token_type(*this) )
             throw type_error("Types mismatch");
 
-        json_traits<T&>::extract(*this, nullptr, _val);
+        type::json_extract_traits<T&>::extract(*this, nullptr, _val);
     }
 
     /**

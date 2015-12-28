@@ -33,6 +33,11 @@
 
 JSONPACK_API_BEGIN_NAMESPACE
 
+TYPE_BEGIN_NAMESPACE
+template<typename T, typename=void>
+struct json_extract_traits;
+JSONPACK_API_END_NAMESPACE //type
+
 /**
  * std::vector adapter overloading operator[](const char*) for easy lookup,
  * added json_unpack() member for parsing json array
@@ -145,9 +150,9 @@ public:
 #else
             type_t val;
 #endif
-            if( json_traits<type_t&>::match_token_type(it) )
+            if( type::json_extract_traits<type_t&>::match_token_type(it) )
             {
-                json_traits<type_t&>::extract(it, nullptr, val);
+                type::json_extract_traits<type_t&>::extract(it, nullptr, val);
                 arr.insert(arr.end(), val);
             }
             else
