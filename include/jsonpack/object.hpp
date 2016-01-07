@@ -20,10 +20,15 @@
 #define JSONPACK_ARRAY_OBJECT_HPP
 
 #include <vector>
+#include <unordered_map>
 #include <string.h>
 
-#include "jsonpack/vector.hpp"
-#include "jsonpack/umap.hpp"
+#include "jsonpack/util/builder.hpp"
+#include "jsonpack/exceptions.hpp"
+#include "jsonpack/parser.hpp"
+
+//#include "jsonpack/vector.hpp"
+//#include "jsonpack/umap.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
 
@@ -44,6 +49,34 @@ inline unsigned long _hash_bytes(const char* __str, const unsigned long & _bytes
 
     return hash;
 }
+
+/**
+ * Represent a keys in the json string
+ */
+struct key
+{
+    bool operator== (const key &k1) const
+    {
+        std::size_t min =  std::min( k1._bytes, _bytes );
+        bool ret = ( memcmp(k1._ptr, _ptr, min) == 0 );
+        return ret;
+    }
+
+    key():_ptr(nullptr), _bytes(0){}
+
+    key(const key& k):
+        _ptr(k._ptr),
+        _bytes(k._bytes)
+    {}
+
+#ifndef _MSC_VER
+    const char * _ptr = nullptr;
+    std::size_t _bytes = 0;
+#else
+    const char * _ptr;
+    std::size_t _bytes;
+#endif
+};
 
 /**
  * Functor to hash keys in unordered_map
@@ -77,7 +110,8 @@ enum jsonpack_token_type : unsigned
     JTK_FALSE = 10,
     JTK_NULL = 11,
 
-    JTK_INVALID = 12
+    JTK_INVALID = 12,
+	JTK_EOF
 };
 
 
@@ -106,12 +140,12 @@ struct value;
 /**
  * Collection of key/value pairs (javascript object)
  */
-typedef jsonpack::umap<key, value, key_hash >  object_t;
+typedef std::unordered_map<key, value, key_hash >  object_t;
 
 /**
  * Sequence of values
  */
-typedef vector<value> array_t;
+typedef std::vector<value> array_t;
 
 /**
  * For union active field control
@@ -138,34 +172,134 @@ JSONPACK_API_END_NAMESPACE //type
  */
 struct value
 {
-    value():_field(_NULL){}
+    /**
+     * Constructors
+     */
+    value() :_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    {}
 
-    fields _field;
+    value(position p) :_field(_POS),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    { _pos = p; }
 
-    union
+    value(object_t* o) :_field(_OBJ),_p(),_obj_ptr_count(1),_arr_ptr_count(0)
+    { _obj = o; }
+
+    value(array_t* a) :_field(_ARR),_p(),_obj_ptr_count(0),_arr_ptr_count(1)
+    { _arr = a; }
+
+    value (const value &rv):_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
     {
-        position   _pos;
-        object_t*  _obj;
-        array_t*   _arr;
-    };
+        cleanup();
 
-    value& operator =(const value &rv)
-    {
-        _field = rv._field;
-        switch (_field)
+        switch (rv._field)
         {
         case _POS:
             _pos = rv._pos;
             break;
         case _ARR:
             _arr = rv._arr;
+            _arr_ptr_count = rv._arr_ptr_count;
+            rv._arr_ptr_count++;
             break;
-        default:
+        case _OBJ:
             _obj = rv._obj;
+            _obj_ptr_count = rv._obj_ptr_count;
+            rv._obj_ptr_count++;
+        default:
             break;
         }
 
+        _field = rv._field;
+    }
+
+
+    /**
+     * Assignment operators
+     */
+    value& operator =(object_t* o)
+    {
+        cleanup();
+        _field = _OBJ;
+        _obj = o;
+        _obj_ptr_count++;
+
         return *this;
+    }
+
+    value& operator =(array_t* a)
+    {
+        cleanup();
+        _field = _ARR;
+        _arr = a;
+        _arr_ptr_count++;
+
+        return *this;
+    }
+
+    value& operator =(value &rv)
+    {
+        cleanup();
+
+        switch (rv._field)
+        {
+        case _POS:
+            _pos = rv._pos;
+            break;
+        case _ARR:
+            _arr = rv._arr;
+            _arr_ptr_count = rv._arr_ptr_count;
+            rv._arr_ptr_count++;
+            break;
+        case _OBJ:
+            _obj = rv._obj;
+            _obj_ptr_count = rv._obj_ptr_count;
+            rv._obj_ptr_count++;
+        default:
+            break;
+        }
+        _field = rv._field;
+
+        return *this;
+    }
+
+    /**
+     * Destructor
+     */
+    ~value()
+    {
+        switch (_field)
+        {
+        case _ARR:
+            if(--_arr_ptr_count == 0) //i am the last owner
+            {
+                delete _arr;
+                _arr = nullptr;
+            }
+            break;
+        case _OBJ:
+            if(--_obj_ptr_count == 0)
+            {
+                delete _obj;
+                _obj = nullptr;
+            }
+        default:
+            break;
+        }
+    }
+
+    void cleanup()
+    {
+        //clean up before
+        if(is_object())
+        {
+            delete _obj;
+            _obj = nullptr;
+        }
+        else if(is_array())
+        {
+            delete _arr;
+            _arr = nullptr;
+        }
     }
 
     /**
@@ -183,12 +317,14 @@ struct value
     bool is_real()
     { return (_field == _POS && _pos._type == JTK_REAL ); }
 
+    bool is_string()
+    { return (_field == _POS && _pos._type == JTK_STRING_LITERAL ); }
+
     bool is_object()
     { return (_field == _OBJ); }
 
     bool is_array()
     { return (_field == _ARR); }
-
 
     /**
      * Explicit type conversion between current JSON value
@@ -226,17 +362,22 @@ struct value
      * Lookup when json value is
      * OBJECT
      */
-    value operator[](const std::string &__str_key)
+    value& operator[](const std::string &__str_key)
     {
         if(_field != _OBJ) throw type_error("current value is not an object!");
-        return _obj->operator [](__str_key.c_str());
+
+        key obj_key;
+        obj_key._ptr = __str_key.c_str();
+        obj_key._bytes = __str_key.length();
+
+        return _obj->operator [](obj_key);
     }
 
     /**
      * Vector operations when json value is
      * ARRAY
      */
-    value operator[](const std::size_t __index)
+    value& operator[](const std::size_t __index)
     {
         if(_field != _ARR) throw type_error("current value is not an array!");
         return _arr->operator [](__index);
@@ -271,6 +412,63 @@ struct value
         if(_field != _ARR) throw type_error("current value is not an array!");
         return _arr->end();
     }
+
+    /**
+     * Create a json from value
+     */
+    //    void append(buffer &json)
+    //    {
+    //        if( is_array() )
+    //            _arr->append(json);
+    //        else if(is_object())
+    //            _obj->append(json);
+    //        else if( is_string() )
+    //                util::json_builder::append_string(json, _pos._pos, _pos._count);
+    //        else
+    //        {
+    //            json.append(_pos._pos, _pos._count);
+    //            json.append(",", 1);
+    //        }
+    //    }
+
+    void json_unpack(const char* json, const std::size_t &len)
+    {
+        cleanup();
+
+        if(*json == '[')
+        {
+            _field = _ARR;
+            _arr = new array_t();
+            _arr_ptr_count = 1;
+
+            if(!_p.json_validate(json, len, *_arr))
+                throw invalid_json( _p.err_msg().c_str() );
+        }
+        else if(*json == '{')
+        {
+            _field = _OBJ;
+            _obj = new object_t();
+            _obj_ptr_count = 1;
+
+            if(!_p.json_validate(json, len, *_obj))
+                throw invalid_json( _p.err_msg().c_str() );
+        }
+        else
+            throw invalid_json("JSON must be object or array");
+    }
+
+    fields _field;
+
+    union
+    {
+        position   _pos;
+        object_t*  _obj;
+        array_t*   _arr;
+    };
+
+    parser _p;
+    mutable unsigned _obj_ptr_count;
+    mutable unsigned _arr_ptr_count;
 };
 
 

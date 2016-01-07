@@ -26,6 +26,7 @@
 
 #include "jsonpack/buffer.hpp"
 #include "jsonpack/util/utf8.hpp"
+#include "jsonpack/config.hpp"
 
 /**
  * Integer size definitions
@@ -50,53 +51,56 @@
 JSONPACK_API_BEGIN_NAMESPACE
 UTIL_BEGIN_NAMESPACE
 
-static inline std::string trim(std::string s)
+struct str
 {
-    s.erase(std::remove(s.begin(), s.end(), ' '),
-            s.end());
-    return s;
-}
-
-static int write_hex(buffer &json, uint16_t val)
-{
-    char out[4];
-    const char *hex = "0123456789ABCDEF";
-
-    out[0] = hex[(val >> 12) & 0xF];
-    out[1] = hex[(val >> 8)  & 0xF];
-    out[2] = hex[(val >> 4)  & 0xF];
-    out[3] = hex[ val        & 0xF];
-
-    json.append(out, 4);
-    return 4;
-}
-
-static bool parse_hex(const char *sp, uint16_t &out)
-{
-    const char *s = sp;
-    uint16_t ret = 0;
-    uint16_t i;
-    uint16_t tmp;
-
-    for (i = 0; i < 4; i++)
+    static inline std::string trim(std::string s)
     {
-        char c = *(++s);
-        if (c >= '0' && c <= '9')
-            tmp = (uint16_t)(c - '0');
-        else if (c >= 'A' && c <= 'F')
-            tmp = (uint16_t)(c - 'A' + 10);
-        else if (c >= 'a' && c <= 'f')
-            tmp = (uint16_t)(c - 'a' + 10);
-        else
-            return false;
-
-        ret = (uint16_t)((ret << 4) + tmp);
+        s.erase(std::remove(s.begin(), s.end(), ' '),
+                s.end());
+        return s;
     }
 
-    out = ret;
-    sp = s;
-    return true;
-}
+    static int write_hex(buffer &json, uint16_t val)
+    {
+        char out[4];
+        const char *hex = "0123456789ABCDEF";
+
+        out[0] = hex[(val >> 12) & 0xF];
+        out[1] = hex[(val >> 8)  & 0xF];
+        out[2] = hex[(val >> 4)  & 0xF];
+        out[3] = hex[ val        & 0xF];
+
+        json.append(out, 4);
+        return 4;
+    }
+
+    static bool parse_hex(const char *sp, uint16_t &out)
+    {
+        const char *s = sp;
+        uint16_t ret = 0;
+        uint16_t i;
+        uint16_t tmp;
+
+        for (i = 0; i < 4; i++)
+        {
+            char c = *(++s);
+            if (c >= '0' && c <= '9')
+                tmp = (uint16_t)(c - '0');
+            else if (c >= 'A' && c <= 'F')
+                tmp = (uint16_t)(c - 'A' + 10);
+            else if (c >= 'a' && c <= 'f')
+                tmp = (uint16_t)(c - 'a' + 10);
+            else
+                return false;
+
+            ret = (uint16_t)((ret << 4) + tmp);
+        }
+
+        out = ret;
+        sp = s;
+        return true;
+    }
+};
 
 /**
  * helper for stringify values
@@ -105,23 +109,25 @@ struct json_builder
 {
     static inline void append_value(buffer &json, const char* key, const char* value)
     {
-        json.append("\"", 1);
-		json.append(key, strlen(key));
-		json.append("\":", 2);
+        append_string(json, key, strlen(key));
+        json.erase_last_comma();
+        json.append(":", 1);
 		json.append(value, strlen(value) );
 		json.append(",", 1);
     }
 
-    static inline void append_string(buffer &json, const char* value, const std::size_t &UNUSED(len))
+    static inline void append_string(buffer &json, const char* value, const std::size_t &len)
     {
         if( value != nullptr )
         {
             json.append("\"", 1);
 
+            unsigned i = 0;
             const char* str = value;
-            while (*str != 0)
+            while (/**str != 0*/ i < len)
             {
                 char c = *str++;
+                i++;
 
                 switch (c)
                 {
@@ -148,8 +154,8 @@ struct json_builder
 
                     break;
                 default:
-
                     str--;
+                    i--;
 
                     size_t count = utf8::validate_char(str);
                     if (count == 0)
@@ -160,12 +166,14 @@ struct json_builder
                     {
                         /* Encode using \u.... */
                         uint32_t codepoint;
-                        str += utf8::read_char(str, codepoint);
+                        unsigned s = utf8::read_char(str, codepoint);
+                        str+= s;
+                        i+= s;
 
                         if (codepoint <= 0xFFFF)
                         {
                             json.append("\\u", 2);
-                            write_hex(json, (uint16_t)codepoint);
+                            str::write_hex(json, (uint16_t)codepoint);
                         }
                         else
                         {
@@ -180,16 +188,17 @@ struct json_builder
                             utf8::to_surrogate_pair(codepoint, uc, lc);
 
                             json.append("\\u", 2);
-                            write_hex(json, uc);
+                            str::write_hex(json, uc);
 
                             json.append("\\u", 2);
-                            write_hex(json, lc);
+                            str::write_hex(json, lc);
                         }
                     }
                     else
                     {
                         json.append(str, count);
                         str += count;
+                        i+= count;
                     }
 
                     break;

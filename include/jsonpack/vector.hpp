@@ -30,6 +30,7 @@
 #include "jsonpack/parser.hpp"
 #include "jsonpack/exceptions.hpp"
 #include "jsonpack/config.hpp"
+#include "jsonpack/buffer.hpp"
 
 JSONPACK_API_BEGIN_NAMESPACE
 
@@ -72,8 +73,10 @@ public:
 
     ~vector()
     {
+        printf("invoke destructor in vect \n");
         if(_auto_clear)
-            parser::clear(this);
+            clear();
+//            parser::clear(this);
     }
 
     iterator begin() noexcept
@@ -97,20 +100,24 @@ public:
     const_reference operator[](size_type __n) const noexcept
     { return _vect.operator [](__n); }
 
+    reference
+    back() noexcept
+    { return _vect.back(); }
+
+    const_reference
+    back() const noexcept
+    { return _vect.back(); }
+
     void clear() noexcept
     { _vect.clear(); }
 
     void push_back(const value_type& __x)
     { _vect.push_back(__x);}
 
-    /**
-     * Parse json string into a jsonpack::object_t or jsonpack::array_t(this)
-     */
-    void json_unpack(const char* json, const std::size_t &len)
-    {
-        if(!_p.json_validate(json, len, *this))
-			throw invalid_json( _p.err_msg().c_str() );
-    }
+    void
+    push_back(value_type&& __x)
+    { _vect.push_back(__x); }
+
 
     /**
      * Explicit type conversion between current JSON array
@@ -228,6 +235,33 @@ public:
         }
         return arr;
     }
+
+
+    /**
+     * Parse json string into a jsonpack::object_t (this)
+     */
+    void json_unpack(const char* json, const std::size_t &len)
+    {
+        if(!_p.json_validate(json, len, *this))
+            throw invalid_json( _p.err_msg().c_str() );
+    }
+
+//    char* json_pack()
+//    {
+//        buffer j;
+//        append(j);
+//        json.erase_last_comma();
+//        return j.release();
+//    }
+
+//    void append(buffer &json)
+//    {
+//        json.append("[", 1);
+//        for(auto val : _vect)
+//            val.append(json);
+//        json.erase_last_comma();
+//        json.append("],", 2);
+//    }
 
 };
 

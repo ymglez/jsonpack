@@ -35,7 +35,7 @@ static inline void make_json(buffer &json, const std::string &keys,
     type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
 
     json.erase_last_comma();
-    json.append("}\0", 2);
+    json.append("}", 1);
 }
 
 // 2 parameters

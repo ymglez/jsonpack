@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "jsonpack/namespace.hpp"
 
@@ -36,14 +37,9 @@ struct value;
 struct key_hash;
 enum jsonpack_token_type : unsigned;
 
-template<class _Key, class _Value, class _Hasher>
-class umap;
 
-template<typename _Tp>
-class vector;
-
-typedef umap<key, value, key_hash> object_t;
-typedef vector<value>  array_t;
+typedef std::unordered_map<key, value, key_hash> object_t;
+typedef std::vector<value>  array_t;
 
 /** ****************************************************************************
  ******************************** SCANNER **************************************
@@ -103,13 +99,10 @@ struct scanner
      */
     jsonpack_token_type number();
 
-
     /**
-     * Helper functions to get key and position objects
+     * Helper function to get key object
      */
     key get_last_key(bool expect_str_literal);
-    value get_last_value(bool expect_str_literal);
-
 
     //disabling warning on GNU
 #ifndef _MSC_VER
@@ -137,14 +130,14 @@ struct scanner
  *******************************************************************************/
 struct parser
 {
-	/**
-	 * Default constructor
-	 */
+    /**
+     * Default constructor
+     */
     parser();
 
-	/**
-	 * Copy constructor
-	 */
+    /**
+     * Copy constructor
+     */
     parser(const parser &p);
 
     bool json_validate(const char *json, const std::size_t &len, object_t & members);
@@ -155,26 +148,27 @@ struct parser
     /**
      * Function to free array_t
      */
-    static void delete_array(array_t *arr);
-
+    //static void delete_array(array_t *arr);
 
     /**
      * Function to free object_t
      */
-    static void delete_object(object_t *obj);
+    //static void delete_object(object_t *obj);
 
     /**
      * Function to free internal elements in object
      */
-    static void clear(object_t* obj);
+    //static void clear(object_t* obj);
 
     /**
      * Function to free internal elements in array
      */
-    static void clear(array_t* arr);
+    //static void clear(array_t* arr);
 
 private:
     bool match(const jsonpack_token_type &token);
+
+	bool is_literal(const jsonpack_token_type &token);
 
     void advance();
 

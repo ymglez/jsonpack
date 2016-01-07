@@ -29,7 +29,7 @@ JSONPACK_API_BEGIN_NAMESPACE
 static inline void make_json(buffer &json, const std::string &UNUSED(key) )
 {
     json.erase_last_comma();
-    json.append("}\0", 2);
+    json.append("}", 1);
 }
 
 template <typename T, typename ...Types >

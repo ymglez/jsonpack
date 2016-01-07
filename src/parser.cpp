@@ -79,8 +79,11 @@ jsonpack_token_type scanner::next()
         return JTK_COMMA;
         break;
     case '"':
-       return string_literal();
+        return string_literal();
         break;
+	case '\0':
+		if(_i < _size -1) advance();
+		return JTK_EOF;
 
     default:
         if(std::isspace(  _c ) )
@@ -149,7 +152,7 @@ jsonpack_token_type scanner::string_literal()
 
 jsonpack_token_type scanner::other_value()
 {
-    if(std::isdigit( _c ) || _c == '+' || _c == '-' )
+    if(std::isdigit( _c ) || _c == '-' )
         return number();
 
     if(std::isalpha( _c ) )
@@ -177,19 +180,29 @@ jsonpack_token_type scanner::other_value()
 
 jsonpack_token_type scanner::number()
 {
-    uint_fast8_t state = 1;
+    int_fast8_t state = 1;
     _start_token_pos = _i;
 
-    if(_c == '+' || _c == '-')
-        state = 0;
+	if(_c == '0') state = -1;
+	
+    if(_c == '-') state = 0;
 
-    while (true)
+    while (true) 
     {
         switch (state)
         {
-        case 0:
+		case -1://0
+			advance();
+			if( std::isdigit( _c ) ) throw invalid_json("JSON Syntax error: Numbers cannot have leading zeroes");
+
+			if(_c == '.') state = 2;
+			else if(_c == 'e' || _c == 'E') state = 4;
+			else return JTK_INTEGER;
+			break;
+        case 0://-
             advance();
             if( std::isdigit( _c ) ) state = 1;
+			else if(_c == '0') state = -1;
             else return JTK_INVALID;
             break;
         case 1:
@@ -200,7 +213,7 @@ jsonpack_token_type scanner::number()
             while( std::isdigit( _c ) && _i < _size );
 
             if(_c == '.') state = 2;
-			else if(_c == 'e' || _c == 'E') state = 4;
+            else if(_c == 'e' || _c == 'E') state = 4;
             else return JTK_INTEGER;
 
             break;
@@ -250,7 +263,6 @@ jsonpack_token_type scanner::number()
     }
 }
 
-
 key scanner::get_last_key( bool expect_str_literal = false )
 {
     char * lex = const_cast<char*>(_source)  ;
@@ -261,120 +273,66 @@ key scanner::get_last_key( bool expect_str_literal = false )
     k._bytes = _i - _start_token_pos - 2*expect_str_literal;
 
     return k;
-
 }
 
-value scanner::get_last_value(bool expect_str_literal = false)
-{
-    value p;
-    position vpos;
-    vpos._pos = const_cast<char*>(_source +(_start_token_pos + expect_str_literal));
-    vpos._count = _i - _start_token_pos - 2*expect_str_literal;
-    vpos._type = JTK_INVALID; //avoiding initializer warnig
-
-    p._pos = vpos;
-    p._field = _POS;
-
-    return p;
-}
-
-void parser::delete_array(array_t *arr)
-{
-    clear(arr);
-    delete arr;
-    arr = nullptr;
-
-}
-
-void parser::delete_object(object_t *obj)
-{
-    clear(obj);
-    delete obj;
-    obj = nullptr;
-
-}
-
-void parser::clear(object_t* obj)
-{
-    for(object_t::iterator it = obj->begin(); it != obj->end(); ++it)
-    {
-        if(it->second._field == _OBJ)
-        {
-            delete_object(it->second._obj);
-        }
-        else if(it->second._field == _ARR)
-        {
-            delete_array(it->second._arr);
-        }
-    }
-
-    obj->clear();
-}
-
-void parser::clear(array_t* arr)
-{
-   for(array_t::iterator elem = arr->begin(); elem != arr->end(); ++elem)
-    {
-        if((*elem)._field == _OBJ)
-        {
-            delete_object((*elem)._obj);
-        }
-        else if((*elem)._field == _ARR)
-        {
-            delete_array((*elem)._arr);
-        }
-    }
-
-    arr->clear();
-}
 
 /** ****************************************************************************
  ******************************** PARSER ***************************************
  *******************************************************************************/
 
 parser::parser():
-        _tk(JTK_INVALID),
-        _s()
+    _tk(JTK_INVALID),
+    _s()
 {}
 
 parser::parser(const parser &p):
-        _tk(p._tk),
-        _s(p._s)
+    _tk(p._tk),
+    _s(p._s)
 {}
 
 //---------------------------------------------------------------------------------------------------
 bool parser::match(const jsonpack_token_type &token)
 {
-    bool ok = (_tk == token);
-    advance();
-	if(!ok)
-	{
-		std::string token_str[] = 
-		{
-			"Open object",
-			"Close object",
-			"Colon",
-			"Comma",
-			"Open array",
-			"Close array",
-			"String value",
-			"Number value",
-			"Number value",
-			"Boolean value",
-			"Boolean value",
-			"Null value",
-			"Ivalid value"
-		};
+    if(_tk != token)
+    {
+        std::string token_str[] =
+        {
+            "Open object",
+            "Close object",
+            "Colon",
+            "Comma",
+            "Open array",
+            "Close array",
+            "String value",
+            "Number value",
+            "Number value",
+            "Boolean value",
+            "Boolean value",
+            "Null value",
+            "Ivalid value",
+			"End of input"
+        };
 
-		char msg[256];
-		sprintf(msg, "JSON syntax error: Expect '%s' but found '%s' at %d", token_str[token].c_str(), token_str[_tk].c_str(), _s._i);
+        char msg[256];
+        sprintf(msg, "JSON syntax error: Expect '%s' but found '%s' at %d", token_str[token].c_str(), token_str[_tk].c_str(), _s._i);
 
-		throw invalid_json(msg);
-	}
+        throw invalid_json(msg);
+    }
 
-    return ok;
+	advance();
+    return true;
 }
 
+//---------------------------------------------------------------------------------------------------
+bool parser::is_literal(const jsonpack_token_type &token)
+{
+	return( token == JTK_INTEGER ||
+            token == JTK_REAL ||
+            token == JTK_STRING_LITERAL ||
+            token == JTK_TRUE ||
+            token == JTK_FALSE ||
+            token == JTK_NULL );
+}
 
 //---------------------------------------------------------------------------------------------------
 void parser::advance()
@@ -388,7 +346,7 @@ bool parser::json_validate(const char *json,const std::size_t &len, object_t &me
     _s.init(json, len);
     advance();
 
-	return match(JTK_OPEN_KEY) && item_list(members) && match(JTK_CLOSE_KEY);
+	return match(JTK_OPEN_KEY) && item_list(members) && match(JTK_CLOSE_KEY) && match(JTK_EOF);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -397,14 +355,14 @@ bool parser::json_validate(const char *json,const std::size_t &len, array_t &ele
     _s.init(json, len);
     advance();
 
-	return match(JTK_OPEN_BRACKET) && array_list(elemets) && match(JTK_CLOSE_BRACKET);
+    return match(JTK_OPEN_BRACKET) && array_list(elemets) && match(JTK_CLOSE_BRACKET) && match(JTK_EOF);
 }
 
 //---------------------------------------------------------------------------------------------------
 std::string parser::err_msg()
 {
     char buff[125];
-	sprintf(buff, "JSON syntax error: near \'%c\' at position %u", _s._c, _s._i);    return std::string(buff);
+    sprintf(buff, "JSON syntax error: near \'%c\' at position %u", _s._c, _s._i);    return std::string(buff);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -418,6 +376,9 @@ bool parser::item_list(object_t &members)
         if(_tk == JTK_COMMA )
         {
             advance();
+			if(/*!is_literal(_tk) && _tk != JTK_OPEN_BRACKET && _tk != JTK_OPEN_KEY*/ _tk != JTK_STRING_LITERAL)
+				throw invalid_json("JSON Syntax error: Expect valid string after comma");
+
             return item_list(members);
         }
         return true;
@@ -439,26 +400,27 @@ bool parser::item(object_t &members)
         advance();
         return match(JTK_COLON) && value(k, members); // : value
     }
-		
+
     return false;
 }
 
 //---------------------------------------------------------------------------------------------------
 bool parser::value(key k, object_t &members)
 {
-    if( _tk == JTK_INTEGER ||
-            _tk == JTK_REAL ||
-            _tk == JTK_STRING_LITERAL ||
-            _tk == JTK_TRUE ||
-            _tk == JTK_FALSE ||
-            _tk == JTK_NULL ) //literals
+	if( is_literal(_tk) ) //literals
     {
 
         /**
          * Add value into the map with current key
          */
-        jsonpack::value val = _s.get_last_value(_tk == JTK_STRING_LITERAL);
-        val._pos._type = _tk;
+
+        bool is_str = (_tk == JTK_STRING_LITERAL);
+        position pos;
+        pos._pos = const_cast<char*>(_s._source +(_s._start_token_pos + is_str));
+        pos._count = _s._i - _s._start_token_pos - 2*is_str;
+        pos._type = _tk;
+        jsonpack::value val(pos);
+
         members[k] = val;
 
         advance();
@@ -469,22 +431,20 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        object_t* new_obj = new object_t(members._auto_clear);  // create obj
+        object_t* new_obj = new object_t();
 
-        bool object_ok = item_list(*new_obj);          //fill obj
+        bool object_ok = item_list(*new_obj);
         
         if(object_ok)
         {
-            jsonpack::value p;                                  //create value width field _obj
-            p._obj = new_obj;
-            p._field = _OBJ;
-
-            members[k] = p;                                     // add to the map
+            members[k] = new_obj;
 
             return match(JTK_CLOSE_KEY);
         }
 
-        delete_object(new_obj);
+        delete new_obj;
+        new_obj = nullptr;
+
         return false;
     }
 
@@ -492,20 +452,18 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        array_t* new_array = new array_t(members._auto_clear);   // create arr
+        array_t* new_array = new array_t();
 
-        bool array_ok = array_list(*new_array);         // fill arr
+        bool array_ok = array_list(*new_array);
         if(array_ok)
         {
-            jsonpack::value p;                                  //create value width field _arr
-            p._arr = new_array;
-            p._field = _ARR;
-
-            members[k] = p;                                     // add to the map
+            members[k] = new_array;
 
             return match(JTK_CLOSE_BRACKET);
         }
-        delete_array(new_array);
+        delete new_array;
+        new_array = nullptr;
+
         return false;
     }
 
@@ -523,31 +481,31 @@ bool parser::array_list(array_t &elemets)
         if(_tk == JTK_COMMA )
         {
             advance();
+			if(!is_literal(_tk) && _tk != JTK_OPEN_BRACKET && _tk != JTK_OPEN_KEY)
+				throw invalid_json("JSON Synatax error: Expect valid value after comma");
+
             return array_list(elemets);
         }
         return true;
     }
     return false;
-
 }
 
 //---------------------------------------------------------------------------------------------------
 bool parser::value( array_t &elemets)
 {
-    if( _tk == JTK_INTEGER ||
-            _tk == JTK_REAL ||
-            _tk == JTK_STRING_LITERAL ||
-            _tk == JTK_TRUE ||
-            _tk == JTK_FALSE ||
-            _tk == JTK_NULL ) //literals
+    if( is_literal(_tk) ) //literals
     {
-
         /**
          * Add value into the vector
          */
-        jsonpack::value vpos = _s.get_last_value(_tk == JTK_STRING_LITERAL);
-        vpos._pos._type = _tk;
-        elemets.push_back(vpos);
+        bool is_str = (_tk == JTK_STRING_LITERAL);
+        position pos;
+        pos._pos = const_cast<char*>(_s._source +(_s._start_token_pos + is_str));
+        pos._count = _s._i - _s._start_token_pos - 2*is_str;
+        pos._type = _tk;
+
+        elemets.emplace_back(pos);
 
         advance();
         return true;
@@ -557,22 +515,20 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        object_t* new_obj = new object_t(elemets._auto_clear);  // create obj
+        object_t* new_obj = new object_t();
 
-        bool object_ok = item_list(*new_obj);          //fill obj
+        bool object_ok = item_list(*new_obj);
         
         if(object_ok)
         {
-            jsonpack::value p;                                  //create value width field _obj
-            p._obj = new_obj;
-            p._field = _OBJ;
-
-            elemets.push_back(p);                               // add to the map
+            elemets.emplace_back(new_obj);
 
             return match(JTK_CLOSE_KEY);
         }
 
-        delete_object(new_obj);
+        delete new_obj;
+        new_obj = nullptr;
+
         return false;
     }
 
@@ -580,20 +536,18 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        array_t* new_array = new array_t(elemets._auto_clear);   // create arr
+        array_t* new_array = new array_t();
 
-        bool array_ok = array_list(*new_array);         // fill arr
+        bool array_ok = array_list(*new_array);
         if(array_ok)
         {
-            jsonpack::value p;                                  //create value width field _arr
-            p._arr = new_array;
-            p._field = _ARR;
-
-            elemets.push_back(p);                               // add to the vector
+            elemets.emplace_back(new_array);
 
             return match(JTK_CLOSE_BRACKET);
         }
-        delete_array(new_array);
+        delete new_array;
+        new_array = nullptr;
+
         return false;
     }
 

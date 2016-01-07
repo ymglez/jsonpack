@@ -143,12 +143,12 @@ struct json_traits<std::string&>
                         uint16_t uc = 0, lc = 0;
                         util::utf8::uchar_t codepoint;
 
-                        util::parse_hex(i, uc);
+                        util::str::parse_hex(i, uc);
 
                         if (uc >= 0xD800 && uc <= 0xDFFF)
                         {
                             /* Handle UTF-16 surrogate pair. */
-                            if (*i++ != '\\' || *i++ != 'u' || !util::parse_hex(i, lc))
+                            if (*i++ != '\\' || *i++ != 'u' || !util::str::parse_hex(i, lc))
                                 throw type_error("Incomplete surrogate pair");
 
                             if (!util::utf8::from_surrogate_pair(uc, lc, codepoint))

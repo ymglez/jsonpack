@@ -21,6 +21,7 @@
 
 #include <unordered_map>
 
+#include "jsonpack/util/builder.hpp"
 #include "jsonpack/parser.hpp"
 #include "jsonpack/exceptions.hpp"
 #include "jsonpack/config.hpp"
@@ -32,7 +33,6 @@ JSONPACK_API_BEGIN_NAMESPACE
  */
 struct key
 {
-
     bool operator== (const key &k1) const
     {
         std::size_t min =  std::min( k1._bytes, _bytes );
@@ -97,7 +97,8 @@ public:
     ~umap()
     {
         if(_auto_clear)
-            parser::clear(this);
+            clear();
+//            parser::clear(this);
     }
 
     iterator begin() noexcept
@@ -131,7 +132,7 @@ public:
      * Overload for easy lookup.
      * Return a copy of element or throw exception if not found
      */
-    mapped_type operator[](const char* str_key)
+    mapped_type operator[](const char* str_key) const
     {
         key obj_key;
         obj_key._ptr = str_key;
@@ -147,6 +148,15 @@ public:
         throw jsonpack_error( msg.c_str() );
     }
 
+    mapped_type& operator[](const char* str_key)
+    {
+        key obj_key;
+        obj_key._ptr = str_key;
+        obj_key._bytes = strlen(str_key);
+
+        return _umap[obj_key];
+    }
+
     /**
      * Parse json string into a jsonpack::object_t or jsonpack::array_t(this)
      */
@@ -155,6 +165,28 @@ public:
         if(!_p.json_validate(json, len, *this))
 			throw invalid_json( _p.err_msg().c_str() );
     }
+
+//    char* json_pack()
+//    {
+//        buffer j;
+//        append(j);
+//        return j.release();
+//    }
+
+//    void append(buffer &json)
+//    {
+//        json.append("{", 1);
+//        for(auto v : _umap)
+//        {
+//            util::json_builder::append_string(json, v.first._ptr, v.first._bytes);
+//            json.erase_last_comma();
+//            json.append(":", 1);
+//            v.second.append(json);
+//        }
+
+//        json.erase_last_comma();
+//        json.append("},", 2);
+//    }
 };
 
 JSONPACK_API_END_NAMESPACE

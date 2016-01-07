@@ -28,7 +28,7 @@ int main()
     try
     {
 		//DOM style parse json object
-        jsonpack::object_t obj;
+        jsonpack::value obj;
 
         obj.json_unpack(json_obj.c_str(), json_obj.length() );
 		
@@ -53,13 +53,10 @@ int main()
               out.mFloat, out.mInt, out.mCad.data(), out.isObject, out.caracter );
 
 		//DOM style parse json array
-        jsonpack::array_t list;
+        jsonpack::value list;
 
         list.json_unpack(json_arr.c_str(), json_arr.length() );
 
-        //can be: array, deque, list, forward_list, set, multiset, unordered_set and unordered_multiset.
-//        std::vector<double> real_list;
-//        list(real_list);
         auto real_list = list.get<std::vector<double>>();
 
         for(auto v : real_list)

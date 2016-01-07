@@ -14,7 +14,7 @@ BENCHMARK("parse jeopardy.json", [](benchpress::context* ctx)
 
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
-        jsonpack::array_t j;
+        jsonpack::value j;
         j.json_unpack(json->c_str(), json->length() );
     }
 })
@@ -28,7 +28,7 @@ BENCHMARK("parse canada.json", [](benchpress::context* ctx)
 
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
-        jsonpack::object_t j;
+        jsonpack::value j;
 		j.json_unpack(json.c_str(), json.length() );
     }
 })
@@ -42,7 +42,7 @@ BENCHMARK("parse citm_catalog.json", [](benchpress::context* ctx)
 
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
-        jsonpack::object_t j;
+        jsonpack::value j;
 		j.json_unpack(json.c_str(), json.length() );
     }
 })
@@ -56,7 +56,7 @@ BENCHMARK("parse twitter.json", [](benchpress::context* ctx)
 
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
-        jsonpack::object_t j;
+        jsonpack::value j;
 		j.json_unpack(json.c_str(), json.length() );
     }
 })

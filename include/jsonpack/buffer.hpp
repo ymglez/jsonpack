@@ -89,6 +89,7 @@ public:
 
     char* release()
     {
+        append("\0", 1);
         char* tmp = _data;
         _size = 0;
         _data = nullptr;

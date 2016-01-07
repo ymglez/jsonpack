@@ -44,7 +44,7 @@
     public:                                                             \
     char* json_pack()                                                   \
     {                                                                   \
-        std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
+        std::string _keys = jsonpack::util::str::trim( std::string(#__VA_ARGS__) );\
         jsonpack::buffer json;                                          \
         json.append( "{" , 1);                                          \
         jsonpack::make_json(json, _keys ,__VA_ARGS__);                  \
@@ -52,18 +52,17 @@
     }                                                                   \
     void json_unpack(const char* json, const std::size_t &len)          \
     {                                                                   \
-        jsonpack::object_t _members(32, false);                         \
+        jsonpack::object_t _members(32);                         \
         jsonpack::parser p;												\
          if(p.json_validate(json, len, _members))       				\
          {                                                              \
-            std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
+            std::string _keys = jsonpack::util::str::trim( std::string(#__VA_ARGS__) );\
             jsonpack::make_object(_members, const_cast<char*>(json), _keys, __VA_ARGS__);\
-            jsonpack::parser::clear(&_members);									\
         }else{throw jsonpack::invalid_json(p.err_msg().c_str());}  		\
     }                                                                   \
     void json_unpack(const jsonpack::object_t &json, char* json_ptr)    \
     {                                                                   \
-        std::string _keys = jsonpack::util::trim( std::string(#__VA_ARGS__) );\
+        std::string _keys = jsonpack::util::str::trim( std::string(#__VA_ARGS__) );\
         jsonpack::make_object(json, json_ptr, _keys, __VA_ARGS__);      \
     }
 
@@ -84,7 +83,6 @@ inline char* json_pack_sequence(const Seq& seq)
     jsonpack::buffer json;
     type::json_traits< Seq >::append(json, seq);
     json.erase_last_comma();
-    json.append("\0",  1);
 
     return json.release();
 }
@@ -97,14 +95,12 @@ inline char* json_pack_sequence(const Seq& seq)
 template<typename Seq>
 inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& seq)
 {
-    array_t *arr = new array_t(false);
+    array_t *arr = new array_t();
 
     parser p;
     if(p.json_validate(json, len, *arr))
     {
-        value v;
-        v._arr = arr;
-        v._field = _ARR;
+        value v(arr);
 
         type::json_traits< Seq& >::extract(v, const_cast<char*>(json), seq);
     }
@@ -112,8 +108,6 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
     {
         throw jsonpack::invalid_json(p.err_msg().c_str());
     }
-
-    parser::delete_array(arr);
 }
 
 
