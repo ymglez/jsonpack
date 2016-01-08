@@ -45,6 +45,13 @@ class vector;
 typedef umap<key, value, key_hash> object_t;
 typedef vector<value>  array_t;
 
+template<typename T, typename = void>
+struct json_traits;
+
+template<typename T, typename = void>
+struct json_extract_traits;
+
+
 /** ****************************************************************************
  ******************************** SCANNER **************************************
  *******************************************************************************/
