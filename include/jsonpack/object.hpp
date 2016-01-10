@@ -194,10 +194,11 @@ struct value
     value(array_t* a) :_field(_ARR),_p(),_obj_ptr_count(0),_arr_ptr_count(1)
     { _arr = a;}
 
-    value (const value &rv):_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    /**
+     * Copy constructor
+     */
+    value (const value &rv) :_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
     {
-        cleanup();
-
         switch (rv._field)
         {
         case _POS:
@@ -217,6 +218,33 @@ struct value
         }
 
         _field = rv._field;
+    }
+
+
+    /**
+     * Move constructor
+     */
+    value (value &&rv) :_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    {
+        switch (rv._field)
+        {
+        case _POS:
+            _pos = std::move(rv._pos);
+            break;
+        case _ARR:
+            _arr = std::move(rv._arr);
+            _arr_ptr_count = std::move(rv._arr_ptr_count);
+            rv._arr_ptr_count++;
+            break;
+        case _OBJ:
+            _obj = rv._obj;
+            _obj_ptr_count = std::move(rv._obj_ptr_count);
+            rv._obj_ptr_count++;
+        default:
+            break;
+        }
+
+        _field = std::move(rv._field);
     }
 
     /**
@@ -474,7 +502,7 @@ struct value
         else if(*json == '{')
         {
             _field = _OBJ;
-            _obj = new object_t();
+            _obj = new object_t(32);
             _obj_ptr_count = 1;
 
             if(!_p.json_validate(json, len, *_obj))
