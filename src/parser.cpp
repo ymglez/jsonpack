@@ -413,14 +413,13 @@ bool parser::value(key k, object_t &members)
         /**
          * Add value into the map with current key
          */
-
         bool is_str = (_tk == JTK_STRING_LITERAL);
         position pos;
         pos._pos = const_cast<char*>(_s._source +(_s._start_token_pos + is_str));
         pos._count = _s._i - _s._start_token_pos - 2*is_str;
         pos._type = _tk;
-        jsonpack::value val(pos);
 
+        jsonpack::value val(pos);
         members[k] = val;
 
         advance();
@@ -431,19 +430,15 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        object_t* new_obj = new object_t();
+        object_t o;
 
-        bool object_ok = item_list(*new_obj);
+        bool object_ok = item_list(o);
         
         if(object_ok)
         {
-            members[k] = new_obj;
-
+            members[k] = new object_t(std::move(o));
             return match(JTK_CLOSE_KEY);
         }
-
-        delete new_obj;
-        new_obj = nullptr;
 
         return false;
     }
@@ -452,17 +447,14 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        array_t* new_array = new array_t();
+        array_t a;
+        bool array_ok = array_list(a);
 
-        bool array_ok = array_list(*new_array);
         if(array_ok)
         {
-            members[k] = new_array;
-
+            members[k] = new array_t(std::move(a));
             return match(JTK_CLOSE_BRACKET);
         }
-        delete new_array;
-        new_array = nullptr;
 
         return false;
     }
@@ -505,7 +497,7 @@ bool parser::value( array_t &elemets)
         pos._count = _s._i - _s._start_token_pos - 2*is_str;
         pos._type = _tk;
 
-        elemets.emplace_back(pos);
+        elemets.emplace_back(std::move(pos));
 
         advance();
         return true;
@@ -515,19 +507,14 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        object_t* new_obj = new object_t();
-
-        bool object_ok = item_list(*new_obj);
+        object_t o;
+        bool object_ok = item_list(o);
         
         if(object_ok)
         {
-            elemets.emplace_back(new_obj);
-
+            elemets.emplace_back(new object_t(std::move(o)));
             return match(JTK_CLOSE_KEY);
         }
-
-        delete new_obj;
-        new_obj = nullptr;
 
         return false;
     }
@@ -536,17 +523,14 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        array_t* new_array = new array_t();
+        array_t a ;
+        bool array_ok = array_list(a);
 
-        bool array_ok = array_list(*new_array);
         if(array_ok)
         {
-            elemets.emplace_back(new_array);
-
+            elemets.emplace_back(new array_t(std::move(a)));
             return match(JTK_CLOSE_BRACKET);
         }
-        delete new_array;
-        new_array = nullptr;
 
         return false;
     }

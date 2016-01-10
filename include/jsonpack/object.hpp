@@ -19,6 +19,7 @@
 #ifndef JSONPACK_ARRAY_OBJECT_HPP
 #define JSONPACK_ARRAY_OBJECT_HPP
 
+#include <map>
 #include <vector>
 #include <unordered_map>
 #include <string.h>
@@ -61,6 +62,12 @@ struct key
         bool ret = ( memcmp(k1._ptr, _ptr, min) == 0 );
         return ret;
     }
+
+    /**
+     * Less operator required for container
+     */
+    bool operator < (const key &UNUSED(other)) const
+    { return true; } //order doesnt matter
 
     key():_ptr(nullptr), _bytes(0){}
 
@@ -182,10 +189,10 @@ struct value
     { _pos = p; }
 
     value(object_t* o) :_field(_OBJ),_p(),_obj_ptr_count(1),_arr_ptr_count(0)
-    { _obj = o; }
+    { _obj = o;}
 
     value(array_t* a) :_field(_ARR),_p(),_obj_ptr_count(0),_arr_ptr_count(1)
-    { _arr = a; }
+    { _arr = a;}
 
     value (const value &rv):_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
     {
@@ -212,7 +219,6 @@ struct value
         _field = rv._field;
     }
 
-
     /**
      * Assignment operators
      */
@@ -222,6 +228,7 @@ struct value
         _field = _OBJ;
         _obj = o;
         _obj_ptr_count++;
+
 
         return *this;
     }
@@ -358,6 +365,18 @@ struct value
         type::json_traits<T&>::extract(*this, nullptr, _val);
     }
 
+    std::size_t size() const
+    {
+        if(_field == _ARR)
+            return _arr->size();
+        else if(_field == _OBJ)
+            return _obj->size();
+
+        throw type_error("size must be used with array or object");
+    }
+
+
+
     /**
      * Lookup when json value is
      * OBJECT
@@ -373,6 +392,18 @@ struct value
         return _obj->operator [](obj_key);
     }
 
+    std::vector<std::string> members()
+    {
+        if(_field != _OBJ) throw type_error("current value is not an object!");
+
+        std::vector<std::string> m(_obj->size());
+
+        for(object_t::iterator pair  = _obj->begin(); pair != _obj->end(); pair++)
+            m.emplace_back( pair->first._ptr, pair->first._bytes);
+
+        return m;
+    }
+
     /**
      * Vector operations when json value is
      * ARRAY
@@ -383,11 +414,6 @@ struct value
         return _arr->operator [](__index);
     }
 
-    std::size_t size() const
-    {
-        if(_field != _ARR) throw type_error("current value is not an array!");
-        return _arr->size();
-    }
 
     array_t::iterator begin()
     {
@@ -440,6 +466,7 @@ struct value
             _field = _ARR;
             _arr = new array_t();
             _arr_ptr_count = 1;
+
 
             if(!_p.json_validate(json, len, *_arr))
                 throw invalid_json( _p.err_msg().c_str() );

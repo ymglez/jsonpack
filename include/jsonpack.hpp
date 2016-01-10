@@ -52,7 +52,7 @@
     }                                                                   \
     void json_unpack(const char* json, const std::size_t &len)          \
     {                                                                   \
-        jsonpack::object_t _members(32);                         \
+        jsonpack::object_t _members;                         \
         jsonpack::parser p;												\
          if(p.json_validate(json, len, _members))       				\
          {                                                              \

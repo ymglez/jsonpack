@@ -6,16 +6,16 @@
 
 BENCHMARK("parse jeopardy.json", [](benchpress::context* ctx)
 {
-	std::ifstream inputs_json("files/jeopardy/jeopardy.json");
-    std::string* json = new std::string( (std::istreambuf_iterator<char>(inputs_json) ), (std::istreambuf_iterator<char>() ));
-	
+    std::ifstream inputs_json("files/nativejson-benchmark/twitter.json");
+    std::string json( (std::istreambuf_iterator<char>(inputs_json) ), (std::istreambuf_iterator<char>() ));
+
 	//expensive setup before before run
 	ctx->reset_timer();
 
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
         jsonpack::value j;
-        j.json_unpack(json->c_str(), json->length() );
+        j.json_unpack(json.c_str(), json.length() );
     }
 })
 
@@ -29,7 +29,7 @@ BENCHMARK("parse canada.json", [](benchpress::context* ctx)
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
         jsonpack::value j;
-		j.json_unpack(json.c_str(), json.length() );
+        j.json_unpack(json.c_str(), json.length() );
     }
 })
 
@@ -43,7 +43,7 @@ BENCHMARK("parse citm_catalog.json", [](benchpress::context* ctx)
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
         jsonpack::value j;
-		j.json_unpack(json.c_str(), json.length() );
+        j.json_unpack(json.c_str(), json.length() );
     }
 })
 
@@ -57,6 +57,6 @@ BENCHMARK("parse twitter.json", [](benchpress::context* ctx)
     for (size_t i = 0; i < ctx->num_iterations(); ++i)
     {
         jsonpack::value j;
-		j.json_unpack(json.c_str(), json.length() );
+        j.json_unpack(json.c_str(), json.length() );
     }
 })
