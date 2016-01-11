@@ -371,7 +371,7 @@ struct value
           ,int>::type* = nullptr ) const
     {
         T  _val;
-        type::json_extract_traits<T&>::extract(*this, nullptr, _val);
+        type::json_extract_traits<T&, void>::extract(*this, nullptr, _val);
         return _val;
     }
 
@@ -389,7 +389,7 @@ struct value
         if(_field == _POS && !json_traits<T&>::match_token_type(*this) )
             throw type_error("Types mismatch");
 
-        type::json_extract_traits<T&>::extract(*this, nullptr, _val);
+        type::json_extract_traits<T&,void>::extract(*this, nullptr, _val);
     }
 
     std::size_t size() const
