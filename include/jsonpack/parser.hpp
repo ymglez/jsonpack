@@ -41,6 +41,13 @@ enum jsonpack_token_type : unsigned;
 typedef std::unordered_map<key, value, key_hash> object_t;
 typedef std::vector<value>  array_t;
 
+template<typename T, typename = void>
+struct json_traits;
+
+template<typename T, typename = void>
+struct json_extract_traits;
+
+
 /** ****************************************************************************
  ******************************** SCANNER **************************************
  *******************************************************************************/

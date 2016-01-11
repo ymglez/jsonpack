@@ -28,7 +28,8 @@
 #if defined __cplusplus
 #   if (__cplusplus >= 201103) & !defined(_MSC_VER)
 #       define noexcept noexcept
-#	else
+#   elif _MSC_VER>=1900
+#   else
 #		define noexcept
 #   endif
 #endif

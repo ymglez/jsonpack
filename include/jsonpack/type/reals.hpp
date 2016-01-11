@@ -25,24 +25,25 @@
 JSONPACK_API_BEGIN_NAMESPACE
 TYPE_BEGIN_NAMESPACE
 
-//-------------------------- FLOAT --------------------------------
-template<>
-struct json_traits<float>
+//--------------------- FLOAT + DOUBLE ----------------------------
+template<typename T>
+struct json_traits<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
 
-    static void append(buffer &json, const char *key, const float &value)
+    static void append(buffer &json, const char *key, const T &value)
     {
         util::json_builder::append_real(json, key, value);
     }
 
-    static void append(buffer &json, const float &value)
+    static void append(buffer &json, const T &value)
     {
         util::json_builder::append_real(json, value);
     }
 };
 
+//-------------------------- FLOAT --------------------------------
 template<>
-struct json_traits<float&>
+struct json_extract_traits<float&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, float &value)
     {
@@ -101,22 +102,10 @@ struct json_traits<float&>
 };
 
 //-------------------------- DOUBLE --------------------------------
-template<>
-struct json_traits<double>
-{
-    static void append(buffer &json, const char *key, const double &value)
-    {
-        util::json_builder::append_real(json, key, value);
-    }
 
-    static void append(buffer &json, const double &value)
-    {
-        util::json_builder::append_real(json, value);
-    }
-};
 
 template<>
-struct json_traits<double&>
+struct json_extract_traits<double&, void>
 {
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, double &value)
     {

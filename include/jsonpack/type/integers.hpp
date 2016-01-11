@@ -34,7 +34,7 @@ TYPE_BEGIN_NAMESPACE
  *  bool type traits specialization
  */
 template<>
-struct json_traits<bool>
+struct json_traits<bool, void>
 {
     static void append(buffer &json, const char *key, const bool &value)
     {
@@ -48,7 +48,7 @@ struct json_traits<bool>
 };
 
 template<>
-struct json_traits<bool&>
+struct json_extract_traits<bool&, void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, bool &value)
@@ -94,7 +94,7 @@ struct json_traits<bool&>
  *  char type traits specialization
  */
 template<>
-struct json_traits<char>
+struct json_traits<char, void>
 {
 
     static void append(buffer &json, const char *key, const char &value)
@@ -121,7 +121,7 @@ struct json_traits<char>
 };
 
 template<>
-struct json_traits<char&>
+struct json_extract_traits<char&, void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, char &value)
@@ -158,37 +158,21 @@ struct json_traits<char&>
     }
 };
 
-//**************************************************************
-//*********************** INT **********************************
-//**************************************************************
-/**
- *  int type traits specialization
- */
-template<>
-struct json_traits<int>
-{
 
-    static void append(buffer &json, const char *key, const int &value)
+template<class T, class int_t, int max_digits, class derived>
+struct json_traits_int_common {
+    static bool match_token_type(const jsonpack::value &v)
     {
-        util::json_builder::append_integer(json, key, value);
+        return (v._field == _POS &&
+                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
     }
-
-    static void append(buffer &json, const int &value)
-    {
-        util::json_builder::append_integer(json, value);
-    }
-};
-
-template<>
-struct json_traits<int&>
-{
-
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, int &value)
+    
+    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, T &value)
     {
         jsonpack::key k;
         k._bytes = len;
         k._ptr = key;
-
+        
         object_t::const_iterator found = json.find(k);
         if( found != json.end() )    // exist the current key
         {
@@ -198,42 +182,144 @@ struct json_traits<int&>
             }
             else
             {
-                std::string msg = "Invalid int value for key: ";
-                msg += key;
+                std::string msg = derived::invalid_value_msg();
                 throw type_error( msg.data() );
             }
         }
     }
-
-    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), int &value)
+    
+    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), T &value)
     {
         position p = v._pos;
-
-        if( p._count >= INT_MAX_DIGITS)
-            throw type_error("Int out of range");
-
-//        char * str_value = json_ptr+p._pos;   //pointing to the start
+        
+        if( p._count >= max_digits)
+            throw type_error(derived::type_out_of_range());
+        
+        //        char * str_value = json_ptr+p._pos;   //pointing to the start
         char * str_value = p._pos;   //pointing to the start
-
-        char buffer[LONG_MAX_DIGITS];
+        
+        char buffer[max_digits];
         memcpy(buffer, str_value, p._count);
         buffer[p._count] = '\0';        //null-terminated
-
-        long v_cpy = std::strtol(buffer, nullptr, 10);
+        
+        int_t v_cpy = derived::str_to_int(buffer);
         if((errno == ERANGE) ||
-                     v_cpy > std::numeric_limits<int>::max() ||
-                     v_cpy < std::numeric_limits<int>::min() )
-            throw type_error("Int out of range");
-        value = v_cpy;
-
+           v_cpy > std::numeric_limits<int_t>::max() ||
+           v_cpy < std::numeric_limits<int_t>::min() )
+            throw type_error(derived::type_out_of_range());
+        value = derived::int_to_value(v_cpy);
     }
+    
+};
 
-    static bool match_token_type(const jsonpack::value &v)
+
+
+#define HAS_MEM_FUNC(func, name)                                        \
+    template<typename T, typename Sign>                                 \
+    struct name {                                                       \
+        typedef char yes[1];                                            \
+        typedef char no [2];                                            \
+        template <typename U, U> struct type_check;                     \
+        template <typename _1> static yes &chk(type_check<Sign, &_1::func > *); \
+        template <typename   > static no  &chk(...);                    \
+        static bool const value = sizeof(chk<T>(0)) == sizeof(yes);     \
+    }
+HAS_MEM_FUNC(_to_integral, has_to_integral);
+
+//****************************************************************************
+//Anything with int _to_integral() (+ _from_integral(), i.e. any BetterEnum
+//****************************************************************************
+template<typename T >
+struct json_traits<T, typename std::enable_if<has_to_integral<T, int(T::*)() const>::value>::type >
+{
+	static void append(buffer &json, const char *key, const T &value)
+	{
+		util::json_builder::append_integer(json, key, value._to_integral());
+	}
+	
+	static void append(buffer &json, const T &value)
+	{
+		util::json_builder::append_integer(json, value._to_integral());
+	}
+};
+
+template<typename T >
+struct json_extract_traits<T&, typename std::enable_if<has_to_integral<T, int(T::*)() const>::value>::type > :
+public json_traits_int_common<T, long, INT_MAX_DIGITS, json_extract_traits<T&> >
+{
+    static const char* type_out_of_range() { return "Int out of range"; }
+    static const char* invalid_value_msg() { return "Invalid int value for key: "; }
+    static long str_to_int(const char* str) { return std::strtol(str, nullptr, 10); }
+    static T int_to_value(long l) { return T::_from_integral(l); }
+};
+
+
+//****************************************************************************
+//Any enum
+//****************************************************************************
+template<typename T >
+struct json_traits<T, typename std::enable_if<std::is_enum<T>::value>::type >
+{
+	static void append(buffer &json, const char *key, const T &value)
+	{
+		util::json_builder::append_integer(json, key, (int)value);
+	}
+	
+	static void append(buffer &json, const T &value)
+	{
+		util::json_builder::append_integer(json, (int)value);
+	}
+};
+
+template<typename T >
+struct json_extract_traits<T&, typename std::enable_if<std::is_enum<T>::value>::type > :
+public json_traits_int_common<T, long, INT_MAX_DIGITS, json_extract_traits<T&> >
+{
+    static const char* type_out_of_range() { return "Int out of range"; }
+    static const char* invalid_value_msg() { return "Invalid int value for key: "; }
+    static long str_to_int(const char* str) { return std::strtol(str, nullptr, 10); }
+    static T int_to_value(long l) { return (T)l; }
+};
+
+
+
+//**************************************************************
+//****************** ALL INTEGRAL TYPES ************************
+//**************************************************************
+/**
+ We can simply specialize this with one definition here to cover any integral types (int, unsigned
+ int, long, long long, etc)
+ */
+template<typename T>
+struct json_traits<T, typename std::enable_if<std::is_integral<T>::value>::type>
+{
+    
+    static void append(buffer &json, const char *key, const T &value)
     {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
+        util::json_builder::append_integer(json, key, value);
     }
+    
+    static void append(buffer &json, const T &value)
+    {
+        util::json_builder::append_integer(json, value);
+    }
+};
 
+
+//**************************************************************
+//*********************** INT **********************************
+//**************************************************************
+/**
+ *  int type traits specialization
+ */
+template<>
+struct json_extract_traits<int&, void> :
+public json_traits_int_common<int, long, INT_MAX_DIGITS, json_extract_traits<int&> >
+{
+    static const char* type_out_of_range() { return "Int out of range"; }
+    static const char* invalid_value_msg() { return "Invalid int value for key: "; }
+    static long str_to_int(const char* str) { return std::strtol(str, nullptr, 10); }
+    static int int_to_value(long l) { return (int)l; }
 };
 
 //**************************************************************
@@ -243,71 +329,13 @@ struct json_traits<int&>
  *  unsigned int type traits specialization
  */
 template<>
-struct json_traits<unsigned int>
+struct json_extract_traits<unsigned int&, void> :
+public json_traits_int_common<unsigned int, unsigned long, UINT_MAX_DIGITS, json_extract_traits<unsigned int&> >
 {
-    static void append(buffer &json, const char *key, const unsigned int &value)
-    {
-        util::json_builder::append_integer(json, key, value);
-    }
-
-    static void append(buffer &json, const unsigned int &value)
-    {
-        util::json_builder::append_integer(json, value);
-    }
-};
-
-template<>
-struct json_traits<unsigned int&>
-{
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, unsigned int &value)
-    {
-        jsonpack::key k;
-        k._bytes = len;
-        k._ptr = key;
-
-        object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
-        {
-            if( match_token_type(found->second) )
-            {
-                extract(found->second, json_ptr, value);
-            }
-            else
-            {
-                std::string msg = "Invalid unsigned int value for key: ";
-                msg += key;
-                throw type_error( msg.data() );
-            }
-        }
-    }
-
-    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), unsigned int &value)
-    {
-        position p = v._pos;
-
-        if( p._count >= UINT_MAX_DIGITS)
-            throw type_error("Unsigned int out of range");
-
-        //TODO check for sign
-//        char * str_value = json_ptr+p._pos;   //pointing to the start
-        char * str_value = p._pos;   //pointing to the start
-
-        char buffer[LONG_MAX_DIGITS];
-        memcpy(buffer, str_value, p._count);
-        buffer[p._count] = '\0';            //null-terminated
-
-        unsigned long v_cpy = std::strtoul(buffer, nullptr, 10);
-
-        if((errno == ERANGE) || v_cpy > std::numeric_limits<unsigned int>::max() ) // check range
-            throw type_error("Unsigned int out of range");
-        value = v_cpy;
-    }
-
-    static bool match_token_type(const jsonpack::value &v)
-    {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
-    }
+    static const char* type_out_of_range() { return "Unsigned int out of range"; }
+    static const char* invalid_value_msg() { return "Invalid unsigned int value for key: "; }
+    static unsigned long str_to_int(const char* str) { return std::strtoul(str, nullptr, 10); }
+    static unsigned int int_to_value(unsigned long l) { return (unsigned int)l; }
 };
 
 //**************************************************************
@@ -317,70 +345,13 @@ struct json_traits<unsigned int&>
  *  long type traits specialization
  */
 template<>
-struct json_traits<long>
+struct json_extract_traits<long&, void> :
+public json_traits_int_common<long, long, LONG_MAX_DIGITS, json_extract_traits<long&> >
 {
-    static void append(buffer &json, const char *key, const long &value)
-    {
-        util::json_builder::append_integer(json, key, value);
-    }
-
-    static void append(buffer &json, const long &value)
-    {
-        util::json_builder::append_integer(json, value);
-    }
-};
-
-template<>
-struct json_traits<long&>
-{
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, long &value)
-    {
-        jsonpack::key k;
-        k._bytes = len;
-        k._ptr = key;
-
-        object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
-        {
-            if( match_token_type(found->second) )
-            {
-                extract(found->second, json_ptr, value);
-            }
-            else
-            {
-                std::string msg = "Invalid long int value for key: ";
-                msg += key;
-                throw type_error( msg.data() );
-            }
-        }
-    }
-
-    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), long &value)
-    {
-        position p = v._pos;
-
-        if( p._count >= LONG_MAX_DIGITS)
-            throw type_error("Long out of range");
-
-//        char * str_value = json_ptr+p._pos;   //pointing to the start
-        char * str_value = p._pos;   //pointing to the start
-
-        char buffer[LONG_MAX_DIGITS];
-        memcpy(buffer, str_value, p._count);
-        buffer[p._count] = '\0';        //null-terminated
-
-        value = std::strtol(buffer, nullptr, 10);
-
-        if(errno == ERANGE) // check range
-            throw type_error("Long out of range");
-    }
-
-    static bool match_token_type(const jsonpack::value &v)
-    {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
-    }
-
+    static const char* type_out_of_range() { return "Long out of range"; }
+    static const char* invalid_value_msg() { return "Invalid long value for key: "; }
+    static long str_to_int(const char* str) { return std::strtol(str, nullptr, 10); }
+    static long int_to_value(long l) { return l; }
 };
 
 //**************************************************************
@@ -390,75 +361,15 @@ struct json_traits<long&>
  *  unsigned long type traits specialization
  */
 template<>
-struct json_traits<unsigned long>
+struct json_extract_traits<unsigned long&, void> :
+public json_traits_int_common<unsigned long, unsigned long, ULONG_MAX_DIGITS, json_extract_traits<unsigned long&> >
 {
-
-    static void append(buffer &json, const char *key, const unsigned long &value)
-    {
-        util::json_builder::append_integer(json, key, value);
-    }
-
-    static void append(buffer &json, const unsigned long &value)
-    {
-        util::json_builder::append_integer(json, value);
-    }
-
+    static const char* type_out_of_range() { return "Unsigned long out of range"; }
+    static const char* invalid_value_msg() { return "Invalid unsigned long value for key: "; }
+    static unsigned long str_to_int(const char* str) { return std::strtoul(str, nullptr, 10); }
+    static unsigned long int_to_value(unsigned long l) { return l; }
 };
 
-template<>
-struct json_traits<unsigned long&>
-{
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, unsigned long &value)
-    {
-        jsonpack::key k;
-        k._bytes = len;
-        k._ptr = key;
-
-        object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
-        {
-            if( match_token_type(found->second) )
-            {
-                extract(found->second, json_ptr, value);
-            }
-            else
-            {
-                std::string msg = "Invalid unsigned long int value for key: ";
-                msg += key;
-                throw type_error( msg.data() );
-            }
-        }
-    }
-
-    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), unsigned long &value)
-    {
-        position p = v._pos;
-
-        if( p._count >= ULONG_MAX_DIGITS)
-            throw type_error("Unsigned long out of range");
-
-        //TODO check for sign
-//        char * str_value = json_ptr+p._pos;   //pointing to the start
-        char * str_value = p._pos;   //pointing to the start
-
-        char buffer[ULONG_MAX_DIGITS];
-        memcpy(buffer, str_value, p._count);
-        buffer[p._count] = '\0';        //null-terminated
-
-        value = std::strtoul(buffer, nullptr, 10);
-
-        if(errno == ERANGE) // check range
-            throw type_error("Unsigned long out of range");
-
-//        value = atol( buffer );
-    }
-
-    static bool match_token_type(const jsonpack::value &v)
-    {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
-    }
-};
 
 //**************************************************************
 //*********************** LONG LONG ***************************
@@ -467,76 +378,19 @@ struct json_traits<unsigned long&>
  *  unsigned long type traits specialization
  */
 template<>
-struct json_traits<long long>
+struct json_extract_traits<long long&, void> :
+public json_traits_int_common<long long,long long, LONGLONG_MAX_DIGITS, json_extract_traits<long long&> >
 {
-
-    static void append(buffer &json, const char *key, const long long &value)
-    {
-        util::json_builder::append_integer(json, key, value);
-    }
-
-    static void append(buffer &json, const long long &value)
-    {
-        util::json_builder::append_integer(json, value);
-    }
-
-};
-
-template<>
-struct json_traits<long long&>
-{
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, long long &value)
-    {
-        jsonpack::key k;
-        k._bytes = len;
-        k._ptr = key;
-
-        object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
-        {
-            if( match_token_type(found->second) )
-            {
-                extract(found->second, json_ptr, value);
-            }
-            else
-            {
-                std::string msg = "Invalid long long value for key: ";
-                msg += key;
-                throw type_error( msg.data() );
-            }
-        }
-    }
-
-    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), long long &value)
-    {
-        position p = v._pos;
-
-        if( p._count >= LONGLONG_MAX_DIGITS)
-            throw type_error("Long long out of range");
-
-        //TODO check for sign
-//        char * str_value = json_ptr+p._pos;   //pointing to the start
-        char * str_value = p._pos;   //pointing to the start
-
-        char buffer[LONGLONG_MAX_DIGITS];
-        memcpy(buffer, str_value, p._count);
-        buffer[p._count] = '\0';        //null-terminated
-
+    static const char* type_out_of_range() { return "Long long out of range"; }
+    static const char* invalid_value_msg() { return "Invalid long long value for key: "; }
+    static long long str_to_int(const char* str) {
 #ifdef _MSC_VER
-        value = _strtoi64(buffer, nullptr, 10);
+        return _strtoi64(str, nullptr, 10);
 #else
-        value = std::strtoll(buffer, nullptr, 10);
+        return std::strtoll(str, nullptr, 10);
 #endif
-        if(errno == ERANGE) // check range
-            throw type_error("Long long out of range");
-
     }
-
-    static bool match_token_type(const jsonpack::value &v)
-    {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
-    }
+    static long long int_to_value(long long l) { return l; }
 };
 
 //**************************************************************
@@ -546,75 +400,19 @@ struct json_traits<long long&>
  *  unsigned long type traits specialization
  */
 template<>
-struct json_traits<unsigned long long>
+struct json_extract_traits<unsigned long long&, void> :
+public json_traits_int_common<unsigned long long,unsigned long long, ULONGLONG_MAX_DIGITS, json_extract_traits<unsigned long long&> >
 {
-
-    static void append(buffer &json, const char *key, const unsigned long long &value)
-    {
-        util::json_builder::append_integer(json, key, value);
-    }
-
-    static void append(buffer &json, const unsigned long long &value)
-    {
-        util::json_builder::append_integer(json, value);
-    }
-};
-
-template<>
-struct json_traits<unsigned long long&>
-{
-    static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, unsigned long long &value)
-    {
-        jsonpack::key k;
-        k._bytes = len;
-        k._ptr = key;
-
-        object_t::const_iterator found = json.find(k);
-        if( found != json.end() )    // exist the current key
-        {
-            if( match_token_type(found->second) )
-            {
-                extract(found->second, json_ptr, value);
-            }
-            else
-            {
-                std::string msg = "Invalid unsigned long long value for key: ";
-                msg += key;
-                throw type_error( msg.data() );
-            }
-        }
-    }
-
-    static void extract(const jsonpack::value &v, char* UNUSED(json_ptr), unsigned long long &value)
-    {
-        position p = v._pos;
-
-        if( p._count >= ULONGLONG_MAX_DIGITS)
-            throw type_error("Unsigned long long out of range");
-
-        //TODO check for sign
-//        char * str_value = json_ptr+p._pos;   //pointing to the start
-        char * str_value = p._pos;   //pointing to the start
-
-        char buffer[ULONGLONG_MAX_DIGITS];
-        memcpy(buffer, str_value, p._count);
-        buffer[p._count] = '\0';        //null-terminated
-
+    static const char* type_out_of_range() { return "Long long out of range"; }
+    static const char* invalid_value_msg() { return "Invalid long long value for key: "; }
+    static unsigned long long str_to_int(const char* str) {
 #ifdef _MSC_VER
-        value = _strtoui64(buffer, nullptr, 10);
+        return _strtoui64(str, nullptr, 10);
 #else
-        value = std::strtoull(buffer, nullptr, 10);
+        return std::strtoull(str, nullptr, 10);
 #endif
-        if(errno == ERANGE) // check range
-            throw type_error("Unsigned Long long out of range");
-
     }
-
-    static bool match_token_type(const jsonpack::value &v)
-    {
-        return (v._field == _POS &&
-                (v._pos._type == JTK_INTEGER || v._pos._type == JTK_REAL ));
-    }
+    static unsigned long long int_to_value(unsigned long long l) { return l; }
 };
 
 
