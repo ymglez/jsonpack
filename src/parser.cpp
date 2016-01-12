@@ -376,7 +376,7 @@ bool parser::item_list(object_t &members)
         if(_tk == JTK_COMMA )
         {
             advance();
-			if(/*!is_literal(_tk) && _tk != JTK_OPEN_BRACKET && _tk != JTK_OPEN_KEY*/ _tk != JTK_STRING_LITERAL)
+            if( _tk != JTK_STRING_LITERAL)
 				throw invalid_json("JSON Syntax error: Expect valid string after comma");
 
             return item_list(members);

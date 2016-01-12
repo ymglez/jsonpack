@@ -58,7 +58,7 @@ struct json_traits<std::string, void>
 };
 
 template<>
-struct json_extract_traits<std::string&>
+struct json_extract_traits<std::string&,void>
 {
 
     static void extract(const object_t &json, char* json_ptr, const char *key, const std::size_t &len, std::string &value)
@@ -88,24 +88,6 @@ struct json_extract_traits<std::string&>
         position p = v._pos;
         if(p._type != JTK_NULL)
         {
-            // pritty but slow and dangerous
-
-            //            value.resize(p._count);
-            //            memcpy( const_cast<char*>(value.data()), json_ptr+ p._pos, p._count); // FIX undefined behavior
-
-            //            unsigned i = 0;
-            //            value.erase(std::remove_if(value.begin(), value.end(),
-            //                        [&i, value](char c)->bool
-            //                        {
-            //                            bool esc = ( c == '\\' && (i < value.length()-1 ) && (sizeof(char) == 1 || unsigned(value[i+1]) < 256) && util::escaped[(unsigned char)value[i+1]] );
-            //                            i++;
-            //                            return esc;
-            //                        }),
-            //                        value.end() );
-
-
-            //hard coded but fast and safe
-
             if (value.capacity() <  p._count + 1)
                 value.reserve(p._count + 1);
 

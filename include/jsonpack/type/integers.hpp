@@ -84,7 +84,6 @@ struct json_extract_traits<bool&, void>
         return (v._field == _POS &&
                 (v._pos._type == JTK_TRUE || v._pos._type == JTK_FALSE ) );
     }
-
 };
 
 //**************************************************************
@@ -160,7 +159,8 @@ struct json_extract_traits<char&, void>
 
 
 template<class T, class int_t, int max_digits, class derived>
-struct json_traits_int_common {
+struct json_traits_int_common
+{
     static bool match_token_type(const jsonpack::value &v)
     {
         return (v._field == _POS &&
@@ -245,7 +245,7 @@ struct json_traits<T, typename std::enable_if<has_to_integral<T, int(T::*)() con
 
 template<typename T >
 struct json_extract_traits<T&, typename std::enable_if<has_to_integral<T, int(T::*)() const>::value>::type > :
-public json_traits_int_common<T, long, INT_MAX_DIGITS, json_extract_traits<T&> >
+public json_traits_int_common<T, long, INT_MAX_DIGITS, json_extract_traits<T&,void> >
 {
     static const char* type_out_of_range() { return "Int out of range"; }
     static const char* invalid_value_msg() { return "Invalid int value for key: "; }
@@ -273,7 +273,7 @@ struct json_traits<T, typename std::enable_if<std::is_enum<T>::value>::type >
 
 template<typename T >
 struct json_extract_traits<T&, typename std::enable_if<std::is_enum<T>::value>::type > :
-public json_traits_int_common<T, long, INT_MAX_DIGITS, json_extract_traits<T&> >
+public json_traits_int_common<T, long, INT_MAX_DIGITS, json_extract_traits<T&,void> >
 {
     static const char* type_out_of_range() { return "Int out of range"; }
     static const char* invalid_value_msg() { return "Invalid int value for key: "; }
@@ -314,7 +314,7 @@ struct json_traits<T, typename std::enable_if<std::is_integral<T>::value>::type>
  */
 template<>
 struct json_extract_traits<int&, void> :
-public json_traits_int_common<int, long, INT_MAX_DIGITS, json_extract_traits<int&> >
+public json_traits_int_common<int, long, INT_MAX_DIGITS, json_extract_traits<int&,void> >
 {
     static const char* type_out_of_range() { return "Int out of range"; }
     static const char* invalid_value_msg() { return "Invalid int value for key: "; }
@@ -330,7 +330,7 @@ public json_traits_int_common<int, long, INT_MAX_DIGITS, json_extract_traits<int
  */
 template<>
 struct json_extract_traits<unsigned int&, void> :
-public json_traits_int_common<unsigned int, unsigned long, UINT_MAX_DIGITS, json_extract_traits<unsigned int&> >
+public json_traits_int_common<unsigned int, unsigned long, UINT_MAX_DIGITS, json_extract_traits<unsigned int&,void> >
 {
     static const char* type_out_of_range() { return "Unsigned int out of range"; }
     static const char* invalid_value_msg() { return "Invalid unsigned int value for key: "; }
@@ -346,7 +346,7 @@ public json_traits_int_common<unsigned int, unsigned long, UINT_MAX_DIGITS, json
  */
 template<>
 struct json_extract_traits<long&, void> :
-public json_traits_int_common<long, long, LONG_MAX_DIGITS, json_extract_traits<long&> >
+public json_traits_int_common<long, long, LONG_MAX_DIGITS, json_extract_traits<long&,void> >
 {
     static const char* type_out_of_range() { return "Long out of range"; }
     static const char* invalid_value_msg() { return "Invalid long value for key: "; }
@@ -362,7 +362,7 @@ public json_traits_int_common<long, long, LONG_MAX_DIGITS, json_extract_traits<l
  */
 template<>
 struct json_extract_traits<unsigned long&, void> :
-public json_traits_int_common<unsigned long, unsigned long, ULONG_MAX_DIGITS, json_extract_traits<unsigned long&> >
+public json_traits_int_common<unsigned long, unsigned long, ULONG_MAX_DIGITS, json_extract_traits<unsigned long&,void> >
 {
     static const char* type_out_of_range() { return "Unsigned long out of range"; }
     static const char* invalid_value_msg() { return "Invalid unsigned long value for key: "; }
@@ -379,7 +379,7 @@ public json_traits_int_common<unsigned long, unsigned long, ULONG_MAX_DIGITS, js
  */
 template<>
 struct json_extract_traits<long long&, void> :
-public json_traits_int_common<long long,long long, LONGLONG_MAX_DIGITS, json_extract_traits<long long&> >
+public json_traits_int_common<long long,long long, LONGLONG_MAX_DIGITS, json_extract_traits<long long&,void> >
 {
     static const char* type_out_of_range() { return "Long long out of range"; }
     static const char* invalid_value_msg() { return "Invalid long long value for key: "; }
@@ -401,7 +401,7 @@ public json_traits_int_common<long long,long long, LONGLONG_MAX_DIGITS, json_ext
  */
 template<>
 struct json_extract_traits<unsigned long long&, void> :
-public json_traits_int_common<unsigned long long,unsigned long long, ULONGLONG_MAX_DIGITS, json_extract_traits<unsigned long long&> >
+public json_traits_int_common<unsigned long long,unsigned long long, ULONGLONG_MAX_DIGITS, json_extract_traits<unsigned long long&,void> >
 {
     static const char* type_out_of_range() { return "Long long out of range"; }
     static const char* invalid_value_msg() { return "Invalid long long value for key: "; }
