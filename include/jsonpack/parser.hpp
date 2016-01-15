@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <map>
 
 #include "jsonpack/namespace.hpp"
 
@@ -38,7 +37,8 @@ struct value;
 struct key_hash;
 enum jsonpack_token_type : unsigned;
 
-typedef std::unordered_map<key, value, key_hash> object_t;
+typedef std::unordered_map<key, value, key_hash > object_t;
+
 typedef std::vector<value>  array_t;
 
 template<typename T, typename = void>
@@ -172,7 +172,6 @@ private:
 
     jsonpack_token_type _tk;
     scanner _s;
-
 };
 
 JSONPACK_API_END_NAMESPACE

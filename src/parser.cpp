@@ -81,9 +81,9 @@ jsonpack_token_type scanner::next()
     case '"':
         return string_literal();
         break;
-	case '\0':
-		if(_i < _size -1) advance();
-		return JTK_EOF;
+    case '\0':
+        if(_i < _size -1) advance();
+        return JTK_EOF;
 
     default:
         if(std::isspace(  _c ) )
@@ -183,26 +183,26 @@ jsonpack_token_type scanner::number()
     int_fast8_t state = 1;
     _start_token_pos = _i;
 
-	if(_c == '0') state = -1;
-	
+    if(_c == '0') state = -1;
+
     if(_c == '-') state = 0;
 
-    while (true) 
+    while (true)
     {
         switch (state)
         {
-		case -1://0
-			advance();
-			if( std::isdigit( _c ) ) throw invalid_json("JSON Syntax error: Numbers cannot have leading zeroes");
+        case -1://0
+            advance();
+            if( std::isdigit( _c ) ) throw invalid_json("JSON Syntax error: Numbers cannot have leading zeroes");
 
-			if(_c == '.') state = 2;
-			else if(_c == 'e' || _c == 'E') state = 4;
-			else return JTK_INTEGER;
-			break;
+            if(_c == '.') state = 2;
+            else if(_c == 'e' || _c == 'E') state = 4;
+            else return JTK_INTEGER;
+            break;
         case 0://-
             advance();
             if( std::isdigit( _c ) ) state = 1;
-			else if(_c == '0') state = -1;
+            else if(_c == '0') state = -1;
             else return JTK_INVALID;
             break;
         case 1:
@@ -310,7 +310,7 @@ bool parser::match(const jsonpack_token_type &token)
             "Boolean value",
             "Null value",
             "Ivalid value",
-			"End of input"
+            "End of input"
         };
 
         char msg[256];
@@ -319,14 +319,14 @@ bool parser::match(const jsonpack_token_type &token)
         throw invalid_json(msg);
     }
 
-	advance();
+    advance();
     return true;
 }
 
 //---------------------------------------------------------------------------------------------------
 bool parser::is_literal(const jsonpack_token_type &token)
 {
-	return( token == JTK_INTEGER ||
+    return( token == JTK_INTEGER ||
             token == JTK_REAL ||
             token == JTK_STRING_LITERAL ||
             token == JTK_TRUE ||
@@ -346,7 +346,7 @@ bool parser::json_validate(const char *json,const std::size_t &len, object_t &me
     _s.init(json, len);
     advance();
 
-	return match(JTK_OPEN_KEY) && item_list(members) && match(JTK_CLOSE_KEY) && match(JTK_EOF);
+    return match(JTK_OPEN_KEY) && item_list(members) && match(JTK_CLOSE_KEY) && match(JTK_EOF);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -377,7 +377,7 @@ bool parser::item_list(object_t &members)
         {
             advance();
             if( _tk != JTK_STRING_LITERAL)
-				throw invalid_json("JSON Syntax error: Expect valid string after comma");
+                throw invalid_json("JSON Syntax error: Expect valid string after comma");
 
             return item_list(members);
         }
@@ -407,7 +407,7 @@ bool parser::item(object_t &members)
 //---------------------------------------------------------------------------------------------------
 bool parser::value(key k, object_t &members)
 {
-	if( is_literal(_tk) ) //literals
+    if( is_literal(_tk) ) //literals
     {
 
         /**
@@ -430,16 +430,15 @@ bool parser::value(key k, object_t &members)
     {
         advance();
 
-        object_t o;
-
+        object_t o(16);
         bool object_ok = item_list(o);
-        
+
         if(object_ok)
         {
             members[k] = new object_t(std::move(o));
+
             return match(JTK_CLOSE_KEY);
         }
-
         return false;
     }
 
@@ -453,9 +452,9 @@ bool parser::value(key k, object_t &members)
         if(array_ok)
         {
             members[k] = new array_t(std::move(a));
+
             return match(JTK_CLOSE_BRACKET);
         }
-
         return false;
     }
 
@@ -473,8 +472,8 @@ bool parser::array_list(array_t &elemets)
         if(_tk == JTK_COMMA )
         {
             advance();
-			if(!is_literal(_tk) && _tk != JTK_OPEN_BRACKET && _tk != JTK_OPEN_KEY)
-				throw invalid_json("JSON Synatax error: Expect valid value after comma");
+            if(!is_literal(_tk) && _tk != JTK_OPEN_BRACKET && _tk != JTK_OPEN_KEY)
+                throw invalid_json("JSON Synatax error: Expect valid value after comma");
 
             return array_list(elemets);
         }
@@ -497,7 +496,7 @@ bool parser::value( array_t &elemets)
         pos._count = _s._i - _s._start_token_pos - 2*is_str;
         pos._type = _tk;
 
-        elemets.emplace_back(std::move(pos));
+        elemets.emplace_back(pos);
 
         advance();
         return true;
@@ -509,10 +508,11 @@ bool parser::value( array_t &elemets)
 
         object_t o;
         bool object_ok = item_list(o);
-        
+
         if(object_ok)
         {
             elemets.emplace_back(new object_t(std::move(o)));
+
             return match(JTK_CLOSE_KEY);
         }
 
@@ -523,15 +523,15 @@ bool parser::value( array_t &elemets)
     {
         advance();
 
-        array_t a ;
+        array_t a;
         bool array_ok = array_list(a);
 
         if(array_ok)
         {
             elemets.emplace_back(new array_t(std::move(a)));
+
             return match(JTK_CLOSE_BRACKET);
         }
-
         return false;
     }
 

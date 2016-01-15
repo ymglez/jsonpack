@@ -19,7 +19,6 @@
 #ifndef JSONPACK_ARRAY_OBJECT_HPP
 #define JSONPACK_ARRAY_OBJECT_HPP
 
-#include <map>
 #include <vector>
 #include <unordered_map>
 #include <string.h>
@@ -37,9 +36,9 @@ JSONPACK_API_BEGIN_NAMESPACE
  * hash function for non null-terminated byte strings
  * http://www.cse.yorku.ca/~oz/hash.html
  */
-inline unsigned long _hash_bytes(const char* __str, const unsigned long & _bytes)
+inline std::size_t _hash_bytes(const char* __str, const unsigned long & _bytes)
 {
-    unsigned long hash = 5381, count = _bytes;
+    std::size_t hash = 5381, count = _bytes;
     int c ;
 
     while (count--)
@@ -59,30 +58,21 @@ struct key
     bool operator== (const key &k1) const
     {
         std::size_t min =  std::min( k1._bytes, _bytes );
-        bool ret = ( memcmp(k1._ptr, _ptr, min) == 0 );
-        return ret;
+        return ( memcmp(k1._ptr, _ptr, min) == 0 );
     }
 
-    /**
-     * Less operator required for container
-     */
-    bool operator < (const key &UNUSED(other)) const
-    { return true; } //order doesnt matter
-
-    key():_ptr(nullptr), _bytes(0){}
+    key():
+        _ptr(nullptr),
+        _bytes(0)
+    {}
 
     key(const key& k):
         _ptr(k._ptr),
         _bytes(k._bytes)
     {}
 
-#ifndef _MSC_VER
-    const char * _ptr = nullptr;
-    std::size_t _bytes = 0;
-#else
     const char * _ptr;
     std::size_t _bytes;
-#endif
 };
 
 /**
@@ -118,9 +108,8 @@ enum jsonpack_token_type : unsigned
     JTK_NULL = 11,
 
     JTK_INVALID = 12,
-	JTK_EOF
+    JTK_EOF
 };
-
 
 /**
  * Position of a value in string json
@@ -142,12 +131,15 @@ struct position
 #endif
 };
 
+/**
+ * Forward
+ */
 struct value;
 
 /**
  * Collection of key/value pairs (javascript object)
  */
-typedef std::unordered_map<key, value, key_hash >  object_t;
+typedef std::unordered_map<key, value, key_hash> object_t;
 
 /**
  * Sequence of values
@@ -181,22 +173,22 @@ struct value
     /**
      * Constructors
      */
-    value() :_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    value() :_field(_NULL),_obj_ptr_count(0),_arr_ptr_count(0)
     {}
 
-    value(position p) :_field(_POS),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    value(position p) :_field(_POS),_obj_ptr_count(0),_arr_ptr_count(0)
     { _pos = p; }
 
-    value(object_t* o) :_field(_OBJ),_p(),_obj_ptr_count(1),_arr_ptr_count(0)
+    value(object_t* o) :_field(_OBJ),_obj_ptr_count(1),_arr_ptr_count(0)
     { _obj = o;}
 
-    value(array_t* a) :_field(_ARR),_p(),_obj_ptr_count(0),_arr_ptr_count(1)
+    value(array_t* a) :_field(_ARR),_obj_ptr_count(0),_arr_ptr_count(1)
     { _arr = a;}
 
     /**
      * Copy constructor
      */
-    value (const value &rv) :_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    value (const value &rv) :_field(_NULL),_obj_ptr_count(0),_arr_ptr_count(0)
     {
         switch (rv._field)
         {
@@ -223,7 +215,7 @@ struct value
     /**
      * Move constructor
      */
-    value (value &&rv) :_field(_NULL),_p(),_obj_ptr_count(0),_arr_ptr_count(0)
+    value (value &&rv) :_field(_NULL),_obj_ptr_count(0),_arr_ptr_count(0)
     {
         switch (rv._field)
         {
@@ -323,7 +315,6 @@ struct value
 
     void cleanup()
     {
-        //clean up before
         if(is_object())
         {
             delete _obj;
@@ -488,12 +479,13 @@ struct value
     {
         cleanup();
 
+        parser _p;
+
         if(*json == '[')
         {
             _field = _ARR;
             _arr = new array_t();
             _arr_ptr_count = 1;
-
 
             if(!_p.json_validate(json, len, *_arr))
                 throw invalid_json( _p.err_msg().c_str() );
@@ -501,7 +493,7 @@ struct value
         else if(*json == '{')
         {
             _field = _OBJ;
-            _obj = new object_t(32);
+            _obj = new object_t(16);
             _obj_ptr_count = 1;
 
             if(!_p.json_validate(json, len, *_obj))
@@ -520,7 +512,6 @@ struct value
         array_t*   _arr;
     };
 
-    parser _p;
     mutable unsigned _obj_ptr_count;
     mutable unsigned _arr_ptr_count;
 };
