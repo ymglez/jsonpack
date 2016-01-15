@@ -42,12 +42,13 @@
 
 #define DEFINE_JSON_ATTRIBUTES(...)                                     \
     public:                                                             \
-    char* json_pack()                                                   \
+    char* json_pack(const bool &pretty = false, const unsigned &indent = 1, unsigned level = 0 )\
     {                                                                   \
         std::string _keys = jsonpack::util::str::trim( std::string(#__VA_ARGS__) );\
         jsonpack::buffer json;                                          \
         json.append( "{" , 1);                                          \
-        jsonpack::make_json(json, _keys ,__VA_ARGS__);                  \
+        if(pretty){ ++level; }\
+        jsonpack::make_json(pretty, indent, level, json, _keys ,__VA_ARGS__);                  \
         return json.release();                                          \
     }                                                                   \
     void json_unpack(const char* json, const std::size_t &len)          \
@@ -78,10 +79,11 @@ JSONPACK_API_BEGIN_NAMESPACE
  * array, vector, deque, list, forward_list, set, multiset, unordered_set, unordered_multiset
  */
 template<typename Seq>
-inline char* json_pack_sequence(const Seq& seq)
+inline char* json_pack_sequence(const Seq& seq,
+                                const bool&pretty = false, const unsigned& indent = 1, unsigned level = 0)
 {
     jsonpack::buffer json;
-    type::json_traits< Seq >::append(json, seq);
+    type::json_traits< Seq >::append(json, seq, pretty, indent, level);
     json.erase_last_comma();
 
     return json.release();

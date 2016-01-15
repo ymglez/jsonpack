@@ -42,30 +42,64 @@ struct sequence_traits
 {
     typedef typename Seq::value_type type_t;
 
-    static void append(buffer &json, const char *key, const Seq &value)
+    static void append(buffer &json, const char *key, const Seq &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
         json.append("\"", 1);
         json.append(key, strlen(key) );
         json.append("\":[", 3);
 
+        if(pretty)
+            ++level;
+
         for(const auto &v : value)
         {
-            json_traits<type_t, void>::append(json, v);
+            if(pretty)
+            {
+                json.append("\n",1);
+                json.append(' ', indent * level);
+            }
+            json_traits<type_t, void>::append(json, v, pretty, indent, level);
         }
 
         json.erase_last_comma();
+
+        if (pretty)
+        {
+            --level;
+            json.append("\n", 1);
+            json.append(' ', indent * level);
+        }
+
         json.append("],", 2);
     }
 
-    static void append(buffer &json, const Seq &value)
+    static void append(buffer &json, const Seq &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
         json.append("[", 1);
 
+        if(pretty)
+            ++level;
+
         for(const auto &v : value)
         {
-            json_traits<type_t, void>::append(json, v);
+            if(pretty)
+            {
+                json.append("\n",1);
+                json.append(' ', indent * level);
+            }
+
+            json_traits<type_t, void>::append(json, v, pretty, indent, level);
         }
         json.erase_last_comma();
+
+        if (pretty)
+        {
+            --level;
+            json.append("\n", 1);
+            json.append(' ', indent * level);
+        }
         json.append("],", 2);
     }
 
@@ -135,14 +169,16 @@ struct sequence_traits<Seq&>
 template<typename T, std::size_t N >
 struct json_traits< std::array<T,N> >
 {
-    static void append(buffer &json, const char *key, const std::array<T,N> &value)
+    static void append(buffer &json, const char *key, const std::array<T,N> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::array<T,N> >::append(json, key, value);
+        sequence_traits< std::array<T,N> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::array<T,N> &value)
+    static void append(buffer &json, const std::array<T,N> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::array<T,N> >::append(json, value);
+        sequence_traits< std::array<T,N> >::append(json, value, pretty, indent, level);
     }
 };
 
@@ -183,9 +219,9 @@ struct json_extract_traits<std::array<T,N>&, void>
 #else
             T val;
 #endif  
-            if( json_traits<T&>::match_token_type(arr[i]) )
+            if( json_extract_traits<T&, void>::match_token_type(arr[i]) )
             {
-                json_traits<T&>::extract(arr[i], json_ptr, val);
+                json_extract_traits<T&, void>::extract(arr[i], json_ptr, val);
                 // array not support insert operation
                 value[i] = val;
             }
@@ -209,14 +245,16 @@ struct json_extract_traits<std::array<T,N>&, void>
 template<typename T>
 struct json_traits< std::vector<T> >
 {
-    static void append(buffer &json, const char *key, const std::vector<T> &value)
+    static void append(buffer &json, const char *key, const std::vector<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::vector<T> >::append(json, key, value);
+        sequence_traits< std::vector<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::vector<T> &value)
+    static void append(buffer &json, const std::vector<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::vector<T> >::append(json, value);
+        sequence_traits< std::vector<T> >::append(json, value, pretty, indent, level);
     }
 
 };
@@ -246,14 +284,16 @@ struct json_extract_traits<std::vector<T>&, void>
 template<typename T>
 struct json_traits< std::deque<T> >
 {
-    static void append(buffer &json, const char *key, const std::deque<T> &value)
+    static void append(buffer &json, const char *key, const std::deque<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::deque<T> >::append(json, key, value);
+        sequence_traits< std::deque<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::deque<T> &value)
+    static void append(buffer &json, const std::deque<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::deque<T> >::append(json, value);
+        sequence_traits< std::deque<T> >::append(json, value, pretty, indent, level);
     }
 
     static bool match_token_type(const jsonpack::value &v)
@@ -287,14 +327,16 @@ struct json_extract_traits<std::deque<T>&, void>
 template<typename T>
 struct json_traits< std::list<T> >
 {
-    static void append(buffer &json, const char *key, const std::list<T> &value)
+    static void append(buffer &json, const char *key, const std::list<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::list<T> >::append(json, key, value);
+        sequence_traits< std::list<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::list<T> &value)
+    static void append(buffer &json, const std::list<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::list<T> >::append(json, value);
+        sequence_traits< std::list<T> >::append(json, value, pretty, indent, level);
     }
 };
 
@@ -323,14 +365,16 @@ struct json_extract_traits<std::list<T>&, void>
 template<typename T>
 struct json_traits< std::forward_list<T> >
 {
-    static void append(buffer &json, const char *key, const std::forward_list<T> &value)
+    static void append(buffer &json, const char *key, const std::forward_list<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::forward_list<T> >::append(json, key, value);
+        sequence_traits< std::forward_list<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::forward_list<T> &value)
+    static void append(buffer &json, const std::forward_list<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::forward_list<T> >::append(json, value);
+        sequence_traits< std::forward_list<T> >::append(json, value, pretty, indent, level);
     }
 };
 
@@ -374,9 +418,9 @@ struct json_extract_traits<std::forward_list<T>&, void>
 #else
             T val;
 #endif  
-            if( json_traits<T&>::match_token_type(it) )
+            if( json_extract_traits<T&, void>::match_token_type(it) )
             {
-                json_traits<T&>::extract(it, json_ptr, val);
+                json_extract_traits<T&, void>::extract(it, json_ptr, val);
                 // forward_list not support insert operation
                 value.push_front(val);
             }
@@ -399,14 +443,16 @@ struct json_extract_traits<std::forward_list<T>&, void>
 template<typename T>
 struct json_traits< std::set<T> >
 {
-    static void append(buffer &json, const char *key, const std::set<T> &value)
+    static void append(buffer &json, const char *key, const std::set<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::set<T> >::append(json, key, value);
+        sequence_traits< std::set<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::set<T> &value)
+    static void append(buffer &json, const std::set<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::set<T> >::append(json, value);
+        sequence_traits< std::set<T> >::append(json, value, pretty, indent, level);
     }
 };
 
@@ -435,14 +481,16 @@ struct json_extract_traits<std::set<T>&, void>
 template<typename T>
 struct json_traits< std::multiset<T> >
 {
-    static void append(buffer &json, const char *key, const std::multiset<T> &value)
+    static void append(buffer &json, const char *key, const std::multiset<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::multiset<T> >::append(json, key, value);
+        sequence_traits< std::multiset<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::multiset<T> &value)
+    static void append(buffer &json, const std::multiset<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::multiset<T> >::append(json, value);
+        sequence_traits< std::multiset<T> >::append(json, value, pretty, indent, level);
     }
 };
 
@@ -471,14 +519,16 @@ struct json_extract_traits<std::multiset<T>&, void>
 template<typename T>
 struct json_traits< std::unordered_set<T> >
 {
-    static void append(buffer &json, const char *key, const std::unordered_set<T> &value)
+    static void append(buffer &json, const char *key, const std::unordered_set<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::unordered_set<T> >::append(json, key, value);
+        sequence_traits< std::unordered_set<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::unordered_set<T> &value)
+    static void append(buffer &json, const std::unordered_set<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::unordered_set<T> >::append(json, value);
+        sequence_traits< std::unordered_set<T> >::append(json, value, pretty, indent, level);
     }
 };
 
@@ -507,14 +557,16 @@ struct json_extract_traits<std::unordered_set<T>&, void>
 template<typename T>
 struct json_traits< std::unordered_multiset<T> >
 {
-    static void append(buffer &json, const char *key, const std::unordered_multiset<T> &value)
+    static void append(buffer &json, const char *key, const std::unordered_multiset<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::unordered_multiset<T> >::append(json, key, value);
+        sequence_traits< std::unordered_multiset<T> >::append(json, key, value, pretty, indent, level);
     }
 
-    static void append(buffer &json, const std::unordered_multiset<T> &value)
+    static void append(buffer &json, const std::unordered_multiset<T> &value,
+                       const bool&pretty, const unsigned& indent, unsigned& level)
     {
-        sequence_traits< std::unordered_multiset<T> >::append(json, value);
+        sequence_traits< std::unordered_multiset<T> >::append(json, value, pretty, indent, level);
     }
 };
 

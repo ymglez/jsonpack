@@ -35,17 +35,19 @@ struct json_traits
     /**
      * Add the object in json buffer like "key": {value},
      */
-    static void append(buffer &json, const char *key, const T &value)
+    static void append(buffer &json, const char *key, const T &value,
+                       const bool &pretty = false, const unsigned &indent = 1, unsigned &level = 0)
     {
-        util::json_builder::append_value(json, key, const_cast<T&>(value).json_pack() );
+        util::json_builder::append_value(json, key, const_cast<T&>(value).json_pack(pretty, indent, level) );
     }
 
     /**
      * Add the object in json buffer like {value},
      */
-    static void append(buffer &json, const T &value)
+    static void append(buffer &json, const T &value,
+                       const bool &pretty = false, const unsigned &indent = 1, unsigned &level = 0)
     {
-        char* str = const_cast<T&>(value).json_pack();
+        char* str = const_cast<T&>(value).json_pack(pretty, indent, level);
         json.append(str, strlen(str));
         json.append(",", 1);
     }

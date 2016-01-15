@@ -20,6 +20,7 @@
 #define JSONPACK_BUFFER_HPP
 
 #include <string>
+#include <cstring>
 
 #include "exceptions.hpp"
 
@@ -64,6 +65,20 @@ public:
         }
         memcpy(_data + _size, buf, len);
         _size += len;
+    }
+
+    void append(const char c, std::size_t count)
+    {
+        if(count)
+        {
+            if(_alloc - _size < count)
+            {
+                expand_buffer(count);
+            }
+
+            std::memset(_data + _size, c, count);
+            _size += count;
+        }
     }
 
     void erase_last_comma()

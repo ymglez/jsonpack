@@ -34,16 +34,18 @@ template<>
 struct json_traits<std::string, void>
 {
 
-    static void append(buffer &json, const char *key, const std::string &value)
+    static void append(buffer &json, const char *key, const std::string &value,
+                       const bool&p, const unsigned&i, unsigned&l)
     {
         json.append("\"" , 1);
         json.append( key, strlen(key) ); //"key"
         json.append("\":", 2);
 
-        append(json, value);
+        append(json, value, p, i, l);
     }
 
-    static void append(buffer &json, const std::string &value)
+    static void append(buffer &json, const std::string &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         if(! value.empty() )    //:"value"
         {

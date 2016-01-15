@@ -30,12 +30,14 @@ template<typename T>
 struct json_traits<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
 
-    static void append(buffer &json, const char *key, const T &value)
+    static void append(buffer &json, const char *key, const T &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         util::json_builder::append_real(json, key, value);
     }
 
-    static void append(buffer &json, const T &value)
+    static void append(buffer &json, const T &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         util::json_builder::append_real(json, value);
     }

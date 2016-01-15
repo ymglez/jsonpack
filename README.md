@@ -57,8 +57,14 @@ int main()
     src.caracter = '$';
 
     //serialize object
-    char* serialized = src.json_pack();
-    printf("json: \n%s\n", serialized);
+    //char* serialized = src.json_pack();
+    //printf("json: \n%s\n", serialized);
+
+    //or pretty print
+    //param pretty	if or not output will be pretty-printed		
+    //param indent 	degree of indentation
+    char* serialized = src.json_pack(true, 2);
+    printf("pretty json: \n%s\n", serialized);
 
     //deserialize json
     try

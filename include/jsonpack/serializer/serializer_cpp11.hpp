@@ -26,20 +26,35 @@ JSONPACK_API_BEGIN_NAMESPACE
 
 ////============================== MAKE_JSON ==============================================
 
-static inline void make_json(buffer &json, const std::string &UNUSED(key) )
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level,
+                             buffer &json, const std::string &UNUSED(key))
 {
     json.erase_last_comma();
+
+    if (pretty)
+    {
+        --level;
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+
     json.append("}", 1);
 }
 
 template <typename T, typename ...Types >
-static inline void make_json(buffer &json, const std::string &keys, const T& val, const Types& ...values )
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level,
+                             buffer &json, const std::string &keys, const T& val, const Types& ...values)
 {
     std::string::size_type pos = keys.find(',');
 
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , val);
+    if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , val, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,values...);
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,values...);
 }
 
 ////============================== MAKE_OBJECT ==============================================

@@ -36,12 +36,14 @@ TYPE_BEGIN_NAMESPACE
 template<>
 struct json_traits<bool, void>
 {
-    static void append(buffer &json, const char *key, const bool &value)
+    static void append(buffer &json, const char *key, const bool &value,
+                       const bool&, const unsigned&, unsigned&)
     {
 		util::json_builder::append_value(json, key, value ? "true" : "false" );
     }
 
-    static void append(buffer &json, const bool &value) //append value in array
+    static void append(buffer &json, const bool &value,
+                       const bool&, const unsigned&, unsigned&) //append value in array
     {
         json.append(value ? "true," : "false,", value ? 5 :6 );
     }
@@ -96,7 +98,8 @@ template<>
 struct json_traits<char, void>
 {
 
-    static void append(buffer &json, const char *key, const char &value)
+    static void append(buffer &json, const char *key, const char &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         if( std::isgraph(value) )
         {
@@ -107,7 +110,8 @@ struct json_traits<char, void>
             util::json_builder::append_value(json, key, "null");
     }
 
-    static void append(buffer &json, const char &value)
+    static void append(buffer &json, const char &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         if( std::isgraph(value) )
         {
@@ -294,12 +298,14 @@ template<typename T>
 struct json_traits<T, typename std::enable_if<std::is_integral<T>::value>::type>
 {
     
-    static void append(buffer &json, const char *key, const T &value)
+    static void append(buffer &json, const char *key, const T &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         util::json_builder::append_integer(json, key, value);
     }
     
-    static void append(buffer &json, const T &value)
+    static void append(buffer &json, const T &value,
+                       const bool&, const unsigned&, unsigned&)
     {
         util::json_builder::append_integer(json, value);
     }
