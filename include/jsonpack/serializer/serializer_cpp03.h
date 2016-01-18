@@ -27,215 +27,306 @@ JSONPACK_API_BEGIN_NAMESPACE
 ////============================== MAKE_JSON ==============================================
 // 1 parameter
 template <typename T>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v)
 {
     register std::string::size_type pos = keys.find(',');
-
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
     json.erase_last_comma();
+	if (pretty)
+    {
+        --level;
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+
     json.append("}", 1);
 }
 
 // 2 parameters
 template <typename T, typename T1>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1);
 }
 
 // 3 parameters
 template <typename T, typename T1, typename T2>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2);
 }
 // 4 parameters
 template <typename T, typename T1, typename T2, typename T3>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3);
 }
 // 5 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4);
 }
 // 6 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5);
 }
 // 7 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6);
 }
 // 8 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7);
 }
 // 9 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7, const T8& v8)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8);
 }
 // 10 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9);
 }
 // 11 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10);
 }
 // 12 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11);
 }
 // 13 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12);
 }
 // 14 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13);
 }
 // 15 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14);
 }
 // 16 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15);
 }
 // 17 parameters
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15, const T16& v16)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16);
 }
@@ -243,15 +334,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16, v17);
 }
@@ -259,15 +355,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18);
@@ -276,15 +377,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19);
@@ -293,15 +399,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20);
@@ -310,15 +421,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21);
@@ -327,15 +443,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22);
@@ -344,15 +465,20 @@ static inline void make_json(buffer &json, const std::string &keys,
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23);
@@ -362,16 +488,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24);
@@ -381,16 +512,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
@@ -401,16 +537,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25, typename T26>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25, const T26& v26)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
@@ -421,16 +562,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25, typename T26, typename T27>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25, const T26& v26, const T27& v27)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
@@ -441,16 +587,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25, typename T26, typename T27, typename T28>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25, const T26& v26, const T27& v27, const T28& v28)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
@@ -461,16 +612,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25, typename T26, typename T27, typename T28, typename T29>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25, const T26& v26, const T27& v27, const T28& v28, const T29& v29)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
@@ -481,16 +637,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25, typename T26, typename T27, typename T28, typename T29, typename T30>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25, const T26& v26, const T27& v27, const T28& v28, const T29& v29, const T30& v30)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
@@ -501,16 +662,21 @@ template <typename T, typename T1, typename T2, typename T3, typename T4, typena
           typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15,
           typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23,
           typename T24, typename T25, typename T26, typename T27, typename T28, typename T29, typename T30, typename T31>
-static inline void make_json(buffer &json, const std::string &keys,
+static inline void make_json(const bool &pretty, const unsigned &indent, unsigned &level, buffer &json, const std::string &keys,
                              const T& v, const T1& v1, const T2& v2, const T3& v3, const T4& v4, const T5& v5, const T6& v6, const T7& v7,
                              const T8& v8, const T9& v9, const T10& v10, const T11& v11, const T12& v12, const T13& v13, const T14& v14, const T15& v15,
                              const T16& v16, const T17& v17, const T18& v18, const T19& v19, const T20& v20, const T21& v21, const T22& v22, const T23& v23,
                              const T24& v24, const T25& v25, const T26& v26, const T27& v27, const T28& v28, const T29& v29, const T30& v30, const T31& v31)
 {
     register std::string::size_type pos = keys.find(',');
-    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v);
+	if(pretty)
+    {
+        json.append("\n", 1);
+        json.append(' ', indent * level);
+    }
+    type::json_traits<T>::append(json, keys.substr(0, pos).c_str() , v, pretty, indent, level);
 
-    make_json(json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
+    make_json(pretty, indent, level, json, keys.substr(pos+1, keys.length()-1 ).c_str() ,
               v1, v2, v3, v4, v5, v6, v7, v8,
               v9, v10, v11, v12, v13, v14, v15, v16,
               v17, v18, v19, v20, v21, v22, v23, v24,
