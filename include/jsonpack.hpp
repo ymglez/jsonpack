@@ -104,7 +104,7 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
     {
         value v(arr);
 
-        type::json_traits< Seq& >::extract(v, const_cast<char*>(json), seq);
+        type::json_extract_traits< Seq&, void >::extract(v, const_cast<char*>(json), seq);
     }
     else
     {
@@ -113,7 +113,46 @@ inline void json_unpack_sequence(const char* json, const std::size_t &len, Seq& 
 }
 
 
+////============================== MAPS ==============================================
 
+/**
+ * Tempate function to serialize arrays from standard associative containers
+ * Allowed containers:
+ * map, multimap, unordered_map, unoredered_multimap
+ */
+template<typename Map>
+inline char* json_pack_map(const Map& map,
+                                const bool&pretty = false, const unsigned& indent = 1, unsigned level = 0)
+{
+    jsonpack::buffer json;
+    type::json_traits< Map >::append(json, map, pretty, indent, level);
+    json.erase_last_comma();
+
+    return json.release();
+}
+
+/**
+ * Tempate function to deserialize arrays into standard sequences
+ * Allowed sequences:
+ * array, vector, deque, list, forward_list, set, multiset, unordered_set, unordered_multiset
+ */
+template<typename Map>
+inline void json_unpack_map(const char* json, const std::size_t &len, Map& map)
+{
+    object_t *obj = new object_t();
+
+    parser p;
+    if(p.json_validate(json, len, *obj))
+    {
+        value v(obj);
+
+        type::json_extract_traits< Map&, void >::extract(v, const_cast<char*>(json), map);
+    }
+    else
+    {
+        throw jsonpack::invalid_json(p.err_msg().c_str());
+    }
+}
 
 
 JSONPACK_API_END_NAMESPACE //jsonpack namespace

@@ -67,8 +67,6 @@ LIST (APPEND jsonpack_HEADERS
     include/jsonpack/parser.hpp
     include/jsonpack/types.hpp
     include/jsonpack/config.hpp
-    include/jsonpack/umap.hpp
-    include/jsonpack/vector.hpp
     include/jsonpack/util/builder.hpp
     include/jsonpack/util/utf8.hpp
     include/jsonpack/type/integers.hpp
@@ -77,6 +75,7 @@ LIST (APPEND jsonpack_HEADERS
     include/jsonpack/type/strings.hpp
     include/jsonpack/type/json_traits_base.hpp
     include/jsonpack/type/sequences/sequences.hpp
+    include/jsonpack/type/maps/maps.hpp
     include/jsonpack/3rdparty/dtoa.hpp
     include/jsonpack/3rdparty/format.h
     include/jsonpack/serializer/serializer_cpp03.h

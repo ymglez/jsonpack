@@ -20,6 +20,7 @@
 #define JSONPACK_TYPES_HPP
 
 #include "jsonpack/type/sequences/sequences.hpp"
+#include "jsonpack/type/maps/maps.hpp"
 
 
 #endif // JSONPACK_TYPES_HPP

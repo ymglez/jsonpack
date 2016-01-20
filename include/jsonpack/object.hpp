@@ -330,25 +330,25 @@ struct value
     /**
      * Type check
      */
-    bool is_null()
+    bool is_null() const
     { return (_field == _NULL || (_field == _POS && _pos._type == JTK_NULL ) ); }
 
-    bool is_boolean()
+    bool is_boolean() const
     { return (_field == _POS && ( _pos._type == JTK_TRUE || _pos._type == JTK_FALSE ) ); }
 
-    bool is_integer()
+    bool is_integer() const
     { return (_field == _POS && _pos._type == JTK_INTEGER ); }
 
-    bool is_real()
+    bool is_real() const
     { return (_field == _POS && _pos._type == JTK_REAL ); }
 
-    bool is_string()
+    bool is_string() const
     { return (_field == _POS && _pos._type == JTK_STRING_LITERAL ); }
 
-    bool is_object()
+    bool is_object() const
     { return (_field == _OBJ); }
 
-    bool is_array()
+    bool is_array() const
     { return (_field == _ARR); }
 
     /**
@@ -410,17 +410,25 @@ struct value
         return _obj->operator [](obj_key);
     }
 
-    std::vector<std::string> members()
+    std::vector<std::string> members() const
     {
         if(_field != _OBJ) throw type_error("current value is not an object!");
 
-        std::vector<std::string> m(_obj->size());
+        std::vector<std::string> m;
 
-        for(object_t::iterator pair  = _obj->begin(); pair != _obj->end(); pair++)
-            m.emplace_back( pair->first._ptr, pair->first._bytes);
+        for(object_t::iterator pair  = _obj->begin(); pair != _obj->end(); ++pair)
+        {
+            std::string name;
+            name.reserve(pair->first._bytes + 1);
+            name.resize(pair->first._bytes);
+            memcpy(const_cast<char*>(name.data()), pair->first._ptr, pair->first._bytes);
+
+            m.push_back(std::move(name));
+        }
 
         return m;
     }
+
 
     /**
      * Vector operations when json value is

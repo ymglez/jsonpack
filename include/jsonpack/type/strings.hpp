@@ -90,6 +90,7 @@ struct json_extract_traits<std::string&,void>
         position p = v._pos;
         if(p._type != JTK_NULL)
         {
+            value.clear();
             if (value.capacity() <  p._count + 1)
                 value.reserve(p._count + 1);
 
