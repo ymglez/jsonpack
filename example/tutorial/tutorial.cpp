@@ -8,8 +8,15 @@ struct  DataObject
         mCad("This, \" is a \", \'test"),
 		isObject(true),
         caracter('$'),
-        degrees({{"Washington", {12.5, 15.2}},{"Havana", {25.3, 23.4}},{"Singapour", {6.0}}})
-	{}
+        degrees()
+	{
+		std::vector<float> d;
+		d.push_back(12.5f);
+		d.push_back(15.2f);
+		d.push_back(6.0f);
+		degrees["Washington"] = d;
+		degrees["Havana"] = d;
+	}
 
 	int mInt;
 	float mFloat;

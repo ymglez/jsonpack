@@ -123,7 +123,7 @@ struct map_traits<Map&>
 
             type_t second = {};
 #else
-            key_t first;
+            std::string name;
             type_t second;
 #endif
 
